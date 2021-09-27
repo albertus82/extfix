@@ -1,32 +1,38 @@
 package com.github.albertus82.extfix;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
+import java.util.logging.Level;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.tika.Tika;
+import org.apache.tika.config.TikaConfig;
+import org.apache.tika.mime.MimeTypeException;
 
+import lombok.extern.java.Log;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ExitCode;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
+@Log
 @Command
 public class ExtFix implements Callable<Integer> {
 
-	private static final byte[] MAGIC_JPEG = { (byte) 0xff, (byte) 0xd8, (byte) 0xff, (byte) 0xe0 };
-	private static final byte[] MAGIC_PNG = { (byte) 0x89, (byte) 0x50, (byte) 0x4e, (byte) 0x47 };
+	private static final String[] EXTENSIONS = { "png", "PNG", "jpg", "JPG", "jpeg", "JPEG" };
+
+	final TikaConfig tikaConfig = TikaConfig.getDefaultConfig();
+	final Tika tika = new Tika(tikaConfig);
 
 	@Parameters
 	private Path basePath;
@@ -40,47 +46,39 @@ public class ExtFix implements Callable<Integer> {
 
 	@Override
 	public Integer call() throws IOException {
-		final Collection<File> files = FileUtils.listFiles(basePath.toFile(), null, true);
 		final Map<String, String> renames = new TreeMap<>();
-		System.out.println("Found " + files.size() + " files.");
-		for (final File f : files) {
-			final String contentType = probeContentType(f.toPath());
-			if (contentType == null) {
-				continue;
+		FileUtils.streamFiles(basePath.toFile(), true, EXTENSIONS).forEach(f -> {
+			try {
+				final String extension = FilenameUtils.getExtension(f.getName());
+				final String mediaType = tika.detect(f);
+				if (mediaType == null) {
+					log.log(Level.WARNING, "Cannot determine type of {0}.", f);
+				}
+				else {
+					final List<String> extensions = tikaConfig.getMimeRepository().forName(mediaType).getExtensions();
+					log.log(Level.FINE, "{0} - {1}", new Object[] { extensions, f });
+					if (!extensions.isEmpty() && extensions.stream().noneMatch(e -> e.equalsIgnoreCase('.' + extension))) {
+						final String oldName = f.getCanonicalPath();
+						final String newName = f.getCanonicalPath() + extensions.get(0);
+						renames.put(oldName, newName);
+						log.log(Level.FINE, "{0} -> {1}", new String[] { oldName, newName });
+					}
+				}
 			}
-			if (contentType.equalsIgnoreCase("jpeg") && !(f.getName().toLowerCase(Locale.ROOT).endsWith(".jpg") || f.getName().toLowerCase(Locale.ROOT).endsWith(".jpeg"))) {
-				renames.put(f.getCanonicalPath(), f.getCanonicalPath() + ".jpg");
+			catch (final MimeTypeException | RuntimeException | IOException e) {
+				log.log(Level.WARNING, e, () -> "Skipped " + f + ':');
 			}
-			if (contentType.equalsIgnoreCase("png") && !f.getName().toLowerCase(Locale.ROOT).endsWith(".png")) {
-				renames.put(f.getCanonicalPath(), f.getCanonicalPath() + ".png");
-			}
-		}
+		});
 
 		for (final Entry<String, String> e : renames.entrySet()) {
-			System.out.println(e.getKey() + " -> " + e.getValue());
+			log.log(Level.INFO, "{0} -> {1}", new String[] { e.getKey(), e.getValue() });
 			if (!dryRun) {
 				Files.move(Paths.get(e.getKey()), Paths.get(e.getValue()));
 			}
 		}
-		System.out.println(renames.size() + " file renamed.");
+		log.log(Level.INFO, "{0} files renamed.", renames.size());
 
 		return ExitCode.OK;
-	}
-
-	private static String probeContentType(final Path path) throws IOException {
-		if (path.toFile().length() >= 4) {
-			final byte[] header = new byte[4];
-			try (final InputStream is = Files.newInputStream(path)) {
-				is.read(header);
-			}
-			if (Arrays.equals(header, MAGIC_JPEG)) {
-				return "jpeg";
-			}
-			else if (Arrays.equals(header, MAGIC_PNG)) {
-				return "png";
-			}
-		}
-		return null;
 	}
 
 }
