@@ -68,11 +68,21 @@ public class ExtFix implements Callable<Integer> {
 				else {
 					final List<String> extensions = tikaConfig.getMimeRepository().forName(mediaType).getExtensions();
 					log.log(Level.FINE, "{0} <- {1}", new Object[] { extensions, path });
-					if (!extensions.isEmpty() && extensions.stream().noneMatch(e -> e.equalsIgnoreCase('.' + extension))) {
+					if (extensions.isEmpty()) {
+						log.log(Level.WARNING, "Cannot determine file extension for ''{0}''.", path);
+					}
+					else {
 						final String oldName = file.getCanonicalPath();
-						final String newName = file.getCanonicalPath() + extensions.get(0);
-						renames.put(oldName, newName);
-						log.log(Level.FINE, "{0} -> {1}", new String[] { oldName, newName });
+						if (extension.isEmpty()) {
+							final String newName = oldName + extensions.get(0);
+							renames.put(oldName, newName);
+							log.log(Level.FINE, "{0} -> {1}", new String[] { oldName, newName });
+						}
+						else if (extensions.stream().noneMatch(e -> e.equalsIgnoreCase('.' + extension))) {
+							final String newName = FilenameUtils.removeExtension(file.getCanonicalPath()) + extensions.get(0);
+							renames.put(oldName, newName);
+							log.log(Level.FINE, "{0} -> {1}", new String[] { oldName, newName });
+						}
 					}
 				}
 			}
