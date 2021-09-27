@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -68,7 +67,7 @@ public class ExtFix implements Callable<Integer> {
 				}
 				else {
 					final List<String> extensions = tikaConfig.getMimeRepository().forName(mediaType).getExtensions();
-					log.log(Level.FINE, "{0} - {1}", new Object[] { extensions, path });
+					log.log(Level.FINE, "{0} <- {1}", new Object[] { extensions, path });
 					if (!extensions.isEmpty() && extensions.stream().noneMatch(e -> e.equalsIgnoreCase('.' + extension))) {
 						final String oldName = file.getCanonicalPath();
 						final String newName = file.getCanonicalPath() + extensions.get(0);
@@ -87,7 +86,7 @@ public class ExtFix implements Callable<Integer> {
 		for (final Entry<String, String> e : renames.entrySet()) {
 			log.log(Level.INFO, "{0} -> {1}", new String[] { e.getKey(), e.getValue() });
 			if (!dryRun) {
-				Files.move(Paths.get(e.getKey()), Paths.get(e.getValue()));
+				Files.move(Path.of(e.getKey()), Path.of(e.getValue()));
 			}
 		}
 		log.log(Level.INFO, "{0} files renamed.", renames.size());
