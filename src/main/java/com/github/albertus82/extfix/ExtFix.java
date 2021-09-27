@@ -5,10 +5,12 @@ import java.io.IOException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
@@ -23,6 +25,7 @@ import org.apache.tika.Tika;
 import org.apache.tika.config.TikaConfig;
 import org.apache.tika.mime.MimeTypeException;
 
+import lombok.NonNull;
 import lombok.extern.java.Log;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -60,7 +63,6 @@ public class ExtFix implements Callable<Integer> {
 			count++;
 			final File file = path.toFile();
 			try {
-				final String extension = FilenameUtils.getExtension(file.getName());
 				final String mediaType = tika.detect(path);
 				if (mediaType == null) {
 					log.log(Level.WARNING, "Cannot determine type of ''{0}''.", path);
@@ -72,17 +74,10 @@ public class ExtFix implements Callable<Integer> {
 						log.log(Level.WARNING, "Cannot determine file extension for ''{0}''.", path);
 					}
 					else {
-						final String oldName = file.getCanonicalPath();
-						if (extension.isEmpty()) {
-							final String newName = oldName + extensions.get(0);
-							renames.put(oldName, newName);
-							log.log(Level.FINE, "{0} -> {1}", new String[] { oldName, newName });
-						}
-						else if (extensions.stream().noneMatch(e -> e.equalsIgnoreCase('.' + extension))) {
-							final String newName = FilenameUtils.removeExtension(file.getCanonicalPath()) + extensions.get(0);
-							renames.put(oldName, newName);
-							log.log(Level.FINE, "{0} -> {1}", new String[] { oldName, newName });
-						}
+						extracted(file, extensions).ifPresent(e -> {
+							renames.put(e.getKey(), e.getValue());
+							log.log(Level.FINE, "{0} -> {1}", new String[] { e.getKey(), e.getValue() });
+						});
 					}
 				}
 			}
@@ -102,6 +97,23 @@ public class ExtFix implements Callable<Integer> {
 		log.log(Level.INFO, "{0} files renamed.", renames.size());
 
 		return ExitCode.OK;
+	}
+
+	private static Optional<Entry<String, String>> extracted(@NonNull final File file, @NonNull final List<String> knownExtensions) throws IOException {
+		final String currentExtension = FilenameUtils.getExtension(file.getName());
+		final String oldName = file.getCanonicalPath();
+		final String bestExtension = knownExtensions.get(0);
+		if (currentExtension.isEmpty()) {
+			final String newName = oldName + bestExtension;
+			return Optional.of(new SimpleImmutableEntry<String, String>(oldName, newName));
+		}
+		else if (knownExtensions.stream().noneMatch(e -> e.equalsIgnoreCase('.' + currentExtension))) {
+			final String newName = FilenameUtils.removeExtension(file.getCanonicalPath()) + bestExtension;
+			return Optional.of(new SimpleImmutableEntry<String, String>(oldName, newName));
+		}
+		else {
+			return Optional.empty();
+		}
 	}
 
 }
