@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +33,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Log
-@Command
+@Command(mixinStandardHelpOptions = true, versionProvider = VersionProvider.class)
 public class ExtFix implements Callable<Integer> {
 
 	private final TikaConfig tikaConfig = TikaConfig.getDefaultConfig();
@@ -71,9 +70,9 @@ public class ExtFix implements Callable<Integer> {
 						log.log(Level.WARNING, "Cannot determine file extension for ''{0}''.", file);
 					}
 					else {
-						fix(file, extensions).ifPresent(e -> {
-							renames.put(e.getKey(), e.getValue());
-							log.log(Level.FINE, "{0} -> {1}", new String[] { e.getKey(), e.getValue() });
+						fixFileName(file.getName(), extensions).ifPresent(newName -> {
+							renames.put(file.getName(), newName);
+							log.log(Level.FINE, "{0} -> {1}", new Object[] { file, newName });
 						});
 					}
 				}
@@ -103,17 +102,14 @@ public class ExtFix implements Callable<Integer> {
 		return suffixes;
 	}
 
-	private static Optional<Entry<String, String>> fix(@NonNull final File file, @NonNull final List<String> knownExtensions) throws IOException {
-		final String currentExtension = FilenameUtils.getExtension(file.getName());
-		final String oldName = file.getCanonicalPath();
+	private static Optional<String> fixFileName(@NonNull final String currentFileName, @NonNull final List<String> knownExtensions) {
+		final String currentExtension = FilenameUtils.getExtension(currentFileName);
 		final String bestExtension = knownExtensions.get(0);
 		if (currentExtension.isEmpty()) {
-			final String newName = oldName + bestExtension;
-			return Optional.of(new SimpleImmutableEntry<String, String>(oldName, newName));
+			return Optional.of(currentFileName + bestExtension);
 		}
 		else if (knownExtensions.stream().noneMatch(e -> e.equalsIgnoreCase('.' + currentExtension))) {
-			final String newName = FilenameUtils.removeExtension(oldName) + bestExtension;
-			return Optional.of(new SimpleImmutableEntry<String, String>(oldName, newName));
+			return Optional.of(FilenameUtils.removeExtension(currentFileName) + bestExtension);
 		}
 		else {
 			return Optional.empty();
