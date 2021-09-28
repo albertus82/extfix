@@ -264,18 +264,34 @@
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>3.3.0</version>
 				<configuration>
-					<outputTimestamp>${zoned.git.commit.time}</outputTimestamp>
 					<finalName>${project.artifactId}-${project.version}</finalName>
-					<descriptors>
-						<descriptor>src/assembly/assembly.xml</descriptor>
-					</descriptors>
 				</configuration>
 				<executions>
 					<execution>
+						<id>unix</id>
 						<phase>package</phase>
 						<goals>
 							<goal>single</goal>
 						</goals>
+						<configuration>
+							<outputTimestamp>${zoned.git.commit.time}</outputTimestamp>
+							<descriptors>
+								<descriptor>src/assembly/unix.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+					<execution>
+						<id>windows</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<outputTimestamp>${local.git.commit.time}</outputTimestamp>
+							<descriptors>
+								<descriptor>src/assembly/windows.xml</descriptor>
+							</descriptors>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -340,6 +356,7 @@
 									pattern="* {1}&#13;&#10;[`{0}`](https://www.virustotal.com/it/file/{0}/analysis/)">
 									<fileset dir="${project.build.directory}">
 										<include name="*.tar.gz" />
+										<include name="*.zip" />
 									</fileset>
 								</checksum>
 								<echo file="${checksums.file}"
