@@ -1,6 +1,5 @@
 package com.github.albertus82.extfix;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
@@ -54,41 +53,42 @@ public class ExtFix implements Callable<Integer> {
 	@Override
 	public Integer call() throws IOException {
 		basePath = basePath.toFile().getCanonicalFile().toPath();
-		final Map<String, String> renames = new TreeMap<>();
+		log.log(Level.INFO, "Base path: ''{0}''.", basePath);
+		final Map<Path, Path> renames = new TreeMap<>();
 		final Stream<Path> stream = PathUtils.walk(basePath, CanReadFileFilter.CAN_READ.and(new SuffixFileFilter(getSuffixes(), IOCase.INSENSITIVE)), Short.MAX_VALUE, false, FileVisitOption.FOLLOW_LINKS);
-		stream.filter(path -> path.getFileName() != null).forEach(path -> {
+		stream.filter(path -> path.getFileName() != null).forEach(p -> {
 			try {
-				final File file = path.toFile().getCanonicalFile();
-				final String mediaType = tika.detect(file);
+				final Path path = p.toFile().getCanonicalFile().toPath();
+				final String mediaType = tika.detect(path);
 				if (mediaType == null) {
-					log.log(Level.WARNING, "Cannot determine type of ''{0}''.", file);
+					log.log(Level.WARNING, "Cannot determine type of ''{0}''.", path);
 				}
 				else {
 					final List<String> extensions = tikaConfig.getMimeRepository().forName(mediaType).getExtensions();
-					log.log(Level.FINE, "{0} <- {1}", new Object[] { extensions, file });
+					log.log(Level.FINE, "{0} <- {1}", new Object[] { extensions, path });
 					if (extensions.isEmpty()) {
-						log.log(Level.WARNING, "Cannot determine file extension for ''{0}''.", file);
+						log.log(Level.WARNING, "Cannot determine file extension for ''{0}''.", path);
 					}
 					else {
-						fixFileName(file.getName(), extensions).ifPresent(newName -> {
-							renames.put(file.getName(), newName);
-							log.log(Level.FINE, "{0} -> {1}", new Object[] { file, newName });
+						fixFileName(path, extensions).ifPresent(fixed -> {
+							renames.put(path, fixed);
+							log.log(Level.FINE, "{0} -> {1}", new Path[] { path, fixed });
 						});
 					}
 				}
 				count++;
 			}
 			catch (final MimeTypeException | RuntimeException | IOException e) {
-				log.log(Level.WARNING, e, () -> "Skipped '" + path + "':");
+				log.log(Level.WARNING, e, () -> "Skipped '" + p + "':");
 			}
 		});
 
 		log.log(Level.INFO, "{0} files analyzed.", count);
 
-		for (final Entry<String, String> e : renames.entrySet()) {
-			log.log(Level.INFO, "{0} -> {1}", new String[] { e.getKey(), e.getValue() });
+		for (final Entry<Path, Path> e : renames.entrySet()) {
+			log.log(Level.INFO, "{0} -> {1}", new Path[] { e.getKey(), e.getValue() });
 			if (!dryRun) {
-				Files.move(Path.of(e.getKey()), Path.of(e.getValue()));
+				Files.move(e.getKey(), e.getValue());
 			}
 		}
 		log.log(Level.INFO, "{0} files renamed.", renames.size());
@@ -102,14 +102,15 @@ public class ExtFix implements Callable<Integer> {
 		return suffixes;
 	}
 
-	static Optional<String> fixFileName(@NonNull final String currentFileName, @NonNull final List<String> knownExtensions) {
+	static Optional<Path> fixFileName(@NonNull final Path file, @NonNull final List<String> knownExtensions) {
+		final String currentFileName = file.toString();
 		final String currentExtension = FilenameUtils.getExtension(currentFileName);
 		final String bestExtension = knownExtensions.get(0);
 		if (currentExtension.isEmpty()) {
-			return Optional.of(currentFileName + bestExtension);
+			return Optional.of(Path.of(currentFileName + bestExtension));
 		}
 		else if (knownExtensions.stream().noneMatch(e -> e.equalsIgnoreCase('.' + currentExtension))) {
-			return Optional.of(FilenameUtils.removeExtension(currentFileName) + bestExtension);
+			return Optional.of(Path.of(FilenameUtils.removeExtension(currentFileName) + bestExtension));
 		}
 		else {
 			return Optional.empty();
