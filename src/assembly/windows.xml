@@ -40,6 +40,12 @@
 			<outputDirectory>${thirdparty.license.directory}</outputDirectory>
 			<lineEnding>crlf</lineEnding>
 		</fileSet>
+		<fileSet>
+			<directory>src/main/bin/windows</directory>
+			<outputDirectory>./</outputDirectory>
+			<filtered>true</filtered>
+			<lineEnding>crlf</lineEnding>
+		</fileSet>
 	</fileSets>
 
 </assembly>

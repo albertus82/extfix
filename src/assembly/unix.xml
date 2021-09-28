@@ -41,7 +41,7 @@
 			<lineEnding>lf</lineEnding>
 		</fileSet>
 		<fileSet>
-			<directory>src/main/bin</directory>
+			<directory>src/main/bin/unix</directory>
 			<outputDirectory>./</outputDirectory>
 			<filtered>true</filtered>
 			<lineEnding>lf</lineEnding>
