@@ -14,7 +14,7 @@ public enum Extensions {
 
 	INSTANCE;
 
-	private static final String RESOURCE_NAME = "extensions.txt";
+	private static final String RESOURCE_NAME = "extensions.lst";
 
 	private final Set<String> set = new TreeSet<>();
 
