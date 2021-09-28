@@ -96,14 +96,14 @@ public class ExtFix implements Callable<Integer> {
 		return ExitCode.OK;
 	}
 
-	private static String[] getSuffixes() {
+	static String[] getSuffixes() {
 		final String[] suffixes = Extensions.array();
 		log.log(Level.INFO, "Extensions: {0}.", Arrays.toString(suffixes));
 		return suffixes;
 	}
 
-	static Optional<Path> fixFileName(@NonNull final Path file, @NonNull final List<String> knownExtensions) {
-		final String currentFileName = file.toString();
+	static Optional<Path> fixFileName(@NonNull final Path path, @NonNull final List<String> knownExtensions) {
+		final String currentFileName = path.toString();
 		final String currentExtension = FilenameUtils.getExtension(currentFileName);
 		final String bestExtension = knownExtensions.get(0);
 		if (currentExtension.isEmpty()) {
