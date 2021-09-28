@@ -78,8 +78,11 @@ public class ExtFix implements Callable<Integer> {
 				}
 				count++;
 			}
-			catch (final MimeTypeException | RuntimeException | IOException e) {
+			catch (final MimeTypeException | IOException e) {
 				log.log(Level.WARNING, e, () -> "Skipped '" + p + "':");
+			}
+			catch (final RuntimeException e) {
+				log.log(Level.SEVERE, e, () -> "Skipped '" + p + "':");
 			}
 		});
 
