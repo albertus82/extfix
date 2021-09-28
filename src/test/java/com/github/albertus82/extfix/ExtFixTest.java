@@ -32,4 +32,9 @@ class ExtFixTest {
 		}
 	}
 
+	@Test
+	void testFixFileName() {
+
+	}
+
 }

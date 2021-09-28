@@ -33,7 +33,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Log
-@Command(mixinStandardHelpOptions = true, versionProvider = VersionProvider.class)
+@Command(description = "File Extension Fix Tool", mixinStandardHelpOptions = true, versionProvider = VersionProvider.class)
 public class ExtFix implements Callable<Integer> {
 
 	private final TikaConfig tikaConfig = TikaConfig.getDefaultConfig();
@@ -102,7 +102,7 @@ public class ExtFix implements Callable<Integer> {
 		return suffixes;
 	}
 
-	private static Optional<String> fixFileName(@NonNull final String currentFileName, @NonNull final List<String> knownExtensions) {
+	static Optional<String> fixFileName(@NonNull final String currentFileName, @NonNull final List<String> knownExtensions) {
 		final String currentExtension = FilenameUtils.getExtension(currentFileName);
 		final String bestExtension = knownExtensions.get(0);
 		if (currentExtension.isEmpty()) {
