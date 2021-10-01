@@ -37,11 +37,6 @@ class ExtFixTest {
 	}
 
 	@Test
-	void testGetSuffixes() {
-		Assertions.assertNotNull(ExtFix.getSuffixes());
-	}
-
-	@Test
 	void testFixFileName() {
 		Assertions.assertEquals(Optional.empty(), ExtFix.fixFileName(Path.of("/tmp/foo.txt"), List.of(".txt")));
 		Assertions.assertEquals(Optional.empty(), ExtFix.fixFileName(Path.of("/tmp/foo.TXT"), List.of(".txt", ".bar")));
