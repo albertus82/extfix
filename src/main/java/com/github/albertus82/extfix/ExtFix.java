@@ -72,13 +72,13 @@ public class ExtFix implements Callable<Integer> {
 					log.log(Level.WARNING, "Cannot determine type of ''{0}''.", path);
 				}
 				else {
-					final List<String> extensions = tikaConfig.getMimeRepository().forName(mediaType).getExtensions();
-					log.log(Level.FINE, "{0} <- {1}", new Object[] { extensions, path });
-					if (extensions.isEmpty()) {
+					final List<String> exts = tikaConfig.getMimeRepository().forName(mediaType).getExtensions();
+					log.log(Level.FINE, "{0} <- {1}", new Object[] { exts, path });
+					if (exts.isEmpty()) {
 						log.log(Level.WARNING, "Cannot determine file extension for ''{0}''.", path);
 					}
 					else {
-						fixFileName(path, extensions).ifPresent(fixed -> {
+						fixFileName(path, exts).ifPresent(fixed -> {
 							renames.put(path, fixed);
 							log.log(Level.FINE, "{0} -> {1}", new Path[] { path, fixed });
 						});
