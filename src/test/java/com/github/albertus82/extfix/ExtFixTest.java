@@ -15,7 +15,7 @@ class ExtFixTest {
 
 	@Test
 	void test() throws IOException {
-		final Tika tika = new ExtFix().tika;
+		final Tika tika = new ExtFix().getTika();
 		try (final InputStream is = getClass().getResourceAsStream("/jpeg.jpg")) {
 			Assertions.assertTrue(tika.detect(is).endsWith("jpeg"));
 		}
