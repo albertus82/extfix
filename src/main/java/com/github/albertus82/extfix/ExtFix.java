@@ -59,10 +59,10 @@ public class ExtFix implements Callable<Integer> {
 
 		private final Set<String> set = new TreeSet<>();
 
-		@Option(names = "-e", paramLabel = "<EXT>", required = true, description = "File extension to treat.")
+		@Option(names = { "-e", "--ext" }, paramLabel = "<EXT>", required = true, description = "File extension to treat.")
 		private String[] array;
 
-		@Option(names = "-f", paramLabel = "<FILE>", required = true, description = "File containing a list of extensions to treat.")
+		@Option(names = { "-f", "--file" }, paramLabel = "<FILE>", required = true, description = "File containing a list of extensions to treat.")
 		private Path path;
 
 		public String[] array() {
