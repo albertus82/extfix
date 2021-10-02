@@ -41,7 +41,7 @@
 			<lineEnding>crlf</lineEnding>
 		</fileSet>
 		<fileSet>
-			<directory>target</directory>
+			<directory>${project.build.directory}</directory>
 			<includes>
 				<include>*.exe</include>
 			</includes>
