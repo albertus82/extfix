@@ -33,12 +33,12 @@
 				<include>README*</include>
 			</includes>
 			<outputDirectory>./</outputDirectory>
-			<lineEnding>crlf</lineEnding>
+			<lineEnding>windows</lineEnding>
 		</fileSet>
 		<fileSet>
 			<directory>${project.basedir}/${thirdparty.license.directory}</directory>
 			<outputDirectory>${thirdparty.license.directory}</outputDirectory>
-			<lineEnding>crlf</lineEnding>
+			<lineEnding>windows</lineEnding>
 		</fileSet>
 		<fileSet>
 			<directory>${project.build.directory}</directory>

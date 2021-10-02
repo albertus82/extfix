@@ -33,18 +33,18 @@
 				<include>README*</include>
 			</includes>
 			<outputDirectory>./</outputDirectory>
-			<lineEnding>lf</lineEnding>
+			<lineEnding>unix</lineEnding>
 		</fileSet>
 		<fileSet>
 			<directory>${project.basedir}/${thirdparty.license.directory}</directory>
 			<outputDirectory>${thirdparty.license.directory}</outputDirectory>
-			<lineEnding>lf</lineEnding>
+			<lineEnding>unix</lineEnding>
 		</fileSet>
 		<fileSet>
 			<directory>src/main/bin/unix</directory>
 			<outputDirectory>./</outputDirectory>
 			<filtered>true</filtered>
-			<lineEnding>lf</lineEnding>
+			<lineEnding>unix</lineEnding>
 			<fileMode>0755</fileMode>
 		</fileSet>
 	</fileSets>
