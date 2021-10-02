@@ -112,7 +112,7 @@ public class ExtFix implements Callable<Integer> {
 		return ExitCode.OK;
 	}
 
-	private void rename(@NonNull final Path source, @NonNull Path target) throws IOException {
+	Path rename(@NonNull final Path source, @NonNull Path target) throws IOException { // non-private for test only access
 		int i = 0;
 		while (Files.exists(target)) {
 			target = Path.of(FilenameUtils.removeExtension(target.toString()) + " (" + ++i + ")." + FilenameUtils.getExtension(target.toString()));
@@ -121,6 +121,7 @@ public class ExtFix implements Callable<Integer> {
 		if (!dryRun) {
 			Files.move(source, target);
 		}
+		return target;
 	}
 
 	static Optional<Path> fixFileName(@NonNull final Path path, @NonNull final List<String> knownExtensions) { // non-private for test only access

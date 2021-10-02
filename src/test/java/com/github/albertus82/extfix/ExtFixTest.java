@@ -116,9 +116,19 @@ class ExtFixTest {
 		Assertions.assertTrue(ExtFix.fixFileName(Path.of("/tmp/foo"), List.of(".txt")).get().toString().endsWith(".txt"));
 		Assertions.assertTrue(ExtFix.fixFileName(Path.of("/tmp/foo"), List.of(".BAR", ".txt")).get().toString().endsWith(".BAR"));
 		Assertions.assertTrue(ExtFix.fixFileName(Path.of("/tmp/foo.bar"), List.of(".lst", ".txt")).get().toString().endsWith(".lst"));
-		Assertions.assertThrows(NullPointerException.class, () -> ExtFix.fixFileName(null, Collections.emptyList()));
-		Assertions.assertThrows(NullPointerException.class, () -> ExtFix.fixFileName(Path.of("/tmp/foo.bar"), null));
+		final List<String> list = Collections.emptyList();
+		Assertions.assertThrows(NullPointerException.class, () -> ExtFix.fixFileName(null, list));
+		final Path path = Path.of("/tmp/foo.bar");
+		Assertions.assertThrows(NullPointerException.class, () -> ExtFix.fixFileName(path, null));
 		Assertions.assertThrows(NullPointerException.class, () -> ExtFix.fixFileName(null, null));
+	}
+
+	void testRename() {
+		final ExtFix extFix = new ExtFix();
+		Assertions.assertThrows(NullPointerException.class, () -> extFix.rename(null, null));
+		final Path path = Path.of("/tmp/foo.bar");
+		Assertions.assertThrows(NullPointerException.class, () -> extFix.rename(null, path));
+		Assertions.assertThrows(NullPointerException.class, () -> extFix.rename(path, null));
 	}
 
 }
