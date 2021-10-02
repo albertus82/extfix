@@ -17,7 +17,7 @@ class ExtFixTest {
 	@Test
 	void test() throws IOException {
 		final boolean dryRun = false;
-		FileTestUtils.runWithTempPath(path -> {
+		FileTestUtils.runWithTempDir(path -> {
 			final Path p3 = FileTestUtils.copyResourceToDir("jpeg.png", path);
 			final Path p4 = FileTestUtils.copyResourceToDir("png.jpeg", path);
 			final Path p5 = FileTestUtils.copyResourceToDir("png.jpg", path);
@@ -39,7 +39,7 @@ class ExtFixTest {
 	@Test
 	void testAutoRename() throws IOException {
 		final boolean dryRun = false;
-		FileTestUtils.runWithTempPath(path -> {
+		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.jpeg", path);
 			final Path p2 = FileTestUtils.copyResourceToDir("jpeg.jpg", path);
 			final Path p3 = FileTestUtils.copyResourceToDir("jpeg.png", path);
@@ -64,7 +64,7 @@ class ExtFixTest {
 	@Test
 	void testDryRun() throws IOException {
 		final boolean dryRun = true;
-		FileTestUtils.runWithTempPath(path -> {
+		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.jpeg", path);
 			final Path p2 = FileTestUtils.copyResourceToDir("jpeg.jpg", path);
 			final Path p3 = FileTestUtils.copyResourceToDir("jpeg.png", path);

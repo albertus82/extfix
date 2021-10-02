@@ -18,7 +18,7 @@ import lombok.extern.java.Log;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FileTestUtils {
 
-	public static <T extends Throwable> void runWithTempPath(final TempPathExec<T> exec) throws IOException, T {
+	public static <T extends Throwable> void runWithTempDir(final TempDirExec<T> exec) throws IOException, T {
 		final String uuid = UUID.randomUUID().toString().replace("-", "");
 		final File tempFile = File.createTempFile(uuid, null);
 		final File tempDir = new File(tempFile.getParent() + File.separator + uuid);
