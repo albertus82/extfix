@@ -2,6 +2,9 @@ package com.github.albertus82.extfix;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -13,7 +16,7 @@ import lombok.extern.java.Log;
 
 @Log
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class TestRunner {
+public class FileTests {
 
 	public static <T extends Throwable> void withTempPath(final TempPathExec<T> exec) throws IOException, T {
 		final String uuid = UUID.randomUUID().toString().replace("-", "");
@@ -37,6 +40,15 @@ public class TestRunner {
 				log.log(Level.WARNING, "Cannot delete temporary directory \"" + tempDir + "\":", e);
 			}
 		}
+	}
+
+	public static Path copyResourceToDir(final String resourceName, final Path destDir) throws IOException {
+		final Path target = Path.of(destDir.toString(), resourceName);
+		try (final InputStream in = FileTests.class.getResourceAsStream('/' + resourceName)) {
+			Files.copy(in, target);
+			log.log(Level.INFO, "Created temporary file \"{0}\".", target);
+		}
+		return target;
 	}
 
 }

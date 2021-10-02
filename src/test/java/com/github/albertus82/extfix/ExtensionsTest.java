@@ -1,21 +1,15 @@
 package com.github.albertus82.extfix;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import lombok.extern.java.Log;
-
-@Log
 class ExtensionsTest {
 
 	@Test
@@ -29,13 +23,8 @@ class ExtensionsTest {
 		final Extensions e3 = new Extensions(new String[] { "png", ".JPG" }, null);
 		Assertions.assertArrayEquals(new String[] { ".jpg", ".png" }, e3.array());
 
-		TestRunner.withTempPath(path -> {
-			final String fileName = "test-array-1.lst";
-			final Path target = Path.of(path.toString(), fileName);
-			try (final InputStream in = getClass().getResourceAsStream('/' + fileName)) {
-				Files.copy(in, target);
-				log.log(Level.INFO, "Created temporary file \"{0}\".", target);
-			}
+		FileTests.withTempPath(path -> {
+			final Path target = FileTests.copyResourceToDir("test-array-1.lst", path);
 			final Extensions e4 = new Extensions(null, target);
 			Assertions.assertArrayEquals(new String[] { ".jpeg", ".jpg", ".png" }, e4.array());
 		});
@@ -68,16 +57,11 @@ class ExtensionsTest {
 
 	@Test
 	void testFromPath() throws IOException {
-		TestRunner.withTempPath(path -> {
+		FileTests.withTempPath(path -> {
 			final Map<Integer, Path> fileMap = new HashMap<>();
 			for (int i = 1; i <= 5; i++) {
-				final String fileName = "test-from-path-" + i + ".lst";
-				final Path target = Path.of(path.toString(), fileName);
-				try (final InputStream in = getClass().getResourceAsStream('/' + fileName)) {
-					Files.copy(in, target);
-					fileMap.put(i, target);
-					log.log(Level.INFO, "Created temporary file \"{0}\".", target);
-				}
+				final Path target = FileTests.copyResourceToDir("test-from-path-" + i + ".lst", path);
+				fileMap.put(i, target);
 			}
 			Assertions.assertEquals(Set.of(".pdf"), Extensions.from(fileMap.get(1)));
 			Assertions.assertEquals(Set.of(".pdf"), Extensions.from(fileMap.get(2)));

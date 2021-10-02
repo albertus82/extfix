@@ -24,6 +24,7 @@ import org.apache.tika.mime.MimeTypeException;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import picocli.CommandLine;
@@ -34,6 +35,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Log
+@NoArgsConstructor
 @Command(description = "File Extension Fix Tool", mixinStandardHelpOptions = true, versionProvider = VersionProvider.class)
 public class ExtFix implements Callable<Integer> {
 
@@ -50,6 +52,12 @@ public class ExtFix implements Callable<Integer> {
 
 	@ArgGroup(exclusive = true, multiplicity = "1")
 	private Extensions extensions;
+
+	ExtFix(@NonNull final Path basePath, final boolean dryRun, @NonNull final Extensions extensions) { // for test only access
+		this.basePath = basePath;
+		this.dryRun = dryRun;
+		this.extensions = extensions;
+	}
 
 	public static void main(final String... args) {
 		System.exit(new CommandLine(new ExtFix()).setCommandName(BuildInfo.getProperty("project.artifactId")).setOptionsCaseInsensitive(true).execute(args));
@@ -97,9 +105,14 @@ public class ExtFix implements Callable<Integer> {
 		log.log(Level.INFO, "{0} files analyzed.", count);
 
 		for (final Entry<Path, Path> e : renames.entrySet()) {
-			log.log(Level.INFO, "{0} -> {1}", new Path[] { e.getKey(), e.getValue() });
+			Path target = e.getValue();
+			int i = 0;
+			while (Files.exists(target)) {
+				target = Path.of(FilenameUtils.removeExtension(target.toString()) + " (" + ++i + ")." + FilenameUtils.getExtension(target.toString()));
+			}
+			log.log(Level.INFO, "{0} -> {1}", new Path[] { e.getKey(), target });
 			if (!dryRun) {
-				Files.move(e.getKey(), e.getValue());
+				Files.move(e.getKey(), target);
 			}
 		}
 		log.log(Level.INFO, "{0} files renamed.", renames.size());

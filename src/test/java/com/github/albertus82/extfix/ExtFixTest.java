@@ -2,6 +2,7 @@ package com.github.albertus82.extfix;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
@@ -15,6 +16,76 @@ class ExtFixTest {
 
 	@Test
 	void test() throws IOException {
+		final boolean dryRun = false;
+		FileTests.withTempPath(path -> {
+			final Path p3 = FileTests.copyResourceToDir("jpeg.png", path);
+			final Path p4 = FileTests.copyResourceToDir("png.jpeg", path);
+			final Path p5 = FileTests.copyResourceToDir("png.jpg", path);
+
+			final ExtFix e1 = new ExtFix(path, dryRun, new Extensions(new String[] { "jpg", "png" }, null));
+			e1.call();
+			Assertions.assertFalse(Files.exists(p3));
+			Assertions.assertTrue(Files.exists(p4)); // "jpeg" is not included in Extensions
+			Assertions.assertFalse(Files.exists(p5));
+			Assertions.assertEquals(3, Files.list(path).count());
+
+			final ExtFix e2 = new ExtFix(path, dryRun, new Extensions(new String[] { "jpeg" }, null));
+			e2.call();
+			Assertions.assertFalse(Files.exists(p4));
+			Assertions.assertEquals(3, Files.list(path).count());
+		});
+	}
+
+	@Test
+	void testAutoRename() throws IOException {
+		final boolean dryRun = false;
+		FileTests.withTempPath(path -> {
+			final Path p1 = FileTests.copyResourceToDir("jpeg.jpeg", path);
+			final Path p2 = FileTests.copyResourceToDir("jpeg.jpg", path);
+			final Path p3 = FileTests.copyResourceToDir("jpeg.png", path);
+			final Path p4 = FileTests.copyResourceToDir("png.jpeg", path);
+			final Path p5 = FileTests.copyResourceToDir("png.jpg", path);
+			final Path p6 = FileTests.copyResourceToDir("png.png", path);
+
+			final ExtFix e1 = new ExtFix(path, dryRun, new Extensions(new String[] { "jpg", "png" }, null));
+			e1.call();
+			Assertions.assertTrue(Files.exists(p1));
+			Assertions.assertTrue(Files.exists(p2));
+			Assertions.assertFalse(Files.exists(p3));
+			Assertions.assertTrue(Files.exists(p4)); // "jpeg" is not included in Extensions
+			Assertions.assertFalse(Files.exists(p5));
+			Assertions.assertTrue(Files.exists(p6));
+			Assertions.assertTrue(Files.exists(Path.of(p3.toString().replace("jpeg.png", "jpeg (1).jpg"))));
+			Assertions.assertTrue(Files.exists(Path.of(p5.toString().replace("png.jpg", "png (1).png"))));
+			Assertions.assertEquals(6, Files.list(path).count());
+		});
+	}
+
+	@Test
+	void testDryRun() throws IOException {
+		final boolean dryRun = true;
+		FileTests.withTempPath(path -> {
+			final Path p1 = FileTests.copyResourceToDir("jpeg.jpeg", path);
+			final Path p2 = FileTests.copyResourceToDir("jpeg.jpg", path);
+			final Path p3 = FileTests.copyResourceToDir("jpeg.png", path);
+			final Path p4 = FileTests.copyResourceToDir("png.jpeg", path);
+			final Path p5 = FileTests.copyResourceToDir("png.jpg", path);
+			final Path p6 = FileTests.copyResourceToDir("png.png", path);
+
+			final ExtFix e1 = new ExtFix(path, dryRun, new Extensions(new String[] { "jpg", "png", "jpeg" }, null));
+			e1.call();
+			Assertions.assertTrue(Files.exists(p1));
+			Assertions.assertTrue(Files.exists(p2));
+			Assertions.assertTrue(Files.exists(p3));
+			Assertions.assertTrue(Files.exists(p4));
+			Assertions.assertTrue(Files.exists(p5));
+			Assertions.assertTrue(Files.exists(p6));
+			Assertions.assertEquals(6, Files.list(path).count());
+		});
+	}
+
+	@Test
+	void testTika() throws IOException {
 		final Tika tika = new ExtFix().getTika();
 		try (final InputStream is = getClass().getResourceAsStream("/jpeg.jpg")) {
 			Assertions.assertTrue(tika.detect(is).endsWith("jpeg"));
