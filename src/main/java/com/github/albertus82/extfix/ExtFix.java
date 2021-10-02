@@ -78,7 +78,6 @@ public class ExtFix implements Callable<Integer> {
 	public Integer call() throws IOException {
 		basePath = basePath.toFile().getCanonicalFile().toPath();
 		System.out.println("Base path: '" + basePath + "'.");
-		final Map<Path, Path> renames = new TreeMap<>();
 
 		final List<String> suffixes = extensions.get();
 		System.out.println("Extensions: " + suffixes + '.');
@@ -89,8 +88,11 @@ public class ExtFix implements Callable<Integer> {
 		}
 
 		final Stream<Path> stream = PathUtils.walk(basePath, CanReadFileFilter.CAN_READ.and(new SuffixFileFilter(suffixes, IOCase.INSENSITIVE)), Short.MAX_VALUE, false, option.toArray(new FileVisitOption[option.size()]));
+
 		System.out.print("Analyzing... ");
 		System.out.print(getWaitChar());
+
+		final Map<Path, Path> renames = new TreeMap<>();
 		stream.filter(path -> path.getFileName() != null).forEach(p -> {
 			try {
 				final Path path = p.toFile().getCanonicalFile().toPath();
