@@ -2,8 +2,6 @@
 <!DOCTYPE project>
 <project>
 
-	<property name="launch4j.directory" value="${basedir}/ant/launch4j" />
-
 	<target name="lombok">
 		<propertyfile file="lombok.config" jdkproperties="true">
 			<entry key="config.stopBubbling" value="true" />
@@ -36,6 +34,8 @@
 	</target>
 
 	<target name="launch4j">
+		<property name="launch4j.directory" value="${basedir}/ant/launch4j" />
+
 		<echo level="debug" message="os.name: ${os.name}" />
 		<echo level="debug" message="os.version: ${os.version}" />
 		<echo level="debug" message="os.arch: ${os.arch}" />
