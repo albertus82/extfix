@@ -43,6 +43,8 @@ import picocli.CommandLine.Parameters;
 @SuppressWarnings("java:S106") // Replace this use of System.out or System.err by a logger. Standard outputs should not be used directly to log anything (java:S106)
 public class ExtFix implements Callable<Integer> {
 
+	private static final String ANALYZING = "Analyzing... ";
+
 	private final TikaConfig tikaConfig = TikaConfig.getDefaultConfig();
 
 	@Getter(value = AccessLevel.PACKAGE) // for test only access
@@ -83,43 +85,43 @@ public class ExtFix implements Callable<Integer> {
 		final List<String> suffixes = extensions.get();
 		System.out.println("Extensions: " + suffixes + '.');
 
-		System.out.print("Analyzing... ");
+		System.out.print(ANALYZING);
 		System.out.print(getWaitChar());
 
 		final Map<Path, Path> renames = new TreeMap<>();
 		Files.walkFileTree(basePath, links ? EnumSet.of(FileVisitOption.FOLLOW_LINKS) : Collections.emptySet(), Short.MAX_VALUE, new FileVisitor<Path>() {
 			@Override
-			public FileVisitResult preVisitDirectory(@NonNull final Path dir, final BasicFileAttributes attrs) {
+			public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) {
 				return FileVisitResult.CONTINUE;
 			}
 
 			@Override
-			public FileVisitResult visitFile(@NonNull final Path p, final BasicFileAttributes attrs) {
-				if (FileVisitResult.CONTINUE.equals((new SuffixFileFilter(suffixes, IOCase.INSENSITIVE)).accept(p, attrs))) {
-					if (FileVisitResult.CONTINUE.equals(CanReadFileFilter.CAN_READ.accept(p, attrs))) {
+			public FileVisitResult visitFile(@NonNull Path path, final BasicFileAttributes attrs) {
+				if (FileVisitResult.CONTINUE.equals((new SuffixFileFilter(suffixes, IOCase.INSENSITIVE)).accept(path, attrs))) {
+					if (FileVisitResult.CONTINUE.equals(CanReadFileFilter.CAN_READ.accept(path, attrs))) {
 						try {
-							final Path path = p.toFile().getCanonicalFile().toPath();
+							path = path.toFile().getCanonicalFile().toPath();
 							final String mediaType = tika.detect(path);
 							if (mediaType == null) {
-								System.out.println();
+								clearConsoleLine();
 								System.out.println("Cannot determine type of '" + path + "'.");
-								System.out.print("Analyzing... ");
+								System.out.print(ANALYZING);
 							}
 							else {
 								final List<String> exts = tikaConfig.getMimeRepository().forName(mediaType).getExtensions();
 								log.debug("{} <- {}", exts, path);
 								if (exts.isEmpty()) {
-									System.out.println();
+									clearConsoleLine();
 									System.out.println("Cannot determine extension for '" + path + "'.");
-									System.out.print("Analyzing... ");
+									System.out.print(ANALYZING);
 								}
 								else {
 									final Optional<Path> fixed = fixFileName(path, exts);
 									if (fixed.isPresent()) {
 										renames.put(path, fixed.get());
-										System.out.println();
+										clearConsoleLine();
 										System.out.println("Found " + FilenameUtils.getExtension(fixed.get().toString()).toUpperCase() + " file with wrong extension: '" + path + "'.");
-										System.out.print("Analyzing... ");
+										System.out.print(ANALYZING);
 									}
 									else {
 										System.out.print('\b');
@@ -130,42 +132,42 @@ public class ExtFix implements Callable<Integer> {
 							System.out.print(getWaitChar());
 						}
 						catch (final MimeTypeException | IOException | RuntimeException e) {
-							System.out.println();
+							clearConsoleLine();
 							if (errors) {
 								e.printStackTrace();
 							}
-							System.out.println("Skipping '" + p + "' due to an exception: " + e);
-							System.out.print("Analyzing... ");
+							System.out.println("Skipping '" + path + "' due to an exception: " + e);
+							System.out.print(ANALYZING);
 						}
 					}
 					else {
-						System.out.println();
-						System.out.println("Skipping not readable file '" + p + "'.");
-						System.out.print("Analyzing... ");
+						clearConsoleLine();
+						System.out.println("Skipping not readable file '" + path + "'.");
+						System.out.print(ANALYZING);
 					}
 				}
 				return FileVisitResult.CONTINUE;
 			}
 
 			@Override
-			public FileVisitResult visitFileFailed(@NonNull final Path file, final IOException e) {
-				System.out.println();
+			public FileVisitResult visitFileFailed(final Path file, final IOException e) {
+				clearConsoleLine();
 				if (errors) {
 					e.printStackTrace();
 				}
 				System.out.println("Skipping '" + file + "' due to an exception: " + e);
-				System.out.print("Analyzing... ");
+				System.out.print(ANALYZING);
 				System.out.print(getWaitChar());
 				return FileVisitResult.CONTINUE;
 			}
 
 			@Override
-			public FileVisitResult postVisitDirectory(@NonNull final Path dir, final IOException e) {
+			public FileVisitResult postVisitDirectory(final Path dir, final IOException e) {
 				return FileVisitResult.CONTINUE;
 			}
 		});
 
-		System.out.println();
+		clearConsoleLine();
 		System.out.println(count + " files analyzed.");
 
 		for (final Entry<Path, Path> e : renames.entrySet()) {
@@ -214,6 +216,14 @@ public class ExtFix implements Callable<Integer> {
 		default:
 			return '\\';
 		}
+	}
+
+	private static void clearConsoleLine() {
+		final StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < ANALYZING.length() + 1; i++) {
+			sb.append('\b');
+		}
+		System.out.print(sb);
 	}
 
 }
