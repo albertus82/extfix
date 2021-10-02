@@ -77,7 +77,7 @@ public class ExtFix implements Callable<Integer> {
 
 		final List<String> suffixes = extensions.get();
 		System.out.println("Extensions: " + suffixes + '.');
-		final Stream<Path> stream = PathUtils.walk(basePath, CanReadFileFilter.CAN_READ.and(new SuffixFileFilter(suffixes, IOCase.INSENSITIVE)), Short.MAX_VALUE, false, FileVisitOption.FOLLOW_LINKS);
+		final Stream<Path> stream = PathUtils.walk(basePath, CanReadFileFilter.CAN_READ.and(new SuffixFileFilter(suffixes, IOCase.INSENSITIVE)), Short.MAX_VALUE, false);
 		System.out.print("Analyzing... |");
 		stream.filter(path -> path.getFileName() != null).forEach(p -> {
 			try {
