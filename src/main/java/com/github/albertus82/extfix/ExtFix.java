@@ -40,8 +40,6 @@ import picocli.CommandLine.Parameters;
 @Command(description = "File Extension Fix Tool", mixinStandardHelpOptions = true, versionProvider = VersionProvider.class)
 public class ExtFix implements Callable<Integer> {
 
-	private static final String LOGGING_FORMAT_PROPERTY = "java.util.logging.SimpleFormatter.format";
-
 	private final TikaConfig tikaConfig = TikaConfig.getDefaultConfig();
 
 	@Getter(value = AccessLevel.PACKAGE) // for test only access
@@ -66,9 +64,6 @@ public class ExtFix implements Callable<Integer> {
 	}
 
 	public static void main(final String... args) {
-		if (System.getProperty(LOGGING_FORMAT_PROPERTY) == null) {
-			System.setProperty(LOGGING_FORMAT_PROPERTY, "%4$s: %5$s%6$s%n");
-		}
 		System.exit(new CommandLine(new ExtFix()).setCommandName(BuildInfo.getProperty("project.artifactId")).setOptionsCaseInsensitive(true).execute(args));
 	}
 
@@ -77,24 +72,24 @@ public class ExtFix implements Callable<Integer> {
 	@Override
 	public Integer call() throws IOException {
 		basePath = basePath.toFile().getCanonicalFile().toPath();
-		log.log(Level.INFO, "Base path: ''{0}''.", basePath);
+		System.out.println("Base path: '" + basePath + "'.");
 		final Map<Path, Path> renames = new TreeMap<>();
 
 		final List<String> suffixes = extensions.get();
-		log.log(Level.INFO, "Extensions: {0}.", suffixes);
+		System.out.println("Extensions: " + suffixes + '.');
 		final Stream<Path> stream = PathUtils.walk(basePath, CanReadFileFilter.CAN_READ.and(new SuffixFileFilter(suffixes, IOCase.INSENSITIVE)), Short.MAX_VALUE, false, FileVisitOption.FOLLOW_LINKS);
 		stream.filter(path -> path.getFileName() != null).forEach(p -> {
 			try {
 				final Path path = p.toFile().getCanonicalFile().toPath();
 				final String mediaType = tika.detect(path);
 				if (mediaType == null) {
-					log.log(Level.WARNING, "Cannot determine type of ''{0}''.", path);
+					System.err.println("Cannot determine type of '" + path + "'.");
 				}
 				else {
 					final List<String> exts = tikaConfig.getMimeRepository().forName(mediaType).getExtensions();
 					log.log(Level.FINE, "{0} <- {1}", new Object[] { exts, path });
 					if (exts.isEmpty()) {
-						log.log(Level.WARNING, "Cannot determine file extension for ''{0}''.", path);
+						System.err.println("Cannot determine file extension for '" + path + "'.");
 					}
 					else {
 						fixFileName(path, exts).ifPresent(fixed -> {
@@ -105,20 +100,20 @@ public class ExtFix implements Callable<Integer> {
 				}
 				count++;
 			}
-			catch (final MimeTypeException | IOException e) {
-				printError(Level.WARNING, p, e);
-			}
-			catch (final RuntimeException e) {
-				printError(Level.SEVERE, p, e);
+			catch (final MimeTypeException | IOException | RuntimeException e) {
+				System.err.println("Skipped '" + p + "'.");
+				if (errors) {
+					e.printStackTrace();
+				}
 			}
 		});
 
-		log.log(Level.INFO, "{0} files analyzed.", count);
+		System.out.println(count + " files analyzed.");
 
 		for (final Entry<Path, Path> e : renames.entrySet()) {
 			rename(e.getKey(), e.getValue());
 		}
-		log.log(Level.INFO, "{0} files renamed.", renames.size());
+		System.out.println(renames.size() + " files renamed.");
 
 		return ExitCode.OK;
 	}
@@ -128,7 +123,7 @@ public class ExtFix implements Callable<Integer> {
 		while (Files.exists(target)) {
 			target = Paths.get(FilenameUtils.removeExtension(target.toString()) + " (" + ++i + ")." + FilenameUtils.getExtension(target.toString()));
 		}
-		log.log(Level.INFO, "{0} -> {1}", new Path[] { source, target });
+		System.out.println("Renaming '" + source + "' to '" + target + "'.");
 		if (!dryRun) {
 			Files.move(source, target);
 		}
@@ -147,15 +142,6 @@ public class ExtFix implements Callable<Integer> {
 		}
 		else {
 			return Optional.empty();
-		}
-	}
-
-	private void printError(@NonNull Level level, Path path, final Exception e) {
-		if (errors) {
-			log.log(level, e, () -> "Skipped '" + path + "':");
-		}
-		else {
-			log.log(level, "Skipped ''{0}'': {1}", new Object[] { path, e });
 		}
 	}
 
