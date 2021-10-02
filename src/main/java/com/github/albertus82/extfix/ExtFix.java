@@ -39,6 +39,7 @@ import picocli.CommandLine.Parameters;
 @Log
 @NoArgsConstructor
 @Command(description = "File Extension Fix Tool", mixinStandardHelpOptions = true, versionProvider = VersionProvider.class)
+@SuppressWarnings("java:S106") // Replace this use of System.out or System.err by a logger. Standard outputs should not be used directly to log anything (java:S106)
 public class ExtFix implements Callable<Integer> {
 
 	private final TikaConfig tikaConfig = TikaConfig.getDefaultConfig();
