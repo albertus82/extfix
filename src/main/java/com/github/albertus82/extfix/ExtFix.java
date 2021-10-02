@@ -105,19 +105,22 @@ public class ExtFix implements Callable<Integer> {
 		log.log(Level.INFO, "{0} files analyzed.", count);
 
 		for (final Entry<Path, Path> e : renames.entrySet()) {
-			Path target = e.getValue();
-			int i = 0;
-			while (Files.exists(target)) {
-				target = Path.of(FilenameUtils.removeExtension(target.toString()) + " (" + ++i + ")." + FilenameUtils.getExtension(target.toString()));
-			}
-			log.log(Level.INFO, "{0} -> {1}", new Path[] { e.getKey(), target });
-			if (!dryRun) {
-				Files.move(e.getKey(), target);
-			}
+			rename(e.getKey(), e.getValue());
 		}
 		log.log(Level.INFO, "{0} files renamed.", renames.size());
 
 		return ExitCode.OK;
+	}
+
+	private void rename(@NonNull final Path source, @NonNull Path target) throws IOException {
+		int i = 0;
+		while (Files.exists(target)) {
+			target = Path.of(FilenameUtils.removeExtension(target.toString()) + " (" + ++i + ")." + FilenameUtils.getExtension(target.toString()));
+		}
+		log.log(Level.INFO, "{0} -> {1}", new Path[] { source, target });
+		if (!dryRun) {
+			Files.move(source, target);
+		}
 	}
 
 	static Optional<Path> fixFileName(@NonNull final Path path, @NonNull final List<String> knownExtensions) { // non-private for test only access

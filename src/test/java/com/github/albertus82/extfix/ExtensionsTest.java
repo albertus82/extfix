@@ -23,8 +23,8 @@ class ExtensionsTest {
 		final Extensions e3 = new Extensions(new String[] { "png", ".JPG" }, null);
 		Assertions.assertArrayEquals(new String[] { ".jpg", ".png" }, e3.array());
 
-		FileTests.withTempPath(path -> {
-			final Path target = FileTests.copyResourceToDir("test-array-1.lst", path);
+		FileTestUtils.runWithTempPath(path -> {
+			final Path target = FileTestUtils.copyResourceToDir("test-array-1.lst", path);
 			final Extensions e4 = new Extensions(null, target);
 			Assertions.assertArrayEquals(new String[] { ".jpeg", ".jpg", ".png" }, e4.array());
 		});
@@ -57,10 +57,10 @@ class ExtensionsTest {
 
 	@Test
 	void testFromPath() throws IOException {
-		FileTests.withTempPath(path -> {
+		FileTestUtils.runWithTempPath(path -> {
 			final Map<Integer, Path> fileMap = new HashMap<>();
 			for (int i = 1; i <= 5; i++) {
-				final Path target = FileTests.copyResourceToDir("test-from-path-" + i + ".lst", path);
+				final Path target = FileTestUtils.copyResourceToDir("test-from-path-" + i + ".lst", path);
 				fileMap.put(i, target);
 			}
 			Assertions.assertEquals(Set.of(".pdf"), Extensions.from(fileMap.get(1)));

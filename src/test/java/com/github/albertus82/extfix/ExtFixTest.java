@@ -17,10 +17,10 @@ class ExtFixTest {
 	@Test
 	void test() throws IOException {
 		final boolean dryRun = false;
-		FileTests.withTempPath(path -> {
-			final Path p3 = FileTests.copyResourceToDir("jpeg.png", path);
-			final Path p4 = FileTests.copyResourceToDir("png.jpeg", path);
-			final Path p5 = FileTests.copyResourceToDir("png.jpg", path);
+		FileTestUtils.runWithTempPath(path -> {
+			final Path p3 = FileTestUtils.copyResourceToDir("jpeg.png", path);
+			final Path p4 = FileTestUtils.copyResourceToDir("png.jpeg", path);
+			final Path p5 = FileTestUtils.copyResourceToDir("png.jpg", path);
 
 			final ExtFix e1 = new ExtFix(path, dryRun, new Extensions(new String[] { "jpg", "png" }, null));
 			e1.call();
@@ -39,13 +39,13 @@ class ExtFixTest {
 	@Test
 	void testAutoRename() throws IOException {
 		final boolean dryRun = false;
-		FileTests.withTempPath(path -> {
-			final Path p1 = FileTests.copyResourceToDir("jpeg.jpeg", path);
-			final Path p2 = FileTests.copyResourceToDir("jpeg.jpg", path);
-			final Path p3 = FileTests.copyResourceToDir("jpeg.png", path);
-			final Path p4 = FileTests.copyResourceToDir("png.jpeg", path);
-			final Path p5 = FileTests.copyResourceToDir("png.jpg", path);
-			final Path p6 = FileTests.copyResourceToDir("png.png", path);
+		FileTestUtils.runWithTempPath(path -> {
+			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.jpeg", path);
+			final Path p2 = FileTestUtils.copyResourceToDir("jpeg.jpg", path);
+			final Path p3 = FileTestUtils.copyResourceToDir("jpeg.png", path);
+			final Path p4 = FileTestUtils.copyResourceToDir("png.jpeg", path);
+			final Path p5 = FileTestUtils.copyResourceToDir("png.jpg", path);
+			final Path p6 = FileTestUtils.copyResourceToDir("png.png", path);
 
 			final ExtFix e1 = new ExtFix(path, dryRun, new Extensions(new String[] { "jpg", "png" }, null));
 			e1.call();
@@ -64,13 +64,13 @@ class ExtFixTest {
 	@Test
 	void testDryRun() throws IOException {
 		final boolean dryRun = true;
-		FileTests.withTempPath(path -> {
-			final Path p1 = FileTests.copyResourceToDir("jpeg.jpeg", path);
-			final Path p2 = FileTests.copyResourceToDir("jpeg.jpg", path);
-			final Path p3 = FileTests.copyResourceToDir("jpeg.png", path);
-			final Path p4 = FileTests.copyResourceToDir("png.jpeg", path);
-			final Path p5 = FileTests.copyResourceToDir("png.jpg", path);
-			final Path p6 = FileTests.copyResourceToDir("png.png", path);
+		FileTestUtils.runWithTempPath(path -> {
+			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.jpeg", path);
+			final Path p2 = FileTestUtils.copyResourceToDir("jpeg.jpg", path);
+			final Path p3 = FileTestUtils.copyResourceToDir("jpeg.png", path);
+			final Path p4 = FileTestUtils.copyResourceToDir("png.jpeg", path);
+			final Path p5 = FileTestUtils.copyResourceToDir("png.jpg", path);
+			final Path p6 = FileTestUtils.copyResourceToDir("png.png", path);
 
 			final ExtFix e1 = new ExtFix(path, dryRun, new Extensions(new String[] { "jpg", "png", "jpeg" }, null));
 			e1.call();

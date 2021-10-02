@@ -16,9 +16,9 @@ import lombok.extern.java.Log;
 
 @Log
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class FileTests {
+public class FileTestUtils {
 
-	public static <T extends Throwable> void withTempPath(final TempPathExec<T> exec) throws IOException, T {
+	public static <T extends Throwable> void runWithTempPath(final TempPathExec<T> exec) throws IOException, T {
 		final String uuid = UUID.randomUUID().toString().replace("-", "");
 		final File tempFile = File.createTempFile(uuid, null);
 		final File tempDir = new File(tempFile.getParent() + File.separator + uuid);
@@ -44,7 +44,7 @@ public class FileTests {
 
 	public static Path copyResourceToDir(final String resourceName, final Path destDir) throws IOException {
 		final Path target = Path.of(destDir.toString(), resourceName);
-		try (final InputStream in = FileTests.class.getResourceAsStream('/' + resourceName)) {
+		try (final InputStream in = FileTestUtils.class.getResourceAsStream('/' + resourceName)) {
 			Files.copy(in, target);
 			log.log(Level.INFO, "Created temporary file \"{0}\".", target);
 		}
