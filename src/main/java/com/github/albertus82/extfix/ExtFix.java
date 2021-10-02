@@ -40,6 +40,8 @@ import picocli.CommandLine.Parameters;
 @Command(description = "File Extension Fix Tool", mixinStandardHelpOptions = true, versionProvider = VersionProvider.class)
 public class ExtFix implements Callable<Integer> {
 
+	private static final String LOGGING_FORMAT_PROPERTY = "java.util.logging.SimpleFormatter.format";
+
 	private final TikaConfig tikaConfig = TikaConfig.getDefaultConfig();
 
 	@Getter(value = AccessLevel.PACKAGE) // for test only access
@@ -61,6 +63,9 @@ public class ExtFix implements Callable<Integer> {
 	}
 
 	public static void main(final String... args) {
+		if (System.getProperty(LOGGING_FORMAT_PROPERTY) == null) {
+			System.setProperty(LOGGING_FORMAT_PROPERTY, "%4$s: %5$s%6$s%n");
+		}
 		System.exit(new CommandLine(new ExtFix()).setCommandName(BuildInfo.getProperty("project.artifactId")).setOptionsCaseInsensitive(true).execute(args));
 	}
 
