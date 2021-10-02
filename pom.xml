@@ -403,6 +403,7 @@
 	</build>
 
 	<dependencies>
+		<!-- Compile -->
 		<dependency>
 			<groupId>org.apache.tika</groupId>
 			<artifactId>tika-core</artifactId>
@@ -418,12 +419,10 @@
 			<artifactId>picocli</artifactId>
 			<version>${picocli.version}</version>
 		</dependency>
-		<!-- Runtime -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-jdk14</artifactId>
 			<version>1.7.32</version>
-			<scope>runtime</scope>
 		</dependency>
 		<!-- Provided -->
 		<dependency>
