@@ -43,7 +43,7 @@ import picocli.CommandLine.Parameters;
 @SuppressWarnings("java:S106") // Replace this use of System.out or System.err by a logger. Standard outputs should not be used directly to log anything (java:S106)
 public class ExtFix implements Callable<Integer> {
 
-	private static final String ANALYZING = "Analyzing... ";
+	private static final String ANALYZING = "Analyzing...  ";
 
 	private final TikaConfig tikaConfig = TikaConfig.getDefaultConfig();
 
@@ -86,7 +86,6 @@ public class ExtFix implements Callable<Integer> {
 		System.out.println("Extensions: " + suffixes + '.');
 
 		System.out.print(ANALYZING);
-		System.out.print(getWaitChar());
 
 		final Map<Path, Path> renames = new TreeMap<>();
 		Files.walkFileTree(basePath, links ? EnumSet.of(FileVisitOption.FOLLOW_LINKS) : Collections.emptySet(), Short.MAX_VALUE, new FileVisitor<Path>() {
@@ -98,52 +97,36 @@ public class ExtFix implements Callable<Integer> {
 			@Override
 			public FileVisitResult visitFile(@NonNull Path path, final BasicFileAttributes attrs) {
 				if (FileVisitResult.CONTINUE.equals((new SuffixFileFilter(suffixes, IOCase.INSENSITIVE)).accept(path, attrs))) {
+					printProgress();
 					if (FileVisitResult.CONTINUE.equals(CanReadFileFilter.CAN_READ.accept(path, attrs))) {
 						try {
 							path = path.toFile().getCanonicalFile().toPath();
 							final String mediaType = tika.detect(path);
 							if (mediaType == null) {
-								clearConsoleLine();
-								System.out.println("Cannot determine type of '" + path + "'.");
-								System.out.print(ANALYZING);
+								printMessage("Cannot determine type of '" + path + "'.");
 							}
 							else {
 								final List<String> exts = tikaConfig.getMimeRepository().forName(mediaType).getExtensions();
 								log.debug("{} <- {}", exts, path);
 								if (exts.isEmpty()) {
-									clearConsoleLine();
-									System.out.println("Cannot determine extension for '" + path + "'.");
-									System.out.print(ANALYZING);
+									printMessage("Cannot determine extension for '" + path + "'.");
 								}
 								else {
 									final Optional<Path> fixed = fixFileName(path, exts);
 									if (fixed.isPresent()) {
 										renames.put(path, fixed.get());
-										clearConsoleLine();
-										System.out.println("Found " + FilenameUtils.getExtension(fixed.get().toString()).toUpperCase() + " file with wrong extension: '" + path + "'.");
-										System.out.print(ANALYZING);
-									}
-									else {
-										System.out.print('\b');
+										printMessage("Found " + FilenameUtils.getExtension(fixed.get().toString()).toUpperCase() + " file with wrong extension: '" + path + "'.");
 									}
 								}
 							}
 							count++;
-							System.out.print(getWaitChar());
 						}
 						catch (final MimeTypeException | IOException | RuntimeException e) {
-							clearConsoleLine();
-							if (errors) {
-								e.printStackTrace();
-							}
-							System.out.println("Skipping '" + path + "' due to an exception: " + e);
-							System.out.print(ANALYZING);
+							printError("Skipping '" + path + "' due to an exception: " + e, e);
 						}
 					}
 					else {
-						clearConsoleLine();
-						System.out.println("Skipping not readable file '" + path + "'.");
-						System.out.print(ANALYZING);
+						printMessage("Skipping not readable file '" + path + "'.");
 					}
 				}
 				return FileVisitResult.CONTINUE;
@@ -151,19 +134,35 @@ public class ExtFix implements Callable<Integer> {
 
 			@Override
 			public FileVisitResult visitFileFailed(final Path file, final IOException e) {
-				clearConsoleLine();
-				if (errors) {
-					e.printStackTrace();
-				}
-				System.out.println("Skipping '" + file + "' due to an exception: " + e);
-				System.out.print(ANALYZING);
-				System.out.print(getWaitChar());
+				printError("Skipping '" + file + "' due to an exception: " + e, e);
 				return FileVisitResult.CONTINUE;
 			}
 
 			@Override
 			public FileVisitResult postVisitDirectory(final Path dir, final IOException e) {
 				return FileVisitResult.CONTINUE;
+			}
+
+			private void printProgress() {
+				System.out.print('\b');
+				System.out.print(getWaitChar());
+			}
+
+			private void printMessage(@NonNull final String message) {
+				clearConsoleLine();
+				System.out.println(message);
+				System.out.print(ANALYZING);
+				printProgress();
+			}
+
+			private void printError(@NonNull final String message, @NonNull final Throwable e) {
+				clearConsoleLine();
+				if (errors) {
+					e.printStackTrace();
+				}
+				System.out.println(message);
+				System.out.print(ANALYZING);
+				printProgress();
 			}
 		});
 
