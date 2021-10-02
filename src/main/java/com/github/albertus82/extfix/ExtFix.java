@@ -5,6 +5,7 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -54,6 +55,9 @@ public class ExtFix implements Callable<Integer> {
 	@Option(names = { "-X", "--errors" }, description = "Produce execution error messages.")
 	private boolean errors;
 
+	@Option(names = { "-L", "--links" }, description = "Follow links.")
+	private boolean links;
+
 	@ArgGroup(exclusive = true, multiplicity = "1")
 	private Extensions extensions;
 
@@ -77,8 +81,15 @@ public class ExtFix implements Callable<Integer> {
 
 		final List<String> suffixes = extensions.get();
 		System.out.println("Extensions: " + suffixes + '.');
-		final Stream<Path> stream = PathUtils.walk(basePath, CanReadFileFilter.CAN_READ.and(new SuffixFileFilter(suffixes, IOCase.INSENSITIVE)), Short.MAX_VALUE, false);
-		System.out.print("Analyzing... |");
+
+		final List<FileVisitOption> option = new ArrayList<>();
+		if (links) {
+			option.add(FileVisitOption.FOLLOW_LINKS);
+		}
+
+		final Stream<Path> stream = PathUtils.walk(basePath, CanReadFileFilter.CAN_READ.and(new SuffixFileFilter(suffixes, IOCase.INSENSITIVE)), Short.MAX_VALUE, false, option.toArray(new FileVisitOption[option.size()]));
+		System.out.print("Analyzing... ");
+		System.out.print(getWaitChar());
 		stream.filter(path -> path.getFileName() != null).forEach(p -> {
 			try {
 				final Path path = p.toFile().getCanonicalFile().toPath();
@@ -104,10 +115,13 @@ public class ExtFix implements Callable<Integer> {
 				System.out.print(getWaitChar());
 			}
 			catch (final MimeTypeException | IOException | RuntimeException e) {
-				System.err.println("Skipped '" + p + "'.");
+				System.out.println();
 				if (errors) {
 					e.printStackTrace();
 				}
+				System.err.println("Skipped '" + p + "'.");
+				System.out.print("Analyzing... ");
+				System.out.print(getWaitChar());
 			}
 		});
 
