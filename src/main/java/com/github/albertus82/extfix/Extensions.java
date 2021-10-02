@@ -6,24 +6,24 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.logging.Level;
+import java.util.function.Supplier;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.extern.java.Log;
 import picocli.CommandLine.Option;
 
-@Log
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PACKAGE) // for test only access
-public class Extensions {
+public class Extensions implements Supplier<List<String>> {
 
 	private final Set<String> set = new TreeSet<>();
 
@@ -33,7 +33,8 @@ public class Extensions {
 	@Option(names = { "-f", "--file" }, paramLabel = "<FILE>", required = true, description = "File containing a list of extensions to treat.")
 	private Path path;
 
-	public String[] array() {
+	@Override
+	public List<String> get() {
 		if (set.isEmpty()) {
 			if (path != null && array == null) {
 				try {
@@ -49,9 +50,8 @@ public class Extensions {
 			else {
 				throw new IllegalStateException();
 			}
-			log.log(Level.INFO, "Extensions: {0}.", set);
 		}
-		return set.toArray(new String[set.size()]);
+		return new ArrayList<>(set);
 	}
 
 	static Set<String> from(@NonNull final String... array) {

@@ -53,6 +53,9 @@ public class ExtFix implements Callable<Integer> {
 	@Option(names = { "-n", "--dry-run" }, description = "Do everything except actually rename the files.")
 	private boolean dryRun;
 
+	@Option(names = { "-X", "--errors" }, description = "Produce execution error messages.")
+	private boolean errors;
+
 	@ArgGroup(exclusive = true, multiplicity = "1")
 	private Extensions extensions;
 
@@ -77,7 +80,9 @@ public class ExtFix implements Callable<Integer> {
 		log.log(Level.INFO, "Base path: ''{0}''.", basePath);
 		final Map<Path, Path> renames = new TreeMap<>();
 
-		final Stream<Path> stream = PathUtils.walk(basePath, CanReadFileFilter.CAN_READ.and(new SuffixFileFilter(extensions.array(), IOCase.INSENSITIVE)), Short.MAX_VALUE, false, FileVisitOption.FOLLOW_LINKS);
+		final List<String> suffixes = extensions.get();
+		log.log(Level.INFO, "Extensions: {0}.", suffixes);
+		final Stream<Path> stream = PathUtils.walk(basePath, CanReadFileFilter.CAN_READ.and(new SuffixFileFilter(suffixes, IOCase.INSENSITIVE)), Short.MAX_VALUE, false, FileVisitOption.FOLLOW_LINKS);
 		stream.filter(path -> path.getFileName() != null).forEach(p -> {
 			try {
 				final Path path = p.toFile().getCanonicalFile().toPath();
@@ -101,10 +106,10 @@ public class ExtFix implements Callable<Integer> {
 				count++;
 			}
 			catch (final MimeTypeException | IOException e) {
-				log.log(Level.WARNING, e, () -> "Skipped '" + p + "':");
+				printError(Level.WARNING, p, e);
 			}
 			catch (final RuntimeException e) {
-				log.log(Level.SEVERE, e, () -> "Skipped '" + p + "':");
+				printError(Level.SEVERE, p, e);
 			}
 		});
 
@@ -142,6 +147,15 @@ public class ExtFix implements Callable<Integer> {
 		}
 		else {
 			return Optional.empty();
+		}
+	}
+
+	private void printError(@NonNull Level level, Path path, final Exception e) {
+		if (errors) {
+			log.log(level, e, () -> "Skipped '" + path + "':");
+		}
+		else {
+			log.log(level, "Skipped ''{0}'': {1}", new Object[] { path, e });
 		}
 	}
 
