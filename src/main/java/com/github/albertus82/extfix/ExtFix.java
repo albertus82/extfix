@@ -97,30 +97,39 @@ public class ExtFix implements Callable<Integer> {
 				final Path path = p.toFile().getCanonicalFile().toPath();
 				final String mediaType = tika.detect(path);
 				if (mediaType == null) {
-					System.err.println("Cannot determine type of '" + path + "'.");
+					System.out.println();
+					System.out.println("Cannot determine type of '" + path + "'.");
+					System.out.print("Analyzing... ");
 				}
 				else {
 					final List<String> exts = tikaConfig.getMimeRepository().forName(mediaType).getExtensions();
 					log.debug("{} <- {}", exts, path);
 					if (exts.isEmpty()) {
-						System.err.println("Cannot determine file extension for '" + path + "'.");
+						System.out.println();
+						System.out.println("Cannot determine extension for '" + path + "'.");
+						System.out.print("Analyzing... ");
 					}
 					else {
-						fixFileName(path, exts).ifPresent(fixed -> {
-							renames.put(path, fixed);
-							log.debug("{} -> {}", path, fixed);
-						});
+						final Optional<Path> fixed = fixFileName(path, exts);
+						if (fixed.isPresent()) {
+							renames.put(path, fixed.get());
+							System.out.println();
+							System.out.println("Found " + FilenameUtils.getExtension(fixed.get().toString()).toUpperCase() + " file with wrong extension: '" + path + "'.");
+							System.out.print("Analyzing... ");
+						}
+						else {
+							System.out.print('\b');
+						}
 					}
 				}
 				count++;
-				System.out.print('\b');
 			}
 			catch (final MimeTypeException | IOException | RuntimeException e) {
 				System.out.println();
 				if (errors) {
 					e.printStackTrace();
 				}
-				System.err.println("Skipped '" + p + "'.");
+				System.out.println("Skipped '" + p + "': " + e);
 				System.out.print("Analyzing... ");
 			}
 			System.out.print(getWaitChar());
