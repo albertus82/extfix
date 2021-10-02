@@ -47,7 +47,7 @@ public class FileTestUtils {
 		final Path target = Paths.get(destDir.toString(), resourceName);
 		try (final InputStream in = FileTestUtils.class.getResourceAsStream('/' + resourceName)) {
 			Files.copy(in, target);
-			log.log(Level.INFO, "Created temporary file \"{0}\".", target);
+			log.log(Level.INFO, "Created file \"{0}\".", target);
 		}
 		return target;
 	}
