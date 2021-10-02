@@ -7,15 +7,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
-import java.util.logging.Level;
 
 import org.apache.commons.io.FileUtils;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 
-@Log
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FileTestUtils {
 
@@ -24,21 +23,21 @@ public class FileTestUtils {
 		final File tempFile = File.createTempFile(uuid, null);
 		final File tempDir = new File(tempFile.getParent() + File.separator + uuid);
 		if (!tempFile.delete()) {
-			log.log(Level.WARNING, "Unable to delete temporary file \"{0}\".", tempFile);
+			log.warn("Unable to delete temporary file \"{}\".", tempFile);
 			tempFile.deleteOnExit();
 		}
 		tempDir.mkdir();
-		log.log(Level.INFO, "Created temporary directory \"{0}\".", tempDir);
+		log.info("Created temporary directory \"{}\".", tempDir);
 		try {
 			exec.execute(tempDir.toPath());
 		}
 		finally {
 			try {
 				FileUtils.deleteDirectory(tempDir);
-				log.log(Level.INFO, "Deleted temporary directory \"{0}\".", tempDir);
+				log.info("Deleted temporary directory \"{}\".", tempDir);
 			}
 			catch (final IOException e) {
-				log.log(Level.WARNING, "Cannot delete temporary directory \"" + tempDir + "\":", e);
+				log.warn("Cannot delete temporary directory \"" + tempDir + "\":", e);
 			}
 		}
 	}
@@ -47,7 +46,7 @@ public class FileTestUtils {
 		final Path target = Paths.get(destDir.toString(), resourceName);
 		try (final InputStream in = FileTestUtils.class.getResourceAsStream('/' + resourceName)) {
 			Files.copy(in, target);
-			log.log(Level.INFO, "Created file \"{0}\".", target);
+			log.info("Created file \"{}\".", target);
 		}
 		return target;
 	}

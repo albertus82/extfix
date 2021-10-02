@@ -12,7 +12,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
-import java.util.logging.Level;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
@@ -28,7 +27,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -36,7 +35,7 @@ import picocli.CommandLine.ExitCode;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@Log
+@Slf4j
 @NoArgsConstructor
 @Command(description = "File Extension Fix Tool", mixinStandardHelpOptions = true, versionProvider = VersionProvider.class)
 @SuppressWarnings("java:S106") // Replace this use of System.out or System.err by a logger. Standard outputs should not be used directly to log anything (java:S106)
@@ -102,14 +101,14 @@ public class ExtFix implements Callable<Integer> {
 				}
 				else {
 					final List<String> exts = tikaConfig.getMimeRepository().forName(mediaType).getExtensions();
-					log.log(Level.FINE, "{0} <- {1}", new Object[] { exts, path });
+					log.debug("{} <- {}", exts, path);
 					if (exts.isEmpty()) {
 						System.err.println("Cannot determine file extension for '" + path + "'.");
 					}
 					else {
 						fixFileName(path, exts).ifPresent(fixed -> {
 							renames.put(path, fixed);
-							log.log(Level.FINE, "{0} -> {1}", new Path[] { path, fixed });
+							log.debug("{} -> {}", path, fixed);
 						});
 					}
 				}

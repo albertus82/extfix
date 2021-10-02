@@ -4,12 +4,11 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.time.temporal.TemporalAccessor;
-import java.util.logging.Level;
 
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.IVersionProvider;
 
-@Log
+@Slf4j
 public class VersionProvider implements IVersionProvider {
 
 	@Override
@@ -22,7 +21,7 @@ public class VersionProvider implements IVersionProvider {
 			return DateTimeFormatter.ISO_ZONED_DATE_TIME.parse(BuildInfo.getProperty("version.timestamp"));
 		}
 		catch (final RuntimeException e) {
-			log.log(Level.FINE, "Invalid version timestamp, falling back to current datetime:", e);
+			log.debug("Invalid version timestamp, falling back to current datetime:", e);
 			return ZonedDateTime.now();
 		}
 	}
