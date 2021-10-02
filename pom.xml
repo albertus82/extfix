@@ -10,7 +10,6 @@
 	<version>0.0.1</version>
 	<name>File Extension Fix Tool</name>
 	<url>https://github.com/albertus82/extfix</url>
-	<description>.</description>
 
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
