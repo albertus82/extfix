@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Level;
@@ -64,8 +65,9 @@ public class Extensions {
 	static Set<String> from(@NonNull final Path path) throws IOException {
 		final Set<String> set = new HashSet<>();
 		try (final BufferedReader br = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
-			String item;
-			while ((item = br.readLine()) != null) {
+			final Properties properties = new Properties();
+			properties.load(br); // exploit Properties parsing logic (comments etc.)
+			for (final String item : properties.stringPropertyNames()) {
 				process(item, set);
 			}
 			return set;
