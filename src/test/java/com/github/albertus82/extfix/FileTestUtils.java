@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -43,7 +44,7 @@ public class FileTestUtils {
 	}
 
 	public static Path copyResourceToDir(final String resourceName, final Path destDir) throws IOException {
-		final Path target = Path.of(destDir.toString(), resourceName);
+		final Path target = Paths.get(destDir.toString(), resourceName);
 		try (final InputStream in = FileTestUtils.class.getResourceAsStream('/' + resourceName)) {
 			Files.copy(in, target);
 			log.log(Level.INFO, "Created temporary file \"{0}\".", target);

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -115,7 +116,7 @@ public class ExtFix implements Callable<Integer> {
 	Path rename(@NonNull final Path source, @NonNull Path target) throws IOException { // non-private for test only access
 		int i = 0;
 		while (Files.exists(target)) {
-			target = Path.of(FilenameUtils.removeExtension(target.toString()) + " (" + ++i + ")." + FilenameUtils.getExtension(target.toString()));
+			target = Paths.get(FilenameUtils.removeExtension(target.toString()) + " (" + ++i + ")." + FilenameUtils.getExtension(target.toString()));
 		}
 		log.log(Level.INFO, "{0} -> {1}", new Path[] { source, target });
 		if (!dryRun) {
@@ -129,10 +130,10 @@ public class ExtFix implements Callable<Integer> {
 		final String currentExtension = FilenameUtils.getExtension(currentFileName);
 		final String bestExtension = knownExtensions.get(0);
 		if (currentExtension.isEmpty()) {
-			return Optional.of(Path.of(currentFileName + bestExtension));
+			return Optional.of(Paths.get(currentFileName + bestExtension));
 		}
 		else if (knownExtensions.stream().noneMatch(e -> e.equalsIgnoreCase('.' + currentExtension))) {
-			return Optional.of(Path.of(FilenameUtils.removeExtension(currentFileName) + bestExtension));
+			return Optional.of(Paths.get(FilenameUtils.removeExtension(currentFileName) + bestExtension));
 		}
 		else {
 			return Optional.empty();

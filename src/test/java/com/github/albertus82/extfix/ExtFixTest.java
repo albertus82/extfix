@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -55,8 +57,8 @@ class ExtFixTest {
 			Assertions.assertTrue(Files.exists(p4)); // "jpeg" is not included in Extensions
 			Assertions.assertFalse(Files.exists(p5));
 			Assertions.assertTrue(Files.exists(p6));
-			Assertions.assertTrue(Files.exists(Path.of(p3.toString().replace("jpeg.png", "jpeg (1).jpg"))));
-			Assertions.assertTrue(Files.exists(Path.of(p5.toString().replace("png.jpg", "png (1).png"))));
+			Assertions.assertTrue(Files.exists(Paths.get(p3.toString().replace("jpeg.png", "jpeg (1).jpg"))));
+			Assertions.assertTrue(Files.exists(Paths.get(p5.toString().replace("png.jpg", "png (1).png"))));
 			Assertions.assertEquals(6, Files.list(path).count());
 		});
 	}
@@ -109,16 +111,16 @@ class ExtFixTest {
 
 	@Test
 	void testFixFileName() {
-		Assertions.assertEquals(Optional.empty(), ExtFix.fixFileName(Path.of("/tmp/foo.txt"), List.of(".txt")));
-		Assertions.assertEquals(Optional.empty(), ExtFix.fixFileName(Path.of("/tmp/foo.TXT"), List.of(".txt", ".bar")));
-		Assertions.assertEquals(Optional.empty(), ExtFix.fixFileName(Path.of("/tmp/foo.txt"), List.of(".FOO", ".TXT")));
-		Assertions.assertEquals(Optional.empty(), ExtFix.fixFileName(Path.of("/tmp/foo.TXT"), List.of(".TXT")));
-		Assertions.assertTrue(ExtFix.fixFileName(Path.of("/tmp/foo"), List.of(".txt")).get().toString().endsWith(".txt"));
-		Assertions.assertTrue(ExtFix.fixFileName(Path.of("/tmp/foo"), List.of(".BAR", ".txt")).get().toString().endsWith(".BAR"));
-		Assertions.assertTrue(ExtFix.fixFileName(Path.of("/tmp/foo.bar"), List.of(".lst", ".txt")).get().toString().endsWith(".lst"));
+		Assertions.assertEquals(Optional.empty(), ExtFix.fixFileName(Paths.get("/tmp/foo.txt"), Arrays.asList(".txt")));
+		Assertions.assertEquals(Optional.empty(), ExtFix.fixFileName(Paths.get("/tmp/foo.TXT"), Arrays.asList(".txt", ".bar")));
+		Assertions.assertEquals(Optional.empty(), ExtFix.fixFileName(Paths.get("/tmp/foo.txt"), Arrays.asList(".FOO", ".TXT")));
+		Assertions.assertEquals(Optional.empty(), ExtFix.fixFileName(Paths.get("/tmp/foo.TXT"), Arrays.asList(".TXT")));
+		Assertions.assertTrue(ExtFix.fixFileName(Paths.get("/tmp/foo"), Arrays.asList(".txt")).get().toString().endsWith(".txt"));
+		Assertions.assertTrue(ExtFix.fixFileName(Paths.get("/tmp/foo"), Arrays.asList(".BAR", ".txt")).get().toString().endsWith(".BAR"));
+		Assertions.assertTrue(ExtFix.fixFileName(Paths.get("/tmp/foo.bar"), Arrays.asList(".lst", ".txt")).get().toString().endsWith(".lst"));
 		final List<String> list = Collections.emptyList();
 		Assertions.assertThrows(NullPointerException.class, () -> ExtFix.fixFileName(null, list));
-		final Path path = Path.of("/tmp/foo.bar");
+		final Path path = Paths.get("/tmp/foo.bar");
 		Assertions.assertThrows(NullPointerException.class, () -> ExtFix.fixFileName(path, null));
 		Assertions.assertThrows(NullPointerException.class, () -> ExtFix.fixFileName(null, null));
 	}
@@ -127,7 +129,7 @@ class ExtFixTest {
 	void testRename() {
 		final ExtFix extFix = new ExtFix();
 		Assertions.assertThrows(NullPointerException.class, () -> extFix.rename(null, null));
-		final Path path = Path.of("/tmp/foo.bar");
+		final Path path = Paths.get("/tmp/foo.bar");
 		Assertions.assertThrows(NullPointerException.class, () -> extFix.rename(null, path));
 		Assertions.assertThrows(NullPointerException.class, () -> extFix.rename(path, null));
 	}

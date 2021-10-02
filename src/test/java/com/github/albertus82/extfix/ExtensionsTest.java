@@ -2,10 +2,12 @@ package com.github.albertus82.extfix;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -17,7 +19,7 @@ class ExtensionsTest {
 		final Extensions e1 = new Extensions(null, null);
 		Assertions.assertThrows(IllegalStateException.class, () -> e1.array());
 
-		final Extensions e2 = new Extensions(new String[] { "pdf" }, Path.of("/tmp/foo.bar"));
+		final Extensions e2 = new Extensions(new String[] { "pdf" }, Paths.get("/tmp/foo.bar"));
 		Assertions.assertThrows(IllegalStateException.class, () -> e2.array());
 
 		final Extensions e3 = new Extensions(new String[] { "png", ".JPG" }, null);
@@ -34,25 +36,25 @@ class ExtensionsTest {
 	void testFromArray() {
 		Assertions.assertThrows(NullPointerException.class, () -> Extensions.from((String[]) null));
 		Assertions.assertEquals(Collections.emptySet(), Extensions.from());
-		Assertions.assertEquals(Set.of(".pdf"), Extensions.from(".pdf"));
-		Assertions.assertEquals(Set.of(".pdf"), Extensions.from("pdf"));
-		Assertions.assertEquals(Set.of(".pdf"), Extensions.from(".PDF"));
-		Assertions.assertEquals(Set.of(".pdf"), Extensions.from("PDF"));
-		Assertions.assertEquals(Set.of(".pdf"), Extensions.from(".pdf"));
-		Assertions.assertEquals(Set.of(".pdf"), Extensions.from(".pdf"));
-		Assertions.assertEquals(Set.of(".jpg", ".jpeg"), Extensions.from(".jpg", ".jpeg"));
-		Assertions.assertEquals(Set.of(".jpg", ".jpeg"), Extensions.from(".JPG", ".jpeg"));
-		Assertions.assertEquals(Set.of(".jpg", ".jpeg"), Extensions.from(".jpg", ".JPEG"));
-		Assertions.assertEquals(Set.of(".jpg", ".jpeg"), Extensions.from(".JPG", ".JPEG"));
-		Assertions.assertEquals(Set.of(".jpg", ".jpeg"), Extensions.from("jpg", ".jpeg"));
-		Assertions.assertEquals(Set.of(".jpg", ".jpeg"), Extensions.from("JPG", ".jpeg"));
-		Assertions.assertEquals(Set.of(".jpg", ".jpeg"), Extensions.from("jpg", ".JPEG"));
-		Assertions.assertEquals(Set.of(".jpg", ".jpeg"), Extensions.from("JPG", ".JPEG"));
-		Assertions.assertEquals(Set.of(".jpg", ".jpeg"), Extensions.from(".jpg", "jpeg"));
-		Assertions.assertEquals(Set.of(".jpg", ".jpeg"), Extensions.from(".JPG", "jpeg"));
-		Assertions.assertEquals(Set.of(".jpg", ".jpeg"), Extensions.from(".jpg", "JPEG"));
-		Assertions.assertEquals(Set.of(".jpg", ".jpeg"), Extensions.from(".JPG", "JPEG"));
-		Assertions.assertEquals(Set.of(".pdf", ".png", ".jpg"), Extensions.from("jpg", ".png", "PDF", ".pdf"));
+		Assertions.assertEquals(new HashSet<>(Arrays.asList(".pdf")), Extensions.from(".pdf"));
+		Assertions.assertEquals(new HashSet<>(Arrays.asList(".pdf")), Extensions.from("pdf"));
+		Assertions.assertEquals(new HashSet<>(Arrays.asList(".pdf")), Extensions.from(".PDF"));
+		Assertions.assertEquals(new HashSet<>(Arrays.asList(".pdf")), Extensions.from("PDF"));
+		Assertions.assertEquals(new HashSet<>(Arrays.asList(".pdf")), Extensions.from(".pdf"));
+		Assertions.assertEquals(new HashSet<>(Arrays.asList(".pdf")), Extensions.from(".pdf"));
+		Assertions.assertEquals(new HashSet<>(Arrays.asList(".jpg", ".jpeg")), Extensions.from(".jpg", ".jpeg"));
+		Assertions.assertEquals(new HashSet<>(Arrays.asList(".jpg", ".jpeg")), Extensions.from(".JPG", ".jpeg"));
+		Assertions.assertEquals(new HashSet<>(Arrays.asList(".jpg", ".jpeg")), Extensions.from(".jpg", ".JPEG"));
+		Assertions.assertEquals(new HashSet<>(Arrays.asList(".jpg", ".jpeg")), Extensions.from(".JPG", ".JPEG"));
+		Assertions.assertEquals(new HashSet<>(Arrays.asList(".jpg", ".jpeg")), Extensions.from("jpg", ".jpeg"));
+		Assertions.assertEquals(new HashSet<>(Arrays.asList(".jpg", ".jpeg")), Extensions.from("JPG", ".jpeg"));
+		Assertions.assertEquals(new HashSet<>(Arrays.asList(".jpg", ".jpeg")), Extensions.from("jpg", ".JPEG"));
+		Assertions.assertEquals(new HashSet<>(Arrays.asList(".jpg", ".jpeg")), Extensions.from("JPG", ".JPEG"));
+		Assertions.assertEquals(new HashSet<>(Arrays.asList(".jpg", ".jpeg")), Extensions.from(".jpg", "jpeg"));
+		Assertions.assertEquals(new HashSet<>(Arrays.asList(".jpg", ".jpeg")), Extensions.from(".JPG", "jpeg"));
+		Assertions.assertEquals(new HashSet<>(Arrays.asList(".jpg", ".jpeg")), Extensions.from(".jpg", "JPEG"));
+		Assertions.assertEquals(new HashSet<>(Arrays.asList(".jpg", ".jpeg")), Extensions.from(".JPG", "JPEG"));
+		Assertions.assertEquals(new HashSet<>(Arrays.asList(".pdf", ".png", ".jpg")), Extensions.from("jpg", ".png", "PDF", ".pdf"));
 	}
 
 	@Test
@@ -63,11 +65,11 @@ class ExtensionsTest {
 				final Path target = FileTestUtils.copyResourceToDir("test-from-path-" + i + ".lst", path);
 				fileMap.put(i, target);
 			}
-			Assertions.assertEquals(Set.of(".pdf"), Extensions.from(fileMap.get(1)));
-			Assertions.assertEquals(Set.of(".pdf"), Extensions.from(fileMap.get(2)));
-			Assertions.assertEquals(Set.of(".pdf"), Extensions.from(fileMap.get(3)));
-			Assertions.assertEquals(Set.of(".pdf"), Extensions.from(fileMap.get(4)));
-			Assertions.assertEquals(Set.of(".png", ".jpg", ".jpeg"), Extensions.from(fileMap.get(5)));
+			Assertions.assertEquals(new HashSet<>(Arrays.asList(".pdf")), Extensions.from(fileMap.get(1)));
+			Assertions.assertEquals(new HashSet<>(Arrays.asList(".pdf")), Extensions.from(fileMap.get(2)));
+			Assertions.assertEquals(new HashSet<>(Arrays.asList(".pdf")), Extensions.from(fileMap.get(3)));
+			Assertions.assertEquals(new HashSet<>(Arrays.asList(".pdf")), Extensions.from(fileMap.get(4)));
+			Assertions.assertEquals(new HashSet<>(Arrays.asList(".png", ".jpg", ".jpeg")), Extensions.from(fileMap.get(5)));
 		});
 	}
 
