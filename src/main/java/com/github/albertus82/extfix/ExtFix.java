@@ -114,7 +114,6 @@ public class ExtFix implements Callable<Integer> {
 				}
 				count++;
 				System.out.print('\b');
-				System.out.print(getWaitChar());
 			}
 			catch (final MimeTypeException | IOException | RuntimeException e) {
 				System.out.println();
@@ -123,8 +122,8 @@ public class ExtFix implements Callable<Integer> {
 				}
 				System.err.println("Skipped '" + p + "'.");
 				System.out.print("Analyzing... ");
-				System.out.print(getWaitChar());
 			}
+			System.out.print(getWaitChar());
 		});
 
 		System.out.println();
