@@ -219,7 +219,7 @@ public class ExtFix implements Callable<Integer> {
 
 	private static void clearConsoleLine() {
 		final StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < ANALYZING.length() + 1; i++) {
+		for (int i = 0; i < ANALYZING.length(); i++) {
 			sb.append('\b');
 		}
 		System.out.print(sb);
