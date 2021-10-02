@@ -78,6 +78,7 @@ public class ExtFix implements Callable<Integer> {
 		final List<String> suffixes = extensions.get();
 		System.out.println("Extensions: " + suffixes + '.');
 		final Stream<Path> stream = PathUtils.walk(basePath, CanReadFileFilter.CAN_READ.and(new SuffixFileFilter(suffixes, IOCase.INSENSITIVE)), Short.MAX_VALUE, false, FileVisitOption.FOLLOW_LINKS);
+		System.out.print("Analyzing... |");
 		stream.filter(path -> path.getFileName() != null).forEach(p -> {
 			try {
 				final Path path = p.toFile().getCanonicalFile().toPath();
@@ -99,6 +100,8 @@ public class ExtFix implements Callable<Integer> {
 					}
 				}
 				count++;
+				System.out.print('\b');
+				System.out.print(getWaitChar());
 			}
 			catch (final MimeTypeException | IOException | RuntimeException e) {
 				System.err.println("Skipped '" + p + "'.");
@@ -108,6 +111,7 @@ public class ExtFix implements Callable<Integer> {
 			}
 		});
 
+		System.out.println();
 		System.out.println(count + " files analyzed.");
 
 		for (final Entry<Path, Path> e : renames.entrySet()) {
@@ -142,6 +146,19 @@ public class ExtFix implements Callable<Integer> {
 		}
 		else {
 			return Optional.empty();
+		}
+	}
+
+	private char getWaitChar() {
+		switch (count % 4) {
+		case 0:
+			return '|';
+		case 1:
+			return '/';
+		case 2:
+			return '-';
+		default:
+			return '\\';
 		}
 	}
 
