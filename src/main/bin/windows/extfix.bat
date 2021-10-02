@@ -1,1 +1,0 @@
-@java -jar "%~dp0/${project.build.finalName}.${project.packaging}" %*

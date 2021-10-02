@@ -72,17 +72,7 @@
 								<phase>process-sources</phase>
 								<configuration>
 									<target>
-										<tstamp>
-											<format property="tstamp.backup"
-												pattern="yyyy-MM-dd_HH.mm.ss.SSS" />
-										</tstamp>
-										<zip
-											destfile="${project.build.sourceDirectory}_${tstamp.backup}.zip"
-											basedir="${project.build.sourceDirectory}" level="9" />
-										<copy overwrite="true" verbose="true"
-											todir="${project.build.sourceDirectory}">
-											<fileset dir="${lombok.outputDirectory}" />
-										</copy>
+										<ant target="codeql-delombok" />
 									</target>
 								</configuration>
 								<goals>
@@ -93,19 +83,8 @@
 								<id>replace-test-sources</id>
 								<phase>process-test-sources</phase>
 								<configuration>
-									<failOnError>false</failOnError>
 									<target>
-										<tstamp>
-											<format property="tstamp.backup.test"
-												pattern="yyyy-MM-dd_HH.mm.ss.SSS" />
-										</tstamp>
-										<zip
-											destfile="${project.build.testSourceDirectory}_${tstamp.backup.test}.zip"
-											basedir="${project.build.testSourceDirectory}" level="9" />
-										<copy overwrite="true" verbose="true"
-											todir="${project.build.testSourceDirectory}">
-											<fileset dir="${lombok.testOutputDirectory}" />
-										</copy>
+										<ant target="codeql-delombok-test" />
 									</target>
 								</configuration>
 								<goals>
@@ -260,43 +239,6 @@
 			</plugin>
 
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>3.3.0</version>
-				<configuration>
-					<finalName>${project.artifactId}-${project.version}</finalName>
-				</configuration>
-				<executions>
-					<execution>
-						<id>unix</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<outputTimestamp>${zoned.git.commit.time}</outputTimestamp>
-							<descriptors>
-								<descriptor>src/assembly/unix.xml</descriptor>
-							</descriptors>
-						</configuration>
-					</execution>
-					<execution>
-						<id>windows</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<outputTimestamp>${local.git.commit.time}</outputTimestamp>
-							<descriptors>
-								<descriptor>src/assembly/windows.xml</descriptor>
-							</descriptors>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.8.7</version>
@@ -328,15 +270,22 @@
 						</goals>
 						<configuration>
 							<target>
-								<propertyfile file="lombok.config"
-									jdkproperties="true">
-									<entry key="config.stopBubbling" value="true" />
-									<entry key="lombok.addLombokGeneratedAnnotation"
-										value="true" />
-								</propertyfile>
+								<ant target="lombok" />
 							</target>
 						</configuration>
 						<?m2e execute?>
+					</execution>
+					<execution>
+						<id>launch4j</id>
+						<phase>package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<ant target="launch4j" />
+							</target>
+						</configuration>
 					</execution>
 					<execution>
 						<phase>integration-test</phase>
@@ -345,29 +294,45 @@
 						</goals>
 						<configuration>
 							<target>
-								<property name="checksums.file"
-									value="${project.build.directory}/checksums.md" />
-								<property name="checksums.directory"
-									value="${project.build.directory}/checksums" />
-								<delete file="${checksums.file}" />
-								<checksum algorithm="SHA-256"
-									todir="${checksums.directory}" forceoverwrite="yes"
-									fileext=".sha256"
-									pattern="* {1}&#13;&#10;[`{0}`](https://www.virustotal.com/it/file/{0}/analysis/)">
-									<fileset dir="${project.build.directory}">
-										<include name="*.tar.gz" />
-										<include name="*.zip" />
-									</fileset>
-								</checksum>
-								<echo file="${checksums.file}"
-									message="### Checksums SHA-256&#13;&#10;" />
-								<concat destfile="${checksums.file}" append="true">
-									<fileset dir="${checksums.directory}" />
-								</concat>
-								<loadfile property="checksums.file.contents"
-									srcFile="${checksums.file}" />
-								<echo level="info" message="${checksums.file.contents}" />
+								<ant target="checksums" />
 							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>3.3.0</version>
+				<configuration>
+					<finalName>${project.artifactId}-${project.version}</finalName>
+				</configuration>
+				<executions>
+					<execution>
+						<id>unix</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<outputTimestamp>${zoned.git.commit.time}</outputTimestamp>
+							<descriptors>
+								<descriptor>src/assembly/unix.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+					<execution>
+						<id>windows</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<outputTimestamp>${local.git.commit.time}</outputTimestamp>
+							<descriptors>
+								<descriptor>src/assembly/windows.xml</descriptor>
+							</descriptors>
 						</configuration>
 					</execution>
 				</executions>
