@@ -123,6 +123,7 @@ class ExtFixTest {
 		Assertions.assertThrows(NullPointerException.class, () -> ExtFix.fixFileName(null, null));
 	}
 
+	@Test
 	void testRename() {
 		final ExtFix extFix = new ExtFix();
 		Assertions.assertThrows(NullPointerException.class, () -> extFix.rename(null, null));
