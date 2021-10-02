@@ -89,10 +89,10 @@ public class ExtFix implements Callable<Integer> {
 		final Stream<Path> stream = PathUtils.walk(basePath, CanReadFileFilter.CAN_READ.and(new SuffixFileFilter(suffixes, IOCase.INSENSITIVE)), Short.MAX_VALUE, false, option.toArray(new FileVisitOption[option.size()]));
 
 		System.out.print("Analyzing... ");
-		System.out.print(getWaitChar());
 
 		final Map<Path, Path> renames = new TreeMap<>();
 		stream.filter(path -> path.getFileName() != null).forEach(p -> {
+			System.out.print(getWaitChar());
 			try {
 				final Path path = p.toFile().getCanonicalFile().toPath();
 				final String mediaType = tika.detect(path);
@@ -114,7 +114,6 @@ public class ExtFix implements Callable<Integer> {
 				}
 				count++;
 				System.out.print('\b');
-				System.out.print(getWaitChar());
 			}
 			catch (final MimeTypeException | IOException | RuntimeException e) {
 				System.out.println();
@@ -123,7 +122,6 @@ public class ExtFix implements Callable<Integer> {
 				}
 				System.err.println("Skipped '" + p + "'.");
 				System.out.print("Analyzing... ");
-				System.out.print(getWaitChar());
 			}
 		});
 
