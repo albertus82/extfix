@@ -104,15 +104,15 @@ public class Analyzer implements PathVisitor {
 				out.printAnalysisMessage("Cannot detect media type of '" + path + "'.");
 			}
 			else {
-				final List<String> exts = tikaConfig.getMimeRepository().forName(mediaType).getExtensions();
-				log.debug("{} <- {}", exts, path);
-				if (exts.isEmpty()) {
+				final List<String> knownExtensions = tikaConfig.getMimeRepository().forName(mediaType).getExtensions();
+				log.debug("{} <- {}", knownExtensions, path);
+				if (knownExtensions.isEmpty()) {
 					out.printAnalysisMessage("Cannot determine extension for '" + path + "'.");
 				}
 				else {
-					findBetterExtension(path, exts).ifPresent(ext -> {
-						results.put(path, ext);
-						out.printAnalysisMessage("Found " + ext.toUpperCase() + " file with unexpected extension: '" + path + "'.");
+					findBetterExtension(path, knownExtensions).ifPresent(extension -> {
+						results.put(path, extension);
+						out.printAnalysisMessage("Found " + extension.toUpperCase() + " file with unexpected extension: '" + path + "'.");
 					});
 				}
 			}
