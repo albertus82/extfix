@@ -5,22 +5,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.file.FileVisitOption;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 
-import org.apache.commons.io.IOCase;
-import org.apache.commons.io.filefilter.CanReadFileFilter;
-import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.lang3.StringUtils;
 
 import lombok.NoArgsConstructor;
@@ -77,44 +70,8 @@ public class ExtFix implements Callable<Integer> {
 		basePath = basePath.toFile().getCanonicalFile().toPath();
 		con.printLine("Base path: '" + basePath + "'.");
 
-		final List<String> suffixes = extensions.get();
-		con.printLine("Extensions: " + suffixes + '.');
-
-		final Analyzer analyzer = new Analyzer(con);
-
-		Files.walkFileTree(basePath, links ? EnumSet.of(FileVisitOption.FOLLOW_LINKS) : Collections.emptySet(), Short.MAX_VALUE, new FileVisitor<Path>() {
-			@Override
-			public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException {
-				con.printAnalysisProgress(dir);
-				return FileVisitResult.CONTINUE;
-			}
-
-			@Override
-			public FileVisitResult visitFile(@NonNull Path path, final BasicFileAttributes attrs) {
-				if (FileVisitResult.CONTINUE.equals((new SuffixFileFilter(suffixes, IOCase.INSENSITIVE)).accept(path, attrs))) {
-					if (FileVisitResult.CONTINUE.equals(CanReadFileFilter.CAN_READ.accept(path, attrs))) {
-						analyzer.analyze(path);
-					}
-					else {
-						con.printAnalysisMessage("Skipping not readable file '" + path + "'.");
-					}
-				}
-				return FileVisitResult.CONTINUE;
-			}
-
-			@Override
-			public FileVisitResult visitFileFailed(final Path file, final IOException e) {
-				con.printAnalysisError("Skipping '" + file + "' due to an exception: " + e, e);
-				return FileVisitResult.CONTINUE;
-			}
-
-			@Override
-			public FileVisitResult postVisitDirectory(final Path dir, final IOException e) {
-				return FileVisitResult.CONTINUE;
-			}
-
-		});
-
+		final Analyzer analyzer = new Analyzer(con, extensions.get());
+		Files.walkFileTree(basePath, links ? EnumSet.of(FileVisitOption.FOLLOW_LINKS) : Collections.emptySet(), Short.MAX_VALUE, analyzer);
 		con.clearAnalysisLine();
 		con.printLine(analyzer.getCount() + " files analyzed.");
 

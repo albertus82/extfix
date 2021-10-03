@@ -6,7 +6,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -31,7 +30,7 @@ public class Renamer {
 		}
 	}
 
-	Optional<Path> rename(@NonNull final Path source, @NonNull Path target) { // non-private for test only access
+	void rename(@NonNull final Path source, @NonNull Path target) { // non-private for test only access
 		int i = 0;
 		while (Files.exists(target)) {
 			target = Paths.get(FilenameUtils.removeExtension(target.toString()) + " (" + ++i + ")." + FilenameUtils.getExtension(target.toString()));
@@ -43,12 +42,10 @@ public class Renamer {
 			}
 			count++;
 			con.printLine("Done.");
-			return Optional.of(target);
 		}
 		catch (final IOException e) {
 			con.printLine("Failed.");
 			con.printError("Cannot rename '" + source + "' due to an exception: " + e, e);
-			return Optional.empty();
 		}
 	}
 

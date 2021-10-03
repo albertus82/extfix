@@ -2,14 +2,20 @@ package com.github.albertus82.extfix;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOCase;
+import org.apache.commons.io.file.PathVisitor;
+import org.apache.commons.io.filefilter.CanReadFileFilter;
+import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.tika.Tika;
 import org.apache.tika.config.TikaConfig;
 import org.apache.tika.mime.MimeTypeException;
@@ -17,20 +23,19 @@ import org.apache.tika.mime.MimeTypeException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@RequiredArgsConstructor
-public class Analyzer {
+public class Analyzer implements PathVisitor {
 
 	private final TikaConfig tikaConfig = TikaConfig.getDefaultConfig();
 
 	@Getter(value = AccessLevel.PACKAGE) // for test only access
 	private final Tika tika = new Tika(tikaConfig);
 
-	@NonNull
 	private final Console con;
+
+	private final List<String> suffixes;
 
 	@Getter
 	private final Map<Path, Path> renames = new TreeMap<>();
@@ -38,7 +43,43 @@ public class Analyzer {
 	@Getter
 	private int count;
 
-	public void analyze(@NonNull final Path path) {
+	public Analyzer(@NonNull final Console con, @NonNull final List<String> suffixes) {
+		this.con = con;
+		this.suffixes = suffixes;
+		con.printLine("Extensions: " + suffixes + '.');
+	}
+
+	@Override
+	public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException {
+		con.printAnalysisProgress(dir);
+		return FileVisitResult.CONTINUE;
+	}
+
+	@Override
+	public FileVisitResult visitFile(@NonNull Path path, final BasicFileAttributes attrs) {
+		if (FileVisitResult.CONTINUE.equals((new SuffixFileFilter(suffixes, IOCase.INSENSITIVE)).accept(path, attrs))) {
+			if (FileVisitResult.CONTINUE.equals(CanReadFileFilter.CAN_READ.accept(path, attrs))) {
+				analyze(path);
+			}
+			else {
+				con.printAnalysisMessage("Skipping not readable file '" + path + "'.");
+			}
+		}
+		return FileVisitResult.CONTINUE;
+	}
+
+	@Override
+	public FileVisitResult visitFileFailed(final Path file, final IOException e) {
+		con.printAnalysisError("Skipping '" + file + "' due to an exception: " + e, e);
+		return FileVisitResult.CONTINUE;
+	}
+
+	@Override
+	public FileVisitResult postVisitDirectory(final Path dir, final IOException e) {
+		return FileVisitResult.CONTINUE;
+	}
+
+	private void analyze(@NonNull final Path path) {
 		final Path absolutePath = toAbsolutePath(path);
 		try {
 			final String mediaType = tika.detect(absolutePath);
