@@ -135,11 +135,10 @@ public class ExtFix implements Callable<Integer> {
 							con.printAnalysisMessage("Cannot determine extension for '" + path + "'.");
 						}
 						else {
-							final Optional<Path> fixed = fixFileName(path, exts);
-							if (fixed.isPresent()) {
-								renames.put(path, fixed.get());
-								con.printAnalysisMessage("Found " + FilenameUtils.getExtension(fixed.get().toString()).toUpperCase() + " file with wrong extension: '" + path + "'.");
-							}
+							fixFileName(path, exts).ifPresent(fixed -> {
+								renames.put(path, fixed);
+								con.printAnalysisMessage("Found " + FilenameUtils.getExtension(fixed.toString()).toUpperCase() + " file with wrong extension: '" + path + "'.");
+							});
 						}
 					}
 					count++;
