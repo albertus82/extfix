@@ -3,7 +3,6 @@ package com.github.albertus82.extfix;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UncheckedIOException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -69,7 +68,7 @@ public class ExtFix implements Callable<Integer> {
 			out.printLine("Error stack traces are turned on.");
 		}
 
-		basePath = basePath.toFile().getCanonicalFile().toPath();
+		basePath = PathUtils.absolute(basePath);
 		out.printLine("Base path: '" + basePath + "'.");
 
 		final Analyzer analyzer = new Analyzer(out, extensions.get());
@@ -80,16 +79,11 @@ public class ExtFix implements Callable<Integer> {
 		if (!yes) {
 			out.print(analyzer.getResults().size() + " files are about to be renamed. Do you want to continue? [y/N] ");
 			final BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-			try {
-				final String userAnswer = StringUtils.trimToEmpty(br.readLine());
-				final Collection<String> yesAnswers = Arrays.asList("yes", "y");
-				if (!yesAnswers.contains(userAnswer.toLowerCase()) && !yesAnswers.contains(userAnswer.toLowerCase(Locale.ROOT))) {
-					out.printLine("Abort.");
-					return ExitCode.OK; // exit immediately
-				}
-			}
-			catch (final IOException e) {
-				throw new UncheckedIOException(e);
+			final String userAnswer = StringUtils.trimToEmpty(br.readLine());
+			final Collection<String> yesAnswers = Arrays.asList("yes", "y");
+			if (!yesAnswers.contains(userAnswer.toLowerCase()) && !yesAnswers.contains(userAnswer.toLowerCase(Locale.ROOT))) {
+				out.printLine("Abort.");
+				return ExitCode.OK; // exit immediately
 			}
 		}
 

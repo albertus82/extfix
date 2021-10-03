@@ -1,6 +1,5 @@
 package com.github.albertus82.extfix;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
@@ -71,7 +70,7 @@ public class Analyzer implements PathVisitor {
 	public FileVisitResult visitFile(@NonNull Path path, final BasicFileAttributes attrs) {
 		if (FileVisitResult.CONTINUE.equals(pathFilter.accept(path, attrs)) && FileVisitResult.CONTINUE.equals(FileFileFilter.INSTANCE.accept(path, attrs))) {
 			if (FileVisitResult.CONTINUE.equals(CanReadFileFilter.CAN_READ.accept(path, attrs))) {
-				analyze(absolute(path));
+				analyze(PathUtils.absolute(path));
 			}
 			else {
 				skippedCount++;
@@ -133,17 +132,6 @@ public class Analyzer implements PathVisitor {
 		}
 		else {
 			return Optional.empty();
-		}
-	}
-
-	private static Path absolute(@NonNull final Path path) {
-		final File file = path.toFile();
-		try {
-			return file.getCanonicalFile().toPath();
-		}
-		catch (final IOException e) {
-			log.debug("Cannot obtain canonical path, falling back to absolute path:", e);
-			return file.getAbsoluteFile().toPath();
 		}
 	}
 
