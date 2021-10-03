@@ -17,6 +17,7 @@ import org.apache.commons.io.IOCase;
 import org.apache.commons.io.file.PathFilter;
 import org.apache.commons.io.file.PathVisitor;
 import org.apache.commons.io.filefilter.CanReadFileFilter;
+import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.tika.Tika;
 import org.apache.tika.config.TikaConfig;
@@ -59,7 +60,7 @@ public class Analyzer implements PathVisitor {
 	}
 
 	@Override
-	public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException {
+	public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) {
 		out.printAnalysisProgress(dir);
 		return FileVisitResult.CONTINUE;
 	}
@@ -67,8 +68,8 @@ public class Analyzer implements PathVisitor {
 	@Override
 	public FileVisitResult visitFile(@NonNull Path path, final BasicFileAttributes attrs) {
 		if (FileVisitResult.CONTINUE.equals(pathFilter.accept(path, attrs))) {
-			if (FileVisitResult.CONTINUE.equals(CanReadFileFilter.CAN_READ.accept(path, attrs))) {
-				analyze(path);
+			if (FileVisitResult.CONTINUE.equals(FileFileFilter.INSTANCE.accept(path, attrs)) && FileVisitResult.CONTINUE.equals(CanReadFileFilter.CAN_READ.accept(path, attrs))) {
+				analyze(absolute(path));
 			}
 			else {
 				out.printAnalysisMessage("Skipping not readable file '" + path + "'.");
@@ -79,39 +80,44 @@ public class Analyzer implements PathVisitor {
 
 	@Override
 	public FileVisitResult visitFileFailed(final Path file, final IOException e) {
+		if (e != null) {
+			log.debug(String.valueOf(file), e);
+		}
 		out.printAnalysisError("Skipping '" + file + "' due to an exception: " + e, e);
 		return FileVisitResult.CONTINUE;
 	}
 
 	@Override
 	public FileVisitResult postVisitDirectory(final Path dir, final IOException e) {
+		if (e != null) {
+			log.debug(String.valueOf(dir), e);
+		}
 		return FileVisitResult.CONTINUE;
 	}
 
 	private void analyze(@NonNull final Path path) {
-		final Path absolutePath = toAbsolutePath(path);
 		try {
-			final String mediaType = tika.detect(absolutePath);
+			final String mediaType = tika.detect(path);
 			if (mediaType == null) {
-				out.printAnalysisMessage("Cannot determine type of '" + absolutePath + "'.");
+				out.printAnalysisMessage("Cannot determine type of '" + path + "'.");
 			}
 			else {
 				final List<String> exts = tikaConfig.getMimeRepository().forName(mediaType).getExtensions();
-				log.debug("{} <- {}", exts, absolutePath);
+				log.debug("{} <- {}", exts, path);
 				if (exts.isEmpty()) {
-					out.printAnalysisMessage("Cannot determine extension for '" + absolutePath + "'.");
+					out.printAnalysisMessage("Cannot determine extension for '" + path + "'.");
 				}
 				else {
-					fixFileName(absolutePath, exts).ifPresent(fixed -> {
-						renames.put(absolutePath, fixed);
-						out.printAnalysisMessage("Found " + FilenameUtils.getExtension(fixed.toString()).toUpperCase() + " file with wrong extension: '" + absolutePath + "'.");
+					fixFileName(path, exts).ifPresent(fixed -> {
+						renames.put(path, fixed);
+						out.printAnalysisMessage("Found " + FilenameUtils.getExtension(fixed.toString()).toUpperCase() + " file with wrong extension: '" + path + "'.");
 					});
 				}
 			}
 			count++;
 		}
 		catch (final MimeTypeException | IOException | RuntimeException e) {
-			out.printAnalysisError("Skipping '" + absolutePath + "' due to an exception: " + e, e);
+			out.printAnalysisError("Skipping '" + path + "' due to an exception: " + e, e);
 		}
 	}
 
@@ -130,7 +136,7 @@ public class Analyzer implements PathVisitor {
 		}
 	}
 
-	private static Path toAbsolutePath(@NonNull final Path path) {
+	private static Path absolute(@NonNull final Path path) {
 		final File file = path.toFile();
 		try {
 			return file.getCanonicalFile().toPath();
