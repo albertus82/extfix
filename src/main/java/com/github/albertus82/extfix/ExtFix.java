@@ -38,27 +38,29 @@ public class ExtFix implements Callable<Integer> {
 	@Parameters(paramLabel = "<BASE_PATH>", description = "Base directory to scan.")
 	private Path basePath;
 
-	@Option(names = { "-n", "--dry-run" }, description = "Do everything except actually rename the files.")
-	private boolean dryRun;
-
-	@Option(names = { "-y", "--yes" }, description = "Automatic yes to prompts (run non-interactively).")
-	private boolean yes;
-
-	@Option(names = { "-X", "--errors" }, description = "Produce execution error messages.")
-	private boolean errors;
-
-	@Option(names = { "-L", "--links" }, description = "Follow links.")
-	private boolean links;
-
 	@NonNull
 	@ArgGroup(exclusive = true)
 	private Extensions extensions = new Extensions();
 
-	ExtFix(@NonNull final Path basePath, final boolean dryRun, final boolean yes, @NonNull final Extensions extensions) { // for test only access
+	@Option(names = { "-L", "--links" }, description = "Follow links.")
+	private boolean links;
+
+	@Option(names = { "-n", "--dry-run" }, description = "Do everything except actually rename the files.")
+	private boolean dryRun;
+
+	@Option(names = { "-X", "--errors" }, description = "Produce execution error messages.")
+	private boolean errors;
+
+	@Option(names = { "-y", "--yes" }, description = "Automatic yes to prompts (run non-interactively).")
+	private boolean yes;
+
+	ExtFix(@NonNull Path basePath, @NonNull Extensions extensions, boolean links, boolean dryRun, boolean errors, boolean yes) { // for test only access
 		this.basePath = basePath;
-		this.dryRun = dryRun;
-		this.yes = yes;
 		this.extensions = extensions;
+		this.links = links;
+		this.dryRun = dryRun;
+		this.errors = errors;
+		this.yes = yes;
 	}
 
 	public static void main(final String... args) {
