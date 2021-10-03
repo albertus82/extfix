@@ -3,6 +3,7 @@ package com.github.albertus82.extfix;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -26,7 +27,7 @@ public class Console {
 
 	private String currentDirectory = "";
 
-	private boolean firstTime = true;
+	private final AtomicBoolean firstTime = new AtomicBoolean(true);
 
 	public Console() {
 		this.width = 80;
@@ -35,9 +36,8 @@ public class Console {
 	public void printAnalysisProgress(@NonNull final Path path) {
 		final int limit = width - 1;
 		final StringBuilder sb = new StringBuilder();
-		if (firstTime) {
+		if (firstTime.compareAndSet(true, false)) {
 			sb.append(ANALYSIS_PREFIX);
-			firstTime = false;
 		}
 		for (int i = 0; i < currentDirectory.length(); i++) {
 			sb.append('\b');
