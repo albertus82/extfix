@@ -75,7 +75,7 @@ public class ExtFix implements Callable<Integer> {
 		System.exit(new CommandLine(new ExtFix()).setCommandName(BuildInfo.getProperty("project.artifactId")).setOptionsCaseInsensitive(true).execute(args));
 	}
 
-	private volatile int count = 0;
+	private volatile int analyzedCount = 0;
 
 	@Override
 	public Integer call() throws IOException {
@@ -141,7 +141,7 @@ public class ExtFix implements Callable<Integer> {
 							});
 						}
 					}
-					count++;
+					analyzedCount++;
 				}
 				catch (final MimeTypeException | IOException | RuntimeException e) {
 					con.printAnalysisError("Skipping '" + path + "' due to an exception: " + e, e);
@@ -150,26 +150,37 @@ public class ExtFix implements Callable<Integer> {
 		});
 
 		con.clearAnalysisLine();
-		con.printLine(count + " files analyzed.");
+		con.printLine(analyzedCount + " files analyzed.");
 
+		int renamedCount = 0;
 		for (final Entry<Path, Path> e : renames.entrySet()) {
-			rename(e.getKey(), e.getValue());
+			if (rename(e.getKey(), e.getValue()).isPresent()) {
+				renamedCount++;
+			}
 		}
-		con.printLine(renames.size() + " files renamed.");
+		con.printLine(renamedCount + " files renamed.");
 
 		return ExitCode.OK;
 	}
 
-	Path rename(@NonNull final Path source, @NonNull Path target) throws IOException { // non-private for test only access
+	Optional<Path> rename(@NonNull final Path source, @NonNull Path target) { // non-private for test only access
 		int i = 0;
 		while (Files.exists(target)) {
 			target = Paths.get(FilenameUtils.removeExtension(target.toString()) + " (" + ++i + ")." + FilenameUtils.getExtension(target.toString()));
 		}
-		con.printLine("Renaming '" + source + "' to '" + target + "'.");
-		if (!dryRun) {
-			Files.move(source, target);
+		con.print("Renaming '" + source + "' to '" + target + "'... ");
+		try {
+			if (!dryRun) {
+				Files.move(source, target);
+			}
+			con.printLine("done.");
+			return Optional.of(target);
 		}
-		return target;
+		catch (final IOException e) {
+			con.printLine("failed.");
+			con.printError("Cannot rename '" + source + "' due to an exception: " + e, e);
+			return Optional.empty();
+		}
 	}
 
 	static Optional<Path> fixFileName(@NonNull final Path path, @NonNull final List<String> knownExtensions) { // non-private for test only access

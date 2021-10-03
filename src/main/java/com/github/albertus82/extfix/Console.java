@@ -82,6 +82,17 @@ public class Console {
 		out.println(x);
 	}
 
+	public void print(final String x) {
+		out.print(x);
+	}
+
+	public void printError(final String message, final Throwable e) {
+		if (stackTraces && e != null) {
+			e.printStackTrace();
+		}
+		out.println(message);
+	}
+
 	private static String pathToString(@NonNull final Path path) {
 		final File file = path.toFile();
 		try {
