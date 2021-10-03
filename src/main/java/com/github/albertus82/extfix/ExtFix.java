@@ -1,7 +1,6 @@
 package com.github.albertus82.extfix;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
@@ -10,7 +9,6 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Collection;
@@ -18,26 +16,15 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.TreeMap;
 import java.util.concurrent.Callable;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.CanReadFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.tika.Tika;
-import org.apache.tika.config.TikaConfig;
-import org.apache.tika.mime.MimeTypeException;
 
-import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -45,15 +32,9 @@ import picocli.CommandLine.ExitCode;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@Slf4j
 @NoArgsConstructor
 @Command(description = "File Extension Fix Tool", mixinStandardHelpOptions = true, versionProvider = VersionProvider.class)
 public class ExtFix implements Callable<Integer> {
-
-	private final TikaConfig tikaConfig = TikaConfig.getDefaultConfig();
-
-	@Getter(value = AccessLevel.PACKAGE) // for test only access
-	private final Tika tika = new Tika(tikaConfig);
 
 	private final Console con = new Console();
 
@@ -86,8 +67,6 @@ public class ExtFix implements Callable<Integer> {
 		System.exit(new CommandLine(new ExtFix()).setCommandName(BuildInfo.getProperty("project.artifactId")).setOptionsCaseInsensitive(true).execute(args));
 	}
 
-	private volatile int analyzedCount = 0;
-
 	@Override
 	public Integer call() throws IOException {
 		if (errors) {
@@ -101,7 +80,8 @@ public class ExtFix implements Callable<Integer> {
 		final List<String> suffixes = extensions.get();
 		con.printLine("Extensions: " + suffixes + '.');
 
-		final Map<Path, Path> renames = new TreeMap<>();
+		final Analyzer analyzer = new Analyzer(con);
+
 		Files.walkFileTree(basePath, links ? EnumSet.of(FileVisitOption.FOLLOW_LINKS) : Collections.emptySet(), Short.MAX_VALUE, new FileVisitor<Path>() {
 			@Override
 			public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException {
@@ -113,7 +93,7 @@ public class ExtFix implements Callable<Integer> {
 			public FileVisitResult visitFile(@NonNull Path path, final BasicFileAttributes attrs) {
 				if (FileVisitResult.CONTINUE.equals((new SuffixFileFilter(suffixes, IOCase.INSENSITIVE)).accept(path, attrs))) {
 					if (FileVisitResult.CONTINUE.equals(CanReadFileFilter.CAN_READ.accept(path, attrs))) {
-						analyze(toAbsolutePath(path));
+						analyzer.analyze(path);
 					}
 					else {
 						con.printAnalysisMessage("Skipping not readable file '" + path + "'.");
@@ -133,38 +113,13 @@ public class ExtFix implements Callable<Integer> {
 				return FileVisitResult.CONTINUE;
 			}
 
-			private void analyze(@NonNull final Path path) {
-				try {
-					final String mediaType = tika.detect(path);
-					if (mediaType == null) {
-						con.printAnalysisMessage("Cannot determine type of '" + path + "'.");
-					}
-					else {
-						final List<String> exts = tikaConfig.getMimeRepository().forName(mediaType).getExtensions();
-						log.debug("{} <- {}", exts, path);
-						if (exts.isEmpty()) {
-							con.printAnalysisMessage("Cannot determine extension for '" + path + "'.");
-						}
-						else {
-							fixFileName(path, exts).ifPresent(fixed -> {
-								renames.put(path, fixed);
-								con.printAnalysisMessage("Found " + FilenameUtils.getExtension(fixed.toString()).toUpperCase() + " file with wrong extension: '" + path + "'.");
-							});
-						}
-					}
-					analyzedCount++;
-				}
-				catch (final MimeTypeException | IOException | RuntimeException e) {
-					con.printAnalysisError("Skipping '" + path + "' due to an exception: " + e, e);
-				}
-			}
 		});
 
 		con.clearAnalysisLine();
-		con.printLine(analyzedCount + " files analyzed.");
+		con.printLine(analyzer.getCount() + " files analyzed.");
 
 		if (!yes) {
-			con.print(renames.size() + " files are about to be renamed. Do you want to continue? [y/N] ");
+			con.print(analyzer.getRenames().size() + " files are about to be renamed. Do you want to continue? [y/N] ");
 			final BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 			try {
 				final String userAnswer = StringUtils.trimToEmpty(br.readLine());
@@ -179,61 +134,11 @@ public class ExtFix implements Callable<Integer> {
 			}
 		}
 
-		int renamedCount = 0;
-		for (final Entry<Path, Path> e : renames.entrySet()) {
-			if (rename(e.getKey(), e.getValue()).isPresent()) {
-				renamedCount++;
-			}
-		}
-		con.printLine(renamedCount + " files renamed.");
+		final Renamer renamer = new Renamer(con, dryRun);
+		renamer.rename(analyzer.getRenames());
+		con.printLine(renamer.getCount() + " files renamed.");
 
 		return ExitCode.OK;
-	}
-
-	Optional<Path> rename(@NonNull final Path source, @NonNull Path target) { // non-private for test only access
-		int i = 0;
-		while (Files.exists(target)) {
-			target = Paths.get(FilenameUtils.removeExtension(target.toString()) + " (" + ++i + ")." + FilenameUtils.getExtension(target.toString()));
-		}
-		con.print("Renaming '" + source + "' to '" + target + "'... ");
-		try {
-			if (!dryRun) {
-				Files.move(source, target);
-			}
-			con.printLine("Done.");
-			return Optional.of(target);
-		}
-		catch (final IOException e) {
-			con.printLine("Failed.");
-			con.printError("Cannot rename '" + source + "' due to an exception: " + e, e);
-			return Optional.empty();
-		}
-	}
-
-	static Optional<Path> fixFileName(@NonNull final Path path, @NonNull final List<String> knownExtensions) { // non-private for test only access
-		final String currentFileName = path.toString();
-		final String currentExtension = FilenameUtils.getExtension(currentFileName);
-		final String bestExtension = knownExtensions.get(0);
-		if (currentExtension.isEmpty()) {
-			return Optional.of(Paths.get(currentFileName + bestExtension));
-		}
-		else if (knownExtensions.stream().noneMatch(e -> e.equalsIgnoreCase('.' + currentExtension))) {
-			return Optional.of(Paths.get(FilenameUtils.removeExtension(currentFileName) + bestExtension));
-		}
-		else {
-			return Optional.empty();
-		}
-	}
-
-	private static Path toAbsolutePath(@NonNull final Path path) {
-		final File file = path.toFile();
-		try {
-			return file.getCanonicalFile().toPath();
-		}
-		catch (final IOException e) {
-			log.debug("Cannot obtain canonical pathname:", e);
-			return file.getAbsoluteFile().toPath();
-		}
 	}
 
 }
