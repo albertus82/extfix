@@ -24,7 +24,6 @@ import org.apache.tika.mime.MimeTypeException;
 import com.github.albertus82.extfix.Console;
 import com.github.albertus82.extfix.util.PathUtils;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -33,8 +32,6 @@ import lombok.extern.slf4j.Slf4j;
 public class Analyzer implements PathVisitor {
 
 	private final TikaConfig tikaConfig = TikaConfig.getDefaultConfig();
-
-	@Getter(value = AccessLevel.PACKAGE) // for test only access
 	private final Tika tika = new Tika(tikaConfig);
 
 	@NonNull
@@ -102,9 +99,9 @@ public class Analyzer implements PathVisitor {
 
 	private void analyze(@NonNull final Path path) {
 		try {
-			final String mediaType = tika.detect(path);
+			final String mediaType = detectMediaType(path);
 			if (mediaType == null) {
-				out.printAnalysisMessage("Cannot determine type of '" + path + "'.");
+				out.printAnalysisMessage("Cannot detect media type of '" + path + "'.");
 			}
 			else {
 				final List<String> exts = tikaConfig.getMimeRepository().forName(mediaType).getExtensions();
@@ -125,6 +122,10 @@ public class Analyzer implements PathVisitor {
 			skippedCount++;
 			out.printAnalysisError("Skipping '" + path + "' due to an exception: " + e, e);
 		}
+	}
+
+	String detectMediaType(@NonNull final Path path) throws IOException {
+		return tika.detect(path);
 	}
 
 	static Optional<String> findBetterExtension(@NonNull final Path path, @NonNull final List<String> knownExtensions) { // non-private for test only access

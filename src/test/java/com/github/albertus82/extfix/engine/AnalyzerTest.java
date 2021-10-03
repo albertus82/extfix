@@ -1,47 +1,43 @@
 package com.github.albertus82.extfix.engine;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
-import org.apache.tika.Tika;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.github.albertus82.extfix.Console;
+import com.github.albertus82.extfix.FileTestUtils;
 
 class AnalyzerTest {
 
 	@Test
-	void testTika() throws IOException {
-		final Tika tika = new Analyzer(new Console()).getTika();
-		try (final InputStream is = getClass().getResourceAsStream("/jpeg.jpg")) {
-			Assertions.assertTrue(tika.detect(is).endsWith("jpeg"));
-		}
-		try (final InputStream is = getClass().getResourceAsStream("/jpeg.jpeg")) {
-			Assertions.assertTrue(tika.detect(is).endsWith("jpeg"));
-		}
-		try (final InputStream is = getClass().getResourceAsStream("/jpeg.png")) {
-			Assertions.assertTrue(tika.detect(is).endsWith("jpeg"));
-		}
-		try (final InputStream is = getClass().getResourceAsStream("/png.jpg")) {
-			Assertions.assertTrue(tika.detect(is).endsWith("png"));
-		}
-		try (final InputStream is = getClass().getResourceAsStream("/png.jpeg")) {
-			Assertions.assertTrue(tika.detect(is).endsWith("png"));
-		}
-		try (final InputStream is = getClass().getResourceAsStream("/png.png")) {
-			Assertions.assertTrue(tika.detect(is).endsWith("png"));
-		}
+	void testDetectMediaType() throws IOException {
+		FileTestUtils.runWithTempDir(path -> {
+			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.jpg", path);
+			final Path p2 = FileTestUtils.copyResourceToDir("jpeg.jpeg", path);
+			final Path p3 = FileTestUtils.copyResourceToDir("jpeg.png", path);
+			final Path p4 = FileTestUtils.copyResourceToDir("png.jpg", path);
+			final Path p5 = FileTestUtils.copyResourceToDir("png.jpeg", path);
+			final Path p6 = FileTestUtils.copyResourceToDir("png.png", path);
+			final Analyzer a = new Analyzer(new Console());
+			Assertions.assertTrue(a.detectMediaType(p1).toLowerCase(Locale.ROOT).endsWith("jpeg"));
+			Assertions.assertTrue(a.detectMediaType(p2).toLowerCase(Locale.ROOT).endsWith("jpeg"));
+			Assertions.assertTrue(a.detectMediaType(p3).toLowerCase(Locale.ROOT).endsWith("jpeg"));
+			Assertions.assertTrue(a.detectMediaType(p4).toLowerCase(Locale.ROOT).endsWith("png"));
+			Assertions.assertTrue(a.detectMediaType(p5).toLowerCase(Locale.ROOT).endsWith("png"));
+			Assertions.assertTrue(a.detectMediaType(p6).toLowerCase(Locale.ROOT).endsWith("png"));
+		});
 	}
 
 	@Test
-	void testFixFileName() {
+	void testFindBetterExtension() {
 		Assertions.assertEquals(Optional.empty(), Analyzer.findBetterExtension(Paths.get("/tmp/foo.txt"), Arrays.asList(".txt")));
 		Assertions.assertEquals(Optional.empty(), Analyzer.findBetterExtension(Paths.get("/tmp/foo.TXT"), Arrays.asList(".txt", ".bar")));
 		Assertions.assertEquals(Optional.empty(), Analyzer.findBetterExtension(Paths.get("/tmp/foo.txt"), Arrays.asList(".FOO", ".TXT")));

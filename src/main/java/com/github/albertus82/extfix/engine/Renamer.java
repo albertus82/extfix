@@ -29,13 +29,13 @@ public class Renamer {
 	@Getter
 	private int failedCount;
 
-	public void rename(@NonNull Map<Path, String> map) {
+	public void rename(@NonNull final Map<Path, String> map) {
 		for (final Entry<Path, String> e : map.entrySet()) {
 			rename(e.getKey(), e.getValue());
 		}
 	}
 
-	void rename(@NonNull final Path source, @NonNull final String newExtension) { // non-private for test only access
+	private void rename(@NonNull final Path source, @NonNull final String newExtension) {
 		final Path target = buildTarget(source, newExtension);
 		out.print("Renaming '" + source + "' to '" + target + "'... ");
 		try {

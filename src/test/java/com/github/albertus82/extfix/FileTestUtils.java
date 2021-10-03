@@ -12,13 +12,14 @@ import org.apache.commons.io.FileUtils;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FileTestUtils {
 
-	public static <T extends Throwable> void runWithTempDir(final TempDirExec<T> exec) throws IOException, T {
+	public static <T extends Throwable> void runWithTempDir(@NonNull final TempDirExec<T> exec) throws IOException, T {
 		final String uuid = UUID.randomUUID().toString().replace("-", "");
 		final File tempFile = File.createTempFile(uuid, null);
 		final File tempDir = new File(tempFile.getParent() + File.separator + uuid);
@@ -42,9 +43,12 @@ public class FileTestUtils {
 		}
 	}
 
-	public static Path copyResourceToDir(final String resourceName, final Path destDir) throws IOException {
+	public static Path copyResourceToDir(@NonNull String resourceName, @NonNull final Path destDir) throws IOException {
+		if (!resourceName.startsWith("/")) {
+			resourceName = '/' + resourceName;
+		}
 		final Path target = Paths.get(destDir.toString(), resourceName);
-		try (final InputStream in = FileTestUtils.class.getResourceAsStream('/' + resourceName)) {
+		try (final InputStream in = FileTestUtils.class.getResourceAsStream(resourceName)) {
 			Files.copy(in, target);
 			log.info("Created file \"{}\".", target);
 		}
