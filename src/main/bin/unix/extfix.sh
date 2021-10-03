@@ -10,4 +10,4 @@ while [ -h "$PRG" ]; do
   fi
 done
 PRGDIR=`dirname "$PRG"`
-java -jar "$PRGDIR/${project.build.finalName}.${project.packaging}" "$@"
+java -Xms${vm.initialHeapSize}m -jar "$PRGDIR/${project.build.finalName}.${project.packaging}" "$@"
