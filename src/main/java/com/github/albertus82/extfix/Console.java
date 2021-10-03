@@ -23,7 +23,7 @@ public class Console {
 	private final int width;
 
 	@Setter
-	private boolean errors;
+	private boolean stackTraces;
 
 	private String currentDirectory = "";
 
@@ -58,7 +58,7 @@ public class Console {
 
 	public synchronized void printAnalysisError(final String message, final Throwable e) {
 		clearAnalysisLine();
-		if (errors && e != null) {
+		if (stackTraces && e != null) {
 			e.printStackTrace();
 		}
 		out.println(message);

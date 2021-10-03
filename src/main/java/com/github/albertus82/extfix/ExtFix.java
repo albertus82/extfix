@@ -80,8 +80,8 @@ public class ExtFix implements Callable<Integer> {
 	@Override
 	public Integer call() throws IOException {
 		if (errors) {
-			con.setErrors(errors);
-			con.printLine("Error stacktraces are turned on.");
+			con.setStackTraces(true);
+			con.printLine("Error stack traces are turned on.");
 		}
 
 		basePath = basePath.toFile().getCanonicalFile().toPath();
