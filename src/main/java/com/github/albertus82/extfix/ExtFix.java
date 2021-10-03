@@ -173,11 +173,11 @@ public class ExtFix implements Callable<Integer> {
 			if (!dryRun) {
 				Files.move(source, target);
 			}
-			con.printLine("done.");
+			con.printLine("Done.");
 			return Optional.of(target);
 		}
 		catch (final IOException e) {
-			con.printLine("failed.");
+			con.printLine("Failed.");
 			con.printError("Cannot rename '" + source + "' due to an exception: " + e, e);
 			return Optional.empty();
 		}
