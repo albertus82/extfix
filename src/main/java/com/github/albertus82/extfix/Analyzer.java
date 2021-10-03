@@ -6,6 +6,7 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -50,7 +51,7 @@ public class Analyzer implements PathVisitor {
 		this.out = out;
 		if (suffixes != null && suffixes.length > 0) {
 			this.pathFilter = new SuffixFileFilter(suffixes, IOCase.INSENSITIVE);
-			out.printLine("Extensions: " + suffixes + '.');
+			out.printLine("Extensions: " + Arrays.toString(suffixes) + '.');
 		}
 		else {
 			this.pathFilter = (p, a) -> FileVisitResult.CONTINUE;
