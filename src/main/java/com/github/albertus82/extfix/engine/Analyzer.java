@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -17,6 +18,7 @@ import org.apache.commons.io.file.PathVisitor;
 import org.apache.commons.io.filefilter.CanReadFileFilter;
 import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.Tika;
 import org.apache.tika.config.TikaConfig;
 import org.apache.tika.mime.MimeTypeException;
@@ -112,7 +114,7 @@ public class Analyzer implements PathVisitor {
 				else {
 					findBetterExtension(path, knownExtensions).ifPresent(extension -> {
 						results.put(path, extension);
-						out.printAnalysisMessage("Found " + extension.toUpperCase() + " file with unexpected extension: '" + path + "'.");
+						out.printAnalysisMessage("Found " + StringUtils.stripStart(extension.toUpperCase(Locale.ROOT), ".") + " file with unexpected extension: '" + path + "'.");
 					});
 				}
 			}
