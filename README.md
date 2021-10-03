@@ -2,7 +2,7 @@ File Extension Fix Tool
 =======================
 
 [![Build Status](https://github.com/albertus82/extfix/workflows/build/badge.svg)](https://github.com/albertus82/extfix/actions)
-[![Build status](https://ci.appveyor.com/api/projects/status/github/albertus82/extfix?branch=master&svg=true)](https://ci.appveyor.com/project/albertus82/extfix)
+[![Build status](https://ci.appveyor.com/api/projects/status/github/albertus82/extfix?branch=main&svg=true)](https://ci.appveyor.com/project/albertus82/extfix)
 [![Known Vulnerabilities](https://snyk.io/test/github/albertus82/extfix/badge.svg?targetFile=pom.xml)](https://snyk.io/test/github/albertus82/extfix?targetFile=pom.xml)
 
 ## Minimum requirements
