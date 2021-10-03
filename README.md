@@ -16,7 +16,7 @@ File Extension Fix Tool
 ## Usage
 
 ```sh
-Usage: extfix [-hLnVX] (-e=<EXT> [-e=<EXT>]... | -f=<FILE>) <BASE_PATH>
+Usage: extfix [-hLnVXy] [-e=<EXT> [-e=<EXT>]... | -f=<FILE>] <BASE_PATH>
 File Extension Fix Tool
       <BASE_PATH>     Base directory to scan.
   -e, --ext=<EXT>     File extension to treat.
@@ -26,4 +26,5 @@ File Extension Fix Tool
   -n, --dry-run       Do everything except actually rename the files.
   -V, --version       Print version information and exit.
   -X, --errors        Produce execution error messages.
+  -y, --yes           Automatic yes to prompts (run non-interactively).
 ```
