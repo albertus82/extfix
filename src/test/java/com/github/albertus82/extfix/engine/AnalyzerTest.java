@@ -1,6 +1,7 @@
 package com.github.albertus82.extfix.engine;
 
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+import org.apache.commons.io.file.PathVisitor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -22,6 +24,17 @@ class AnalyzerTest {
 		Assertions.assertThrows(NullPointerException.class, () -> new Analyzer(null));
 		Assertions.assertDoesNotThrow(() -> new Analyzer(new Console(), (String[]) null));
 		Assertions.assertDoesNotThrow(() -> new Analyzer(new Console()));
+	}
+
+	@Test
+	void testVisitor() throws IOException {
+		final PathVisitor pv = new Analyzer(new Console());
+		Assertions.assertThrows(NullPointerException.class, () -> pv.preVisitDirectory(null, null));
+		Assertions.assertThrows(NullPointerException.class, () -> pv.visitFile(null, null));
+		Assertions.assertEquals(FileVisitResult.CONTINUE, pv.preVisitDirectory(Paths.get("/tmp/foo"), null));
+		Assertions.assertEquals(FileVisitResult.CONTINUE, pv.postVisitDirectory(null, null));
+		Assertions.assertEquals(FileVisitResult.CONTINUE, pv.visitFile(Paths.get("/tmp/foo"), null));
+		Assertions.assertEquals(FileVisitResult.CONTINUE, pv.visitFileFailed(null, null));
 	}
 
 	@Test

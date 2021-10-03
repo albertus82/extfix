@@ -63,7 +63,7 @@ public class Analyzer implements PathVisitor {
 	}
 
 	@Override
-	public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) {
+	public FileVisitResult preVisitDirectory(@NonNull final Path dir, final BasicFileAttributes attrs) {
 		out.printAnalysisProgress(dir);
 		return FileVisitResult.CONTINUE;
 	}
