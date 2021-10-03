@@ -8,18 +8,21 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class ExtensionsTest {
 
+	private static final String RANDOM = UUID.randomUUID().toString().replace("-", "");
+
 	@Test
 	void testArray() throws IOException {
 		final Extensions e1 = new Extensions(null, null);
 		Assertions.assertDoesNotThrow(() -> e1.get());
 
-		final Extensions e2 = new Extensions(new String[] { "pdf" }, Paths.get("/tmp/foo.bar"));
+		final Extensions e2 = new Extensions(new String[] { "pdf" }, Paths.get("/tmp/" + RANDOM + ".bar"));
 		Assertions.assertThrows(IllegalStateException.class, () -> e2.get());
 
 		final Extensions e3 = new Extensions(new String[] { "png", ".JPG" }, null);

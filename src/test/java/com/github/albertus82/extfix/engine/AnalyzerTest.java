@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.apache.commons.io.file.PathVisitor;
 import org.junit.jupiter.api.Assertions;
@@ -18,6 +19,8 @@ import com.github.albertus82.extfix.Console;
 import com.github.albertus82.extfix.FileTestUtils;
 
 class AnalyzerTest {
+
+	private static final String RANDOM = UUID.randomUUID().toString().replace("-", "");
 
 	@Test
 	void testConstructor() {
@@ -31,9 +34,9 @@ class AnalyzerTest {
 		final PathVisitor pv = new Analyzer(new Console());
 		Assertions.assertThrows(NullPointerException.class, () -> pv.preVisitDirectory(null, null));
 		Assertions.assertThrows(NullPointerException.class, () -> pv.visitFile(null, null));
-		Assertions.assertEquals(FileVisitResult.CONTINUE, pv.preVisitDirectory(Paths.get("/tmp/foo"), null));
+		Assertions.assertEquals(FileVisitResult.CONTINUE, pv.preVisitDirectory(Paths.get("/tmp/" + RANDOM), null));
 		Assertions.assertEquals(FileVisitResult.CONTINUE, pv.postVisitDirectory(null, null));
-		Assertions.assertEquals(FileVisitResult.CONTINUE, pv.visitFile(Paths.get("/tmp/foo"), null));
+		Assertions.assertEquals(FileVisitResult.CONTINUE, pv.visitFile(Paths.get("/tmp/" + RANDOM), null));
 		Assertions.assertEquals(FileVisitResult.CONTINUE, pv.visitFileFailed(null, null));
 	}
 
@@ -59,16 +62,16 @@ class AnalyzerTest {
 
 	@Test
 	void testFindBetterExtension() {
-		Assertions.assertEquals(Optional.empty(), Analyzer.findBetterExtension(Paths.get("/tmp/foo.txt"), Arrays.asList(".txt")));
-		Assertions.assertEquals(Optional.empty(), Analyzer.findBetterExtension(Paths.get("/tmp/foo.TXT"), Arrays.asList(".txt", ".bar")));
-		Assertions.assertEquals(Optional.empty(), Analyzer.findBetterExtension(Paths.get("/tmp/foo.txt"), Arrays.asList(".FOO", ".TXT")));
-		Assertions.assertEquals(Optional.empty(), Analyzer.findBetterExtension(Paths.get("/tmp/foo.TXT"), Arrays.asList(".TXT")));
-		Assertions.assertTrue(Analyzer.findBetterExtension(Paths.get("/tmp/foo"), Arrays.asList(".txt")).get().toString().endsWith(".txt"));
-		Assertions.assertTrue(Analyzer.findBetterExtension(Paths.get("/tmp/foo"), Arrays.asList(".BAR", ".txt")).get().toString().endsWith(".BAR"));
-		Assertions.assertTrue(Analyzer.findBetterExtension(Paths.get("/tmp/foo.bar"), Arrays.asList(".lst", ".txt")).get().toString().endsWith(".lst"));
+		Assertions.assertEquals(Optional.empty(), Analyzer.findBetterExtension(Paths.get("/tmp/" + RANDOM + ".txt"), Arrays.asList(".txt")));
+		Assertions.assertEquals(Optional.empty(), Analyzer.findBetterExtension(Paths.get("/tmp/" + RANDOM + ".TXT"), Arrays.asList(".txt", ".bar")));
+		Assertions.assertEquals(Optional.empty(), Analyzer.findBetterExtension(Paths.get("/tmp/" + RANDOM + ".txt"), Arrays.asList(".FOO", ".TXT")));
+		Assertions.assertEquals(Optional.empty(), Analyzer.findBetterExtension(Paths.get("/tmp/" + RANDOM + ".TXT"), Arrays.asList(".TXT")));
+		Assertions.assertTrue(Analyzer.findBetterExtension(Paths.get("/tmp/" + RANDOM), Arrays.asList(".txt")).get().toString().endsWith(".txt"));
+		Assertions.assertTrue(Analyzer.findBetterExtension(Paths.get("/tmp/" + RANDOM), Arrays.asList(".BAR", ".txt")).get().toString().endsWith(".BAR"));
+		Assertions.assertTrue(Analyzer.findBetterExtension(Paths.get("/tmp/" + RANDOM + ".bar"), Arrays.asList(".lst", ".txt")).get().toString().endsWith(".lst"));
 		final List<String> list = Collections.emptyList();
 		Assertions.assertThrows(NullPointerException.class, () -> Analyzer.findBetterExtension(null, list));
-		final Path path = Paths.get("/tmp/foo.bar");
+		final Path path = Paths.get("/tmp/" + RANDOM + ".bar");
 		Assertions.assertThrows(NullPointerException.class, () -> Analyzer.findBetterExtension(path, null));
 		Assertions.assertThrows(NullPointerException.class, () -> Analyzer.findBetterExtension(null, null));
 	}
