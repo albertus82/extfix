@@ -21,6 +21,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.CanReadFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.Tika;
 import org.apache.tika.config.TikaConfig;
 import org.apache.tika.mime.MimeTypeException;
@@ -43,7 +44,7 @@ import picocli.CommandLine.Parameters;
 @SuppressWarnings("java:S106") // Replace this use of System.out or System.err by a logger. Standard outputs should not be used directly to log anything (java:S106)
 public class ExtFix implements Callable<Integer> {
 
-	private static final String ANALYZING = "Analyzing...  ";
+	private static final String ANALYZING = "Analyzing directory ";
 
 	private final TikaConfig tikaConfig = TikaConfig.getDefaultConfig();
 
@@ -77,6 +78,8 @@ public class ExtFix implements Callable<Integer> {
 
 	private int count = 0;
 
+	final StringBuilder currentDir = new StringBuilder();
+
 	@Override
 	public Integer call() throws IOException {
 		basePath = basePath.toFile().getCanonicalFile().toPath();
@@ -90,14 +93,24 @@ public class ExtFix implements Callable<Integer> {
 		final Map<Path, Path> renames = new TreeMap<>();
 		Files.walkFileTree(basePath, links ? EnumSet.of(FileVisitOption.FOLLOW_LINKS) : Collections.emptySet(), Short.MAX_VALUE, new FileVisitor<Path>() {
 			@Override
-			public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) {
+			public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException {
+				final StringBuilder sb = new StringBuilder();
+				for (int i = 0; i < currentDir.length(); i++) {
+					sb.append('\b');
+				}
+				System.out.print(sb);
+				currentDir.setLength(0);
+				currentDir.append(StringUtils.abbreviateMiddle(dir.toFile().getCanonicalPath(), "...", 79 - ANALYZING.length()));
+				for (int i = ANALYZING.length() + currentDir.length(); i < 79; i++) {
+					currentDir.append(' ');
+				}
+				System.out.print(currentDir);
 				return FileVisitResult.CONTINUE;
 			}
 
 			@Override
 			public FileVisitResult visitFile(@NonNull Path path, final BasicFileAttributes attrs) {
 				if (FileVisitResult.CONTINUE.equals((new SuffixFileFilter(suffixes, IOCase.INSENSITIVE)).accept(path, attrs))) {
-					printProgress();
 					if (FileVisitResult.CONTINUE.equals(CanReadFileFilter.CAN_READ.accept(path, attrs))) {
 						try {
 							path = path.toFile().getCanonicalFile().toPath();
@@ -143,16 +156,10 @@ public class ExtFix implements Callable<Integer> {
 				return FileVisitResult.CONTINUE;
 			}
 
-			private void printProgress() {
-				System.out.print('\b');
-				System.out.print(getWaitChar());
-			}
-
 			private void printMessage(@NonNull final String message) {
 				clearConsoleLine();
 				System.out.println(message);
 				System.out.print(ANALYZING);
-				printProgress();
 			}
 
 			private void printError(@NonNull final String message, @NonNull final Throwable e) {
@@ -162,7 +169,6 @@ public class ExtFix implements Callable<Integer> {
 				}
 				System.out.println(message);
 				System.out.print(ANALYZING);
-				printProgress();
 			}
 		});
 
@@ -217,9 +223,9 @@ public class ExtFix implements Callable<Integer> {
 		}
 	}
 
-	private static void clearConsoleLine() {
+	private void clearConsoleLine() {
 		final StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < ANALYZING.length(); i++) {
+		for (int i = 0; i < currentDir.length() + ANALYZING.length(); i++) {
 			sb.append('\b');
 		}
 		System.out.print(sb);
