@@ -54,7 +54,7 @@ public class Renamer {
 
 	private static Path buildTarget(@NonNull final Path source, @NonNull final String newExtension) {
 		final String oldFileName = source.toString();
-		Path target;
+		final Path target;
 		if (FilenameUtils.getExtension(oldFileName).isEmpty()) {
 			target = Paths.get(oldFileName + newExtension);
 		}
@@ -62,10 +62,11 @@ public class Renamer {
 			target = Paths.get(FilenameUtils.removeExtension(oldFileName) + newExtension);
 		}
 		int i = 0;
-		while (Files.exists(target)) {
-			target = Paths.get(FilenameUtils.removeExtension(target.toString()) + " (" + ++i + ")" + newExtension);
+		Path availableTarget = target;
+		while (Files.exists(availableTarget)) {
+			availableTarget = Paths.get(FilenameUtils.removeExtension(target.toString()) + " (" + ++i + ")" + newExtension);
 		}
-		return target;
+		return availableTarget;
 	}
 
 }
