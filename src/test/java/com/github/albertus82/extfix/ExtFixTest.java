@@ -90,7 +90,7 @@ class ExtFixTest {
 
 	@Test
 	void testTika() throws IOException {
-		final Tika tika = new Analyzer(new Console(), Collections.emptyList()).getTika();
+		final Tika tika = new Analyzer(new Console()).getTika();
 		try (final InputStream is = getClass().getResourceAsStream("/jpeg.jpg")) {
 			Assertions.assertTrue(tika.detect(is).endsWith("jpeg"));
 		}

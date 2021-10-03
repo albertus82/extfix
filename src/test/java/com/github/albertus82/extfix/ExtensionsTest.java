@@ -17,18 +17,18 @@ class ExtensionsTest {
 	@Test
 	void testArray() throws IOException {
 		final Extensions e1 = new Extensions(null, null);
-		Assertions.assertThrows(IllegalStateException.class, () -> e1.get());
+		Assertions.assertDoesNotThrow(() -> e1.get());
 
 		final Extensions e2 = new Extensions(new String[] { "pdf" }, Paths.get("/tmp/foo.bar"));
 		Assertions.assertThrows(IllegalStateException.class, () -> e2.get());
 
 		final Extensions e3 = new Extensions(new String[] { "png", ".JPG" }, null);
-		Assertions.assertArrayEquals(new String[] { ".jpg", ".png" }, e3.get().toArray());
+		Assertions.assertArrayEquals(new String[] { ".jpg", ".png" }, e3.get());
 
 		FileTestUtils.runWithTempDir(path -> {
 			final Path target = FileTestUtils.copyResourceToDir("test-array-1.lst", path);
 			final Extensions e4 = new Extensions(null, target);
-			Assertions.assertArrayEquals(new String[] { ".jpeg", ".jpg", ".png" }, e4.get().toArray());
+			Assertions.assertArrayEquals(new String[] { ".jpeg", ".jpg", ".png" }, e4.get());
 		});
 	}
 

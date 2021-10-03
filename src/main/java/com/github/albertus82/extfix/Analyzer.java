@@ -13,6 +13,7 @@ import java.util.TreeMap;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
+import org.apache.commons.io.file.PathFilter;
 import org.apache.commons.io.file.PathVisitor;
 import org.apache.commons.io.filefilter.CanReadFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
@@ -33,9 +34,11 @@ public class Analyzer implements PathVisitor {
 	@Getter(value = AccessLevel.PACKAGE) // for test only access
 	private final Tika tika = new Tika(tikaConfig);
 
-	private final Console con;
+	@NonNull
+	private final Console out;
 
-	private final List<String> suffixes;
+	@NonNull
+	private final PathFilter pathFilter;
 
 	@Getter
 	private final Map<Path, Path> renames = new TreeMap<>();
@@ -43,26 +46,31 @@ public class Analyzer implements PathVisitor {
 	@Getter
 	private int count;
 
-	public Analyzer(@NonNull final Console con, @NonNull final List<String> suffixes) {
-		this.con = con;
-		this.suffixes = suffixes;
-		con.printLine("Extensions: " + suffixes + '.');
+	public Analyzer(@NonNull final Console out, final String... suffixes) {
+		this.out = out;
+		if (suffixes != null && suffixes.length > 0) {
+			this.pathFilter = new SuffixFileFilter(suffixes, IOCase.INSENSITIVE);
+			out.printLine("Extensions: " + suffixes + '.');
+		}
+		else {
+			this.pathFilter = (p, a) -> FileVisitResult.CONTINUE;
+		}
 	}
 
 	@Override
 	public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException {
-		con.printAnalysisProgress(dir);
+		out.printAnalysisProgress(dir);
 		return FileVisitResult.CONTINUE;
 	}
 
 	@Override
 	public FileVisitResult visitFile(@NonNull Path path, final BasicFileAttributes attrs) {
-		if (FileVisitResult.CONTINUE.equals((new SuffixFileFilter(suffixes, IOCase.INSENSITIVE)).accept(path, attrs))) {
+		if (FileVisitResult.CONTINUE.equals(pathFilter.accept(path, attrs))) {
 			if (FileVisitResult.CONTINUE.equals(CanReadFileFilter.CAN_READ.accept(path, attrs))) {
 				analyze(path);
 			}
 			else {
-				con.printAnalysisMessage("Skipping not readable file '" + path + "'.");
+				out.printAnalysisMessage("Skipping not readable file '" + path + "'.");
 			}
 		}
 		return FileVisitResult.CONTINUE;
@@ -70,7 +78,7 @@ public class Analyzer implements PathVisitor {
 
 	@Override
 	public FileVisitResult visitFileFailed(final Path file, final IOException e) {
-		con.printAnalysisError("Skipping '" + file + "' due to an exception: " + e, e);
+		out.printAnalysisError("Skipping '" + file + "' due to an exception: " + e, e);
 		return FileVisitResult.CONTINUE;
 	}
 
@@ -84,25 +92,25 @@ public class Analyzer implements PathVisitor {
 		try {
 			final String mediaType = tika.detect(absolutePath);
 			if (mediaType == null) {
-				con.printAnalysisMessage("Cannot determine type of '" + absolutePath + "'.");
+				out.printAnalysisMessage("Cannot determine type of '" + absolutePath + "'.");
 			}
 			else {
 				final List<String> exts = tikaConfig.getMimeRepository().forName(mediaType).getExtensions();
 				log.debug("{} <- {}", exts, absolutePath);
 				if (exts.isEmpty()) {
-					con.printAnalysisMessage("Cannot determine extension for '" + absolutePath + "'.");
+					out.printAnalysisMessage("Cannot determine extension for '" + absolutePath + "'.");
 				}
 				else {
 					fixFileName(absolutePath, exts).ifPresent(fixed -> {
 						renames.put(absolutePath, fixed);
-						con.printAnalysisMessage("Found " + FilenameUtils.getExtension(fixed.toString()).toUpperCase() + " file with wrong extension: '" + absolutePath + "'.");
+						out.printAnalysisMessage("Found " + FilenameUtils.getExtension(fixed.toString()).toUpperCase() + " file with wrong extension: '" + absolutePath + "'.");
 					});
 				}
 			}
 			count++;
 		}
 		catch (final MimeTypeException | IOException | RuntimeException e) {
-			con.printAnalysisError("Skipping '" + absolutePath + "' due to an exception: " + e, e);
+			out.printAnalysisError("Skipping '" + absolutePath + "' due to an exception: " + e, e);
 		}
 	}
 

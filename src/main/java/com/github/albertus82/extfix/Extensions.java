@@ -6,9 +6,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
@@ -23,7 +21,7 @@ import picocli.CommandLine.Option;
 
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PACKAGE) // for test only access
-public class Extensions implements Supplier<List<String>> {
+public class Extensions implements Supplier<String[]> {
 
 	private final Set<String> set = new TreeSet<>();
 
@@ -34,9 +32,12 @@ public class Extensions implements Supplier<List<String>> {
 	private Path path;
 
 	@Override
-	public List<String> get() {
+	public String[] get() {
 		if (set.isEmpty()) {
-			if (path != null && array == null) {
+			if (array != null && path != null) {
+				throw new IllegalStateException();
+			}
+			else if (path != null) {
 				try {
 					set.addAll(from(path));
 				}
@@ -44,14 +45,11 @@ public class Extensions implements Supplier<List<String>> {
 					throw new UncheckedIOException(e);
 				}
 			}
-			else if (array != null && path == null) {
+			else if (array != null) {
 				set.addAll(from(array));
 			}
-			else {
-				throw new IllegalStateException();
-			}
 		}
-		return new ArrayList<>(set);
+		return set.toArray(new String[set.size()]);
 	}
 
 	static Set<String> from(@NonNull final String... array) {

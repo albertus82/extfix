@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 public class Renamer {
 
 	@NonNull
-	private final Console con;
+	private final Console out;
 
 	private final boolean dryRun;
 
@@ -35,17 +35,17 @@ public class Renamer {
 		while (Files.exists(target)) {
 			target = Paths.get(FilenameUtils.removeExtension(target.toString()) + " (" + ++i + ")." + FilenameUtils.getExtension(target.toString()));
 		}
-		con.print("Renaming '" + source + "' to '" + target + "'... ");
+		out.print("Renaming '" + source + "' to '" + target + "'... ");
 		try {
 			if (!dryRun) {
 				Files.move(source, target);
 			}
 			count++;
-			con.printLine("Done.");
+			out.printLine("Done.");
 		}
 		catch (final IOException e) {
-			con.printLine("Failed.");
-			con.printError("Cannot rename '" + source + "' due to an exception: " + e, e);
+			out.printLine("Failed.");
+			out.printError("Cannot rename '" + source + "' due to an exception: " + e, e);
 		}
 	}
 

@@ -29,7 +29,7 @@ import picocli.CommandLine.Parameters;
 @Command(description = "File Extension Fix Tool", mixinStandardHelpOptions = true, versionProvider = VersionProvider.class)
 public class ExtFix implements Callable<Integer> {
 
-	private final Console con = new Console();
+	private final Console out = new Console();
 
 	@Parameters(paramLabel = "<BASE_PATH>", description = "Base directory to scan.")
 	private Path basePath;
@@ -46,7 +46,7 @@ public class ExtFix implements Callable<Integer> {
 	@Option(names = { "-L", "--links" }, description = "Follow links.")
 	private boolean links;
 
-	@ArgGroup(exclusive = true, multiplicity = "1")
+	@ArgGroup(exclusive = true)
 	private Extensions extensions;
 
 	ExtFix(@NonNull final Path basePath, final boolean dryRun, final boolean yes, @NonNull final Extensions extensions) { // for test only access
@@ -63,26 +63,26 @@ public class ExtFix implements Callable<Integer> {
 	@Override
 	public Integer call() throws IOException {
 		if (errors) {
-			con.setStackTraces(true);
-			con.printLine("Error stack traces are turned on.");
+			out.setStackTraces(true);
+			out.printLine("Error stack traces are turned on.");
 		}
 
 		basePath = basePath.toFile().getCanonicalFile().toPath();
-		con.printLine("Base path: '" + basePath + "'.");
+		out.printLine("Base path: '" + basePath + "'.");
 
-		final Analyzer analyzer = new Analyzer(con, extensions.get());
+		final Analyzer analyzer = new Analyzer(out, extensions.get());
 		Files.walkFileTree(basePath, links ? EnumSet.of(FileVisitOption.FOLLOW_LINKS) : Collections.emptySet(), Short.MAX_VALUE, analyzer);
-		con.clearAnalysisLine();
-		con.printLine(analyzer.getCount() + " files analyzed.");
+		out.clearAnalysisLine();
+		out.printLine(analyzer.getCount() + " files analyzed.");
 
 		if (!yes) {
-			con.print(analyzer.getRenames().size() + " files are about to be renamed. Do you want to continue? [y/N] ");
+			out.print(analyzer.getRenames().size() + " files are about to be renamed. Do you want to continue? [y/N] ");
 			final BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 			try {
 				final String userAnswer = StringUtils.trimToEmpty(br.readLine());
 				final Collection<String> yesAnswers = Arrays.asList("yes", "y");
 				if (!yesAnswers.contains(userAnswer.toLowerCase()) && !yesAnswers.contains(userAnswer.toLowerCase(Locale.ROOT))) {
-					con.printLine("Abort.");
+					out.printLine("Abort.");
 					return ExitCode.OK; // exit immediately
 				}
 			}
@@ -91,9 +91,9 @@ public class ExtFix implements Callable<Integer> {
 			}
 		}
 
-		final Renamer renamer = new Renamer(con, dryRun);
+		final Renamer renamer = new Renamer(out, dryRun);
 		renamer.rename(analyzer.getRenames());
-		con.printLine(renamer.getCount() + " files renamed.");
+		out.printLine(renamer.getCount() + " files renamed.");
 
 		return ExitCode.OK;
 	}
