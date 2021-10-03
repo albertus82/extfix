@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import com.github.albertus82.extfix.Console;
 
-public class RenamerTest {
+class RenamerTest {
 
 	@Test
 	void testRename() {

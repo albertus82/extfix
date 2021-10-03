@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import com.github.albertus82.extfix.Console;
 
-public class AnalyzerTest {
+class AnalyzerTest {
 
 	@Test
 	void testTika() throws IOException {

@@ -80,6 +80,11 @@ public class ExtFix implements Callable<Integer> {
 		out.clearAnalysisLine();
 		out.printLine(analyzer.getAnalyzedCount() + " files analyzed (" + analyzer.getSkippedCount() + " skipped).");
 
+		if (analyzer.getResults().isEmpty()) {
+			out.printLine("No problems detected.");
+			return ExitCode.OK; // exit immediately
+		}
+
 		if (!yes) {
 			out.print(analyzer.getResults().size() + " files are about to be renamed. Do you want to continue? [y/N] ");
 			final BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -94,7 +99,6 @@ public class ExtFix implements Callable<Integer> {
 		final Renamer renamer = new Renamer(out, dryRun);
 		renamer.rename(analyzer.getResults());
 		out.printLine(renamer.getSuccessCount() + " files renamed (" + renamer.getFailedCount() + " failed).");
-
 		return ExitCode.OK;
 	}
 
