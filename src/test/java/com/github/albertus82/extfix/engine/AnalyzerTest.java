@@ -26,6 +26,8 @@ class AnalyzerTest {
 
 	@Test
 	void testDetectMediaType() throws IOException {
+		final Analyzer a = new Analyzer(new Console());
+		Assertions.assertThrows(NullPointerException.class, () -> a.detectMediaType(null));
 		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.jpg", path);
 			final Path p2 = FileTestUtils.copyResourceToDir("jpeg.jpeg", path);
@@ -33,7 +35,6 @@ class AnalyzerTest {
 			final Path p4 = FileTestUtils.copyResourceToDir("png.jpg", path);
 			final Path p5 = FileTestUtils.copyResourceToDir("png.jpeg", path);
 			final Path p6 = FileTestUtils.copyResourceToDir("png.png", path);
-			final Analyzer a = new Analyzer(new Console());
 			Assertions.assertTrue(a.detectMediaType(p1).toLowerCase(Locale.ROOT).endsWith("jpeg"));
 			Assertions.assertTrue(a.detectMediaType(p2).toLowerCase(Locale.ROOT).endsWith("jpeg"));
 			Assertions.assertTrue(a.detectMediaType(p3).toLowerCase(Locale.ROOT).endsWith("jpeg"));
