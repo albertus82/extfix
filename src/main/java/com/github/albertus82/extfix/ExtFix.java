@@ -1,7 +1,10 @@
 package com.github.albertus82.extfix;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
@@ -9,9 +12,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -22,6 +28,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.CanReadFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.Tika;
 import org.apache.tika.config.TikaConfig;
 import org.apache.tika.mime.MimeTypeException;
@@ -56,6 +63,9 @@ public class ExtFix implements Callable<Integer> {
 	@Option(names = { "-n", "--dry-run" }, description = "Do everything except actually rename the files.")
 	private boolean dryRun;
 
+	@Option(names = { "-y", "--yes" }, description = "Automatic yes to prompts (run non-interactively).")
+	private boolean yes;
+
 	@Option(names = { "-X", "--errors" }, description = "Produce execution error messages.")
 	private boolean errors;
 
@@ -65,9 +75,10 @@ public class ExtFix implements Callable<Integer> {
 	@ArgGroup(exclusive = true, multiplicity = "1")
 	private Extensions extensions;
 
-	ExtFix(@NonNull final Path basePath, final boolean dryRun, @NonNull final Extensions extensions) { // for test only access
+	ExtFix(@NonNull final Path basePath, final boolean dryRun, final boolean yes, @NonNull final Extensions extensions) { // for test only access
 		this.basePath = basePath;
 		this.dryRun = dryRun;
+		this.yes = yes;
 		this.extensions = extensions;
 	}
 
@@ -151,6 +162,22 @@ public class ExtFix implements Callable<Integer> {
 
 		con.clearAnalysisLine();
 		con.printLine(analyzedCount + " files analyzed.");
+
+		if (!yes) {
+			con.print(renames.size() + " files are about to be renamed. Do you want to continue? [y/N] ");
+			final BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+			try {
+				final String userAnswer = StringUtils.trimToEmpty(br.readLine());
+				final Collection<String> yesAnswers = Arrays.asList("yes", "y");
+				if (!yesAnswers.contains(userAnswer.toLowerCase()) && !yesAnswers.contains(userAnswer.toLowerCase(Locale.ROOT))) {
+					con.printLine("Abort.");
+					return ExitCode.OK; // exit immediately
+				}
+			}
+			catch (final IOException e) {
+				throw new UncheckedIOException(e);
+			}
+		}
 
 		int renamedCount = 0;
 		for (final Entry<Path, Path> e : renames.entrySet()) {
