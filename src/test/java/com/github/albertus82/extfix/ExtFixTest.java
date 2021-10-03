@@ -35,6 +35,23 @@ class ExtFixTest {
 	}
 
 	@Test
+	void testWithoutExtension() throws IOException {
+		final boolean dryRun = false;
+		FileTestUtils.runWithTempDir(path -> {
+			final Path p1 = FileTestUtils.copyResourceToDir("jpeg", path);
+			final Path p2 = FileTestUtils.copyResourceToDir("png", path);
+
+			final ExtFix e1 = new ExtFix(path, dryRun, YES, new Extensions());
+			e1.call();
+			Assertions.assertFalse(Files.exists(p1));
+			Assertions.assertFalse(Files.exists(p2));
+			Assertions.assertTrue(Files.exists(Paths.get(p1.toString() + ".jpg")));
+			Assertions.assertTrue(Files.exists(Paths.get(p2.toString() + ".png")));
+			Assertions.assertEquals(2, Files.list(path).count());
+		});
+	}
+
+	@Test
 	void testAutoRename() throws IOException {
 		final boolean dryRun = false;
 		FileTestUtils.runWithTempDir(path -> {
