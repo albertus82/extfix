@@ -18,6 +18,13 @@ import com.github.albertus82.extfix.FileTestUtils;
 class AnalyzerTest {
 
 	@Test
+	void testConstructor() {
+		Assertions.assertThrows(NullPointerException.class, () -> new Analyzer(null));
+		Assertions.assertDoesNotThrow(() -> new Analyzer(new Console(), (String[]) null));
+		Assertions.assertDoesNotThrow(() -> new Analyzer(new Console()));
+	}
+
+	@Test
 	void testDetectMediaType() throws IOException {
 		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.jpg", path);

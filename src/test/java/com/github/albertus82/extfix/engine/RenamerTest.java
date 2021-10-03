@@ -13,6 +13,13 @@ import com.github.albertus82.extfix.Console;
 class RenamerTest {
 
 	@Test
+	void testConstructor() {
+		Assertions.assertThrows(NullPointerException.class, () -> new Renamer(null, true));
+		Assertions.assertDoesNotThrow(() -> new Renamer(new Console(), true));
+		Assertions.assertDoesNotThrow(() -> new Renamer(new Console(), false));
+	}
+
+	@Test
 	void testRename() {
 		final Renamer renamer = new Renamer(new Console(), false);
 		final Map<Path, String> m1 = Collections.singletonMap(null, null);
