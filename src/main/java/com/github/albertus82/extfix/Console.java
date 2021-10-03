@@ -43,7 +43,7 @@ public class Console {
 		currentDirectory.setLength(0); // clear
 		currentDirectory.append(StringUtils.abbreviateMiddle(pathString, "...", width - ANALYSIS_PREFIX.length()));
 		for (int i = ANALYSIS_PREFIX.length() + currentDirectory.length(); i < width; i++) {
-			currentDirectory.append(' ');
+			currentDirectory.append(' '); // pad with whitespaces
 		}
 		out.print(currentDirectory);
 	}
@@ -66,9 +66,13 @@ public class Console {
 	}
 
 	public void clearAnalysisLine() {
+		final int trimmedLength = currentDirectory.toString().trim().length();
 		final StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < currentDirectory.length() + ANALYSIS_PREFIX.length(); i++) {
-			sb.append("\b \b");
+		for (int i = 0; i < currentDirectory.length() - trimmedLength; i++) {
+			sb.append('\b'); // whitespaces does not need to be replaced
+		}
+		for (int i = 0; i < trimmedLength + ANALYSIS_PREFIX.length(); i++) {
+			sb.append("\b \b"); // replace non-whitespace characters with whitespace
 		}
 		out.print(sb);
 	}
