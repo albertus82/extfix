@@ -40,7 +40,7 @@ public enum BuildInfo {
 	public static String getProperty(@NonNull final String key) {
 		final String value = INSTANCE.properties.getProperty(key);
 		if (value == null) {
-			log.warn("Missing property for key: \"{}\".", key);
+			log.debug("Missing property for key: \"{}\".", key);
 		}
 		return value;
 	}
