@@ -84,6 +84,7 @@ public class Analyzer implements PathVisitor {
 
 	@Override
 	public FileVisitResult visitFileFailed(final Path file, final IOException e) {
+		skippedCount++;
 		if (e != null) {
 			log.debug(String.valueOf(file), e);
 		}

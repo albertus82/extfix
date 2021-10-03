@@ -80,7 +80,7 @@ public class ExtFix implements Callable<Integer> {
 		final Analyzer analyzer = new Analyzer(out, extensions.get());
 		Files.walkFileTree(basePath, links ? EnumSet.of(FileVisitOption.FOLLOW_LINKS) : Collections.emptySet(), Short.MAX_VALUE, analyzer);
 		out.clearAnalysisLine();
-		out.printLine(analyzer.getAnalyzedCount() + " files analyzed (" + analyzer.getSkippedCount() + " skipped).");
+		out.printLine(analyzer.getAnalyzedCount() + " files analyzed (" + analyzer.getSkippedCount() + " elements skipped).");
 
 		if (analyzer.getResults().isEmpty()) {
 			out.printLine("No problems detected.");
