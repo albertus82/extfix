@@ -67,11 +67,8 @@ public class Console {
 
 	public void clearAnalysisLine() {
 		final StringBuilder sb = new StringBuilder();
-		for (int i = currentDirectory.length() + ANALYSIS_PREFIX.length(); i < width; i++) {
-			sb.append(' ');
-		}
-		for (int i = 0; i < width; i++) {
-			sb.append('\b');
+		for (int i = 0; i < currentDirectory.length() + ANALYSIS_PREFIX.length(); i++) {
+			sb.append("\b \b");
 		}
 		out.print(sb);
 	}

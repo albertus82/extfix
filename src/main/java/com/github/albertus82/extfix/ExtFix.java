@@ -84,7 +84,7 @@ public class ExtFix implements Callable<Integer> {
 		}
 
 		basePath = basePath.toFile().getCanonicalFile().toPath();
-		con.printLine("Base path: " + basePath + '.');
+		con.printLine("Base path: '" + basePath + "'.");
 
 		final List<String> suffixes = extensions.get();
 		con.printLine("Extensions: " + suffixes + '.');
