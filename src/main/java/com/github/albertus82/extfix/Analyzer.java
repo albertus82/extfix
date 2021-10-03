@@ -110,7 +110,7 @@ public class Analyzer implements PathVisitor {
 				else {
 					fixFileName(path, exts).ifPresent(fixed -> {
 						renames.put(path, fixed);
-						out.printAnalysisMessage("Found " + FilenameUtils.getExtension(fixed.toString()).toUpperCase() + " file with wrong extension: '" + path + "'.");
+						out.printAnalysisMessage("Found " + FilenameUtils.getExtension(fixed.toString()).toUpperCase() + " file with unexpected extension: '" + path + "'.");
 					});
 				}
 			}
