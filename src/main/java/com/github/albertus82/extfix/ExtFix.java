@@ -1,5 +1,6 @@
 package com.github.albertus82.extfix;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
@@ -74,7 +75,7 @@ public class ExtFix implements Callable<Integer> {
 		System.exit(new CommandLine(new ExtFix()).setCommandName(BuildInfo.getProperty("project.artifactId")).setOptionsCaseInsensitive(true).execute(args));
 	}
 
-	private int count = 0;
+	private volatile int count = 0;
 
 	@Override
 	public Integer call() throws IOException {
@@ -101,31 +102,7 @@ public class ExtFix implements Callable<Integer> {
 			public FileVisitResult visitFile(@NonNull Path path, final BasicFileAttributes attrs) {
 				if (FileVisitResult.CONTINUE.equals((new SuffixFileFilter(suffixes, IOCase.INSENSITIVE)).accept(path, attrs))) {
 					if (FileVisitResult.CONTINUE.equals(CanReadFileFilter.CAN_READ.accept(path, attrs))) {
-						try {
-							path = path.toFile().getCanonicalFile().toPath();
-							final String mediaType = tika.detect(path);
-							if (mediaType == null) {
-								con.printAnalysisMessage("Cannot determine type of '" + path + "'.");
-							}
-							else {
-								final List<String> exts = tikaConfig.getMimeRepository().forName(mediaType).getExtensions();
-								log.debug("{} <- {}", exts, path);
-								if (exts.isEmpty()) {
-									con.printAnalysisMessage("Cannot determine extension for '" + path + "'.");
-								}
-								else {
-									final Optional<Path> fixed = fixFileName(path, exts);
-									if (fixed.isPresent()) {
-										renames.put(path, fixed.get());
-										con.printAnalysisMessage("Found " + FilenameUtils.getExtension(fixed.get().toString()).toUpperCase() + " file with wrong extension: '" + path + "'.");
-									}
-								}
-							}
-							count++;
-						}
-						catch (final MimeTypeException | IOException | RuntimeException e) {
-							con.printAnalysisError("Skipping '" + path + "' due to an exception: " + e, e);
-						}
+						analyze(toAbsolutePath(path));
 					}
 					else {
 						con.printAnalysisMessage("Skipping not readable file '" + path + "'.");
@@ -143,6 +120,33 @@ public class ExtFix implements Callable<Integer> {
 			@Override
 			public FileVisitResult postVisitDirectory(final Path dir, final IOException e) {
 				return FileVisitResult.CONTINUE;
+			}
+
+			private void analyze(@NonNull final Path path) {
+				try {
+					final String mediaType = tika.detect(path);
+					if (mediaType == null) {
+						con.printAnalysisMessage("Cannot determine type of '" + path + "'.");
+					}
+					else {
+						final List<String> exts = tikaConfig.getMimeRepository().forName(mediaType).getExtensions();
+						log.debug("{} <- {}", exts, path);
+						if (exts.isEmpty()) {
+							con.printAnalysisMessage("Cannot determine extension for '" + path + "'.");
+						}
+						else {
+							final Optional<Path> fixed = fixFileName(path, exts);
+							if (fixed.isPresent()) {
+								renames.put(path, fixed.get());
+								con.printAnalysisMessage("Found " + FilenameUtils.getExtension(fixed.get().toString()).toUpperCase() + " file with wrong extension: '" + path + "'.");
+							}
+						}
+					}
+					count++;
+				}
+				catch (final MimeTypeException | IOException | RuntimeException e) {
+					con.printAnalysisError("Skipping '" + path + "' due to an exception: " + e, e);
+				}
 			}
 		});
 
@@ -181,6 +185,17 @@ public class ExtFix implements Callable<Integer> {
 		}
 		else {
 			return Optional.empty();
+		}
+	}
+
+	private static Path toAbsolutePath(@NonNull final Path path) {
+		final File file = path.toFile();
+		try {
+			return file.getCanonicalFile().toPath();
+		}
+		catch (final IOException e) {
+			log.debug("Cannot obtain canonical pathname:", e);
+			return file.getAbsoluteFile().toPath();
 		}
 	}
 

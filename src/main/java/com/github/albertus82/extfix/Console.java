@@ -18,18 +18,18 @@ public class Console {
 
 	private static final String ANALYSIS_PREFIX = "Analyzing directory ";
 
+	private static final PrintStream out = System.out; // NOSONAR Replace this use of System.out or System.err by a logger. Standard outputs should not be used directly to log anything (java:S106)
+
 	private final int width;
 
 	@Setter
 	private boolean errors;
 
-	private final StringBuilder currentDirectory = new StringBuilder();
+	private String currentDirectory = "";
 
 	private boolean firstTime = true;
 
-	private final PrintStream out = System.out; // NOSONAR Replace this use of System.out or System.err by a logger. Standard outputs should not be used directly to log anything (java:S106)
-
-	public void printAnalysisProgress(@NonNull final Path path) {
+	public synchronized void printAnalysisProgress(@NonNull final Path path) {
 		if (firstTime) {
 			out.print(ANALYSIS_PREFIX);
 			firstTime = false;
@@ -40,8 +40,7 @@ public class Console {
 			sb.append('\b');
 		}
 		out.print(sb);
-		currentDirectory.setLength(0); // clear
-		currentDirectory.append(StringUtils.abbreviateMiddle(pathString, "...", width - ANALYSIS_PREFIX.length()));
+		currentDirectory = StringUtils.abbreviateMiddle(pathString, "...", width - ANALYSIS_PREFIX.length());
 		out.print(currentDirectory);
 		sb.setLength(0);
 		for (int i = ANALYSIS_PREFIX.length() + currentDirectory.length(); i < width; i++) {
@@ -53,14 +52,14 @@ public class Console {
 		out.print(sb);
 	}
 
-	public void printAnalysisMessage(final String message) {
+	public synchronized void printAnalysisMessage(final String message) {
 		clearAnalysisLine();
 		out.println(message);
 		out.print(ANALYSIS_PREFIX);
 		out.print(currentDirectory);
 	}
 
-	public void printAnalysisError(final String message, final Throwable e) {
+	public synchronized void printAnalysisError(final String message, final Throwable e) {
 		clearAnalysisLine();
 		if (errors && e != null) {
 			e.printStackTrace();
@@ -70,15 +69,15 @@ public class Console {
 		out.print(currentDirectory);
 	}
 
-	public void clearAnalysisLine() {
+	public synchronized void clearAnalysisLine() {
 		final StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < currentDirectory.length() + ANALYSIS_PREFIX.length(); i++) {
+		for (int i = 0; i < ANALYSIS_PREFIX.length() + currentDirectory.length(); i++) {
 			sb.append("\b \b"); // replace non-whitespace characters with whitespace
 		}
 		out.print(sb);
 	}
 
-	public void printLine(final String x) {
+	public synchronized void printLine(final String x) {
 		out.println(x);
 	}
 
