@@ -3,6 +3,7 @@ package com.github.albertus82.extfix;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
 import org.apache.commons.lang3.StringUtils;
@@ -44,7 +45,7 @@ public class Console {
 		for (int i = 0; i < currentDirectory.length(); i++) {
 			sb.append('\b');
 		}
-		currentDirectory = StringUtils.abbreviateMiddle(pathString, "...", limit - ANALYSIS_PREFIX.length());
+		currentDirectory = new String(StringUtils.abbreviateMiddle(pathString, "...", limit - ANALYSIS_PREFIX.length()).getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.ISO_8859_1);
 		sb.append(currentDirectory);
 		for (int i = ANALYSIS_PREFIX.length() + currentDirectory.length(); i < limit; i++) {
 			sb.append(' ');
