@@ -29,7 +29,12 @@ public class Console {
 
 	private boolean firstTime = true;
 
+	public Console() {
+		this.width = 80;
+	}
+
 	public void printAnalysisProgress(@NonNull final Path path) {
+		final int limit = width - 1;
 		final StringBuilder sb = new StringBuilder();
 		if (firstTime) {
 			sb.append(ANALYSIS_PREFIX);
@@ -39,12 +44,12 @@ public class Console {
 		for (int i = 0; i < currentDirectory.length(); i++) {
 			sb.append('\b');
 		}
-		currentDirectory = StringUtils.abbreviateMiddle(pathString, "...", width - 1 - ANALYSIS_PREFIX.length());
+		currentDirectory = StringUtils.abbreviateMiddle(pathString, "...", limit - ANALYSIS_PREFIX.length());
 		sb.append(currentDirectory);
-		for (int i = ANALYSIS_PREFIX.length() + currentDirectory.length(); i < width - 1; i++) {
+		for (int i = ANALYSIS_PREFIX.length() + currentDirectory.length(); i < limit; i++) {
 			sb.append(' ');
 		}
-		for (int i = ANALYSIS_PREFIX.length() + currentDirectory.length(); i < width - 1; i++) {
+		for (int i = ANALYSIS_PREFIX.length() + currentDirectory.length(); i < limit; i++) {
 			sb.append('\b');
 		}
 		out.print(sb);
