@@ -21,14 +21,14 @@ class ExtFixTest {
 			final Path p5 = FileTestUtils.copyResourceToDir("png.jpg", path);
 
 			final ExtFix e1 = new ExtFix(path, dryRun, YES, new Extensions(new String[] { "jpg", "png" }, null));
-			e1.call();
+			Assertions.assertEquals(0, e1.call());
 			Assertions.assertFalse(Files.exists(p3));
 			Assertions.assertTrue(Files.exists(p4)); // "jpeg" is not included in Extensions
 			Assertions.assertFalse(Files.exists(p5));
 			Assertions.assertEquals(3, Files.list(path).count());
 
 			final ExtFix e2 = new ExtFix(path, dryRun, YES, new Extensions(new String[] { "jpeg" }, null));
-			e2.call();
+			Assertions.assertEquals(0, e2.call());
 			Assertions.assertFalse(Files.exists(p4));
 			Assertions.assertEquals(3, Files.list(path).count());
 		});
@@ -42,12 +42,29 @@ class ExtFixTest {
 			final Path p2 = FileTestUtils.copyResourceToDir("png", path);
 
 			final ExtFix e1 = new ExtFix(path, dryRun, YES, new Extensions());
-			e1.call();
+			Assertions.assertEquals(0, e1.call());
 			Assertions.assertFalse(Files.exists(p1));
 			Assertions.assertFalse(Files.exists(p2));
 			Assertions.assertTrue(Files.exists(Paths.get(p1.toString() + ".jpg")));
 			Assertions.assertTrue(Files.exists(Paths.get(p2.toString() + ".png")));
 			Assertions.assertEquals(2, Files.list(path).count());
+		});
+	}
+
+	@Test
+	void testNoProblem() throws IOException {
+		final boolean dryRun = false;
+		FileTestUtils.runWithTempDir(path -> {
+			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.jpeg", path);
+			final Path p2 = FileTestUtils.copyResourceToDir("jpeg.jpg", path);
+			final Path p3 = FileTestUtils.copyResourceToDir("png.png", path);
+
+			final ExtFix e1 = new ExtFix(path, dryRun, YES, new Extensions());
+			Assertions.assertEquals(0, e1.call());
+			Assertions.assertTrue(Files.exists(p1));
+			Assertions.assertTrue(Files.exists(p2));
+			Assertions.assertTrue(Files.exists(p3));
+			Assertions.assertEquals(3, Files.list(path).count());
 		});
 	}
 
@@ -63,7 +80,7 @@ class ExtFixTest {
 			final Path p6 = FileTestUtils.copyResourceToDir("png.png", path);
 
 			final ExtFix e1 = new ExtFix(path, dryRun, YES, new Extensions(new String[] { "jpg", "png" }, null));
-			e1.call();
+			Assertions.assertEquals(0, e1.call());
 			Assertions.assertTrue(Files.exists(p1));
 			Assertions.assertTrue(Files.exists(p2));
 			Assertions.assertFalse(Files.exists(p3));
@@ -88,7 +105,7 @@ class ExtFixTest {
 			final Path p6 = FileTestUtils.copyResourceToDir("png.png", path);
 
 			final ExtFix e1 = new ExtFix(path, dryRun, YES, new Extensions(new String[] { "jpg", "png", "jpeg" }, null));
-			e1.call();
+			Assertions.assertEquals(0, e1.call());
 			Assertions.assertTrue(Files.exists(p1));
 			Assertions.assertTrue(Files.exists(p2));
 			Assertions.assertTrue(Files.exists(p3));
