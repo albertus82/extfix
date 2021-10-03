@@ -1,19 +1,17 @@
 package com.github.albertus82.extfix;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.github.albertus82.extfix.util.PathUtils;
+
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @RequiredArgsConstructor
 public class Console {
 
@@ -41,10 +39,10 @@ public class Console {
 			sb.append(ANALYSIS_PREFIX);
 			firstTime = false;
 		}
-		final String pathString = pathToString(path);
 		for (int i = 0; i < currentDirectory.length(); i++) {
 			sb.append('\b');
 		}
+		final String pathString = PathUtils.absolute(path).toString();
 		currentDirectory = new String(StringUtils.abbreviateMiddle(pathString, "...", limit - ANALYSIS_PREFIX.length()).getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.ISO_8859_1);
 		sb.append(currentDirectory);
 		for (int i = ANALYSIS_PREFIX.length() + currentDirectory.length(); i < limit; i++) {
@@ -92,17 +90,6 @@ public class Console {
 			e.printStackTrace();
 		}
 		out.println(message);
-	}
-
-	private static String pathToString(@NonNull final Path path) {
-		final File file = path.toFile();
-		try {
-			return file.getCanonicalPath();
-		}
-		catch (final IOException e) {
-			log.debug("Cannot obtain canonical pathname:", e);
-			return file.getAbsolutePath();
-		}
 	}
 
 }
