@@ -47,7 +47,7 @@ public class ExtFix implements Callable<Integer> {
 	private boolean links;
 
 	@ArgGroup(exclusive = true)
-	private Extensions extensions;
+	private Extensions extensions = new Extensions();
 
 	ExtFix(@NonNull final Path basePath, final boolean dryRun, final boolean yes, @NonNull final Extensions extensions) { // for test only access
 		this.basePath = basePath;
