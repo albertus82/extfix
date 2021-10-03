@@ -39,12 +39,12 @@ public class Console {
 		for (int i = 0; i < currentDirectory.length(); i++) {
 			sb.append('\b');
 		}
-		currentDirectory = StringUtils.abbreviateMiddle(pathString, "...", width - ANALYSIS_PREFIX.length());
+		currentDirectory = StringUtils.abbreviateMiddle(pathString, "...", width - 1 - ANALYSIS_PREFIX.length());
 		sb.append(currentDirectory);
-		for (int i = ANALYSIS_PREFIX.length() + currentDirectory.length(); i < width; i++) {
+		for (int i = ANALYSIS_PREFIX.length() + currentDirectory.length(); i < width - 1; i++) {
 			sb.append(' ');
 		}
-		for (int i = ANALYSIS_PREFIX.length() + currentDirectory.length(); i < width; i++) {
+		for (int i = ANALYSIS_PREFIX.length() + currentDirectory.length(); i < width - 1; i++) {
 			sb.append('\b');
 		}
 		out.print(sb);

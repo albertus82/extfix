@@ -48,7 +48,7 @@ public class ExtFix implements Callable<Integer> {
 	@Getter(value = AccessLevel.PACKAGE) // for test only access
 	private final Tika tika = new Tika(tikaConfig);
 
-	private final Console con = new Console(79);
+	private final Console con = new Console(80);
 
 	@Parameters(paramLabel = "<BASE_PATH>", description = "Base directory to scan.")
 	private Path basePath;
