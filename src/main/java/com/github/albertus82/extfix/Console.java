@@ -1,12 +1,12 @@
 package com.github.albertus82.extfix;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 
 import org.apache.commons.lang3.StringUtils;
 
-import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class Console {
 
-	private static final String ANALYZING = "Analyzing directory ";
+	private static final String ANALYSIS_PREFIX = "Analyzing directory ";
 
 	private final int width;
 
@@ -27,12 +27,11 @@ public class Console {
 
 	private boolean firstTime = true;
 
-	@Setter(AccessLevel.PACKAGE)
-	private PrintStream out = System.out; // NOSONAR Replace this use of System.out or System.err by a logger. Standard outputs should not be used directly to log anything (java:S106)
+	private final PrintStream out = System.out; // NOSONAR Replace this use of System.out or System.err by a logger. Standard outputs should not be used directly to log anything (java:S106)
 
 	public void printAnalysisProgress(@NonNull final Path path) {
 		if (firstTime) {
-			out.print(ANALYZING);
+			out.print(ANALYSIS_PREFIX);
 			firstTime = false;
 		}
 		final String pathString = pathToString(path);
@@ -41,9 +40,9 @@ public class Console {
 			sb.append('\b');
 		}
 		out.print(sb);
-		currentDirectory.setLength(0);
-		currentDirectory.append(StringUtils.abbreviateMiddle(pathString, "...", width - ANALYZING.length()));
-		for (int i = ANALYZING.length() + currentDirectory.length(); i < width; i++) {
+		currentDirectory.setLength(0); // clear
+		currentDirectory.append(StringUtils.abbreviateMiddle(pathString, "...", width - ANALYSIS_PREFIX.length()));
+		for (int i = ANALYSIS_PREFIX.length() + currentDirectory.length(); i < width; i++) {
 			currentDirectory.append(' ');
 		}
 		out.print(currentDirectory);
@@ -52,7 +51,8 @@ public class Console {
 	public void printAnalysisMessage(final String message) {
 		clearAnalysisLine();
 		out.println(message);
-		out.print(ANALYZING);
+		out.print(ANALYSIS_PREFIX);
+		out.print(currentDirectory);
 	}
 
 	public void printAnalysisError(final String message, final Throwable e) {
@@ -61,12 +61,16 @@ public class Console {
 			e.printStackTrace();
 		}
 		out.println(message);
-		out.print(ANALYZING);
+		out.print(ANALYSIS_PREFIX);
+		out.print(currentDirectory);
 	}
 
 	public void clearAnalysisLine() {
 		final StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < currentDirectory.length() + ANALYZING.length(); i++) {
+		for (int i = currentDirectory.length() + ANALYSIS_PREFIX.length(); i < width; i++) {
+			sb.append(' ');
+		}
+		for (int i = 0; i < width; i++) {
 			sb.append('\b');
 		}
 		out.print(sb);
@@ -76,13 +80,14 @@ public class Console {
 		out.println(x);
 	}
 
-	private static String pathToString(final Path path) {
+	private static String pathToString(@NonNull final Path path) {
+		final File file = path.toFile();
 		try {
-			return path.toFile().getCanonicalPath();
+			return file.getCanonicalPath();
 		}
 		catch (final IOException e) {
 			log.debug("Cannot obtain canonical pathname:", e);
-			return path.toFile().getAbsolutePath();
+			return file.getAbsolutePath();
 		}
 	}
 
