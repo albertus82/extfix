@@ -31,6 +31,7 @@ public class ExtFix implements Callable<Integer> {
 
 	private final Console out = new Console();
 
+	@NonNull
 	@Parameters(paramLabel = "<BASE_PATH>", description = "Base directory to scan.")
 	private Path basePath;
 
@@ -46,6 +47,7 @@ public class ExtFix implements Callable<Integer> {
 	@Option(names = { "-L", "--links" }, description = "Follow links.")
 	private boolean links;
 
+	@NonNull
 	@ArgGroup(exclusive = true)
 	private Extensions extensions = new Extensions();
 
