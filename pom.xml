@@ -22,6 +22,7 @@
 		<picocli.version>4.6.1</picocli.version>
 		<maven.version.rules>${project.baseUri}/maven-version-rules.xml</maven.version.rules>
 		<vm.initialHeapSize>4</vm.initialHeapSize>
+		<vm.maxHeapSize>64</vm.maxHeapSize> <!-- can rename ~100k files (256 bytes * 2 * 10^5 = 50 MiB) -->
 	</properties>
 
 	<profiles>
