@@ -29,20 +29,18 @@ public class Console {
 
 	private boolean firstTime = true;
 
-	public synchronized void printAnalysisProgress(@NonNull final Path path) {
+	public void printAnalysisProgress(@NonNull final Path path) {
+		final StringBuilder sb = new StringBuilder();
 		if (firstTime) {
-			out.print(ANALYSIS_PREFIX);
+			sb.append(ANALYSIS_PREFIX);
 			firstTime = false;
 		}
 		final String pathString = pathToString(path);
-		final StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < currentDirectory.length(); i++) {
 			sb.append('\b');
 		}
-		out.print(sb);
 		currentDirectory = StringUtils.abbreviateMiddle(pathString, "...", width - ANALYSIS_PREFIX.length());
-		out.print(currentDirectory);
-		sb.setLength(0);
+		sb.append(currentDirectory);
 		for (int i = ANALYSIS_PREFIX.length() + currentDirectory.length(); i < width; i++) {
 			sb.append(' ');
 		}
@@ -55,8 +53,7 @@ public class Console {
 	public synchronized void printAnalysisMessage(final String message) {
 		clearAnalysisLine();
 		out.println(message);
-		out.print(ANALYSIS_PREFIX);
-		out.print(currentDirectory);
+		out.print(ANALYSIS_PREFIX + currentDirectory);
 	}
 
 	public synchronized void printAnalysisError(final String message, final Throwable e) {
@@ -65,11 +62,10 @@ public class Console {
 			e.printStackTrace();
 		}
 		out.println(message);
-		out.print(ANALYSIS_PREFIX);
-		out.print(currentDirectory);
+		out.print(ANALYSIS_PREFIX + currentDirectory);
 	}
 
-	public synchronized void clearAnalysisLine() {
+	public void clearAnalysisLine() {
 		final StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < ANALYSIS_PREFIX.length() + currentDirectory.length(); i++) {
 			sb.append("\b \b"); // replace non-whitespace characters with whitespace
@@ -77,7 +73,7 @@ public class Console {
 		out.print(sb);
 	}
 
-	public synchronized void printLine(final String x) {
+	public void printLine(final String x) {
 		out.println(x);
 	}
 
