@@ -1,4 +1,4 @@
-package com.github.albertus82.extfix;
+package com.github.albertus82.extfix.engine;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -20,6 +20,9 @@ import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.tika.Tika;
 import org.apache.tika.config.TikaConfig;
 import org.apache.tika.mime.MimeTypeException;
+
+import com.github.albertus82.extfix.Console;
+import com.github.albertus82.extfix.util.PathUtils;
 
 import lombok.AccessLevel;
 import lombok.Getter;

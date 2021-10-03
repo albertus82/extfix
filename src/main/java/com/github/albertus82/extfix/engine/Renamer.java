@@ -1,4 +1,4 @@
-package com.github.albertus82.extfix;
+package com.github.albertus82.extfix.engine;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.io.FilenameUtils;
+
+import com.github.albertus82.extfix.Console;
 
 import lombok.Getter;
 import lombok.NonNull;

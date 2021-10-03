@@ -15,6 +15,10 @@ import java.util.concurrent.Callable;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.github.albertus82.extfix.engine.Analyzer;
+import com.github.albertus82.extfix.engine.Renamer;
+import com.github.albertus82.extfix.util.PathUtils;
+
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import picocli.CommandLine;

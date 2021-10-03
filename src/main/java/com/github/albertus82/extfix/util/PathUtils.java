@@ -1,4 +1,4 @@
-package com.github.albertus82.extfix;
+package com.github.albertus82.extfix.util;
 
 import java.io.File;
 import java.io.IOException;
