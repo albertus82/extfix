@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.List;
@@ -43,10 +42,13 @@ public class Analyzer implements PathVisitor {
 	private final PathFilter pathFilter;
 
 	@Getter
-	private final Map<Path, Path> renames = new TreeMap<>();
+	private final Map<Path, String> results = new TreeMap<>();
 
 	@Getter
-	private int count;
+	private int analyzedCount;
+
+	@Getter
+	private int skippedCount;
 
 	public Analyzer(@NonNull final Console out, final String... suffixes) {
 		this.out = out;
@@ -67,11 +69,12 @@ public class Analyzer implements PathVisitor {
 
 	@Override
 	public FileVisitResult visitFile(@NonNull Path path, final BasicFileAttributes attrs) {
-		if (FileVisitResult.CONTINUE.equals(pathFilter.accept(path, attrs))) {
-			if (FileVisitResult.CONTINUE.equals(FileFileFilter.INSTANCE.accept(path, attrs)) && FileVisitResult.CONTINUE.equals(CanReadFileFilter.CAN_READ.accept(path, attrs))) {
+		if (FileVisitResult.CONTINUE.equals(pathFilter.accept(path, attrs)) && FileVisitResult.CONTINUE.equals(FileFileFilter.INSTANCE.accept(path, attrs))) {
+			if (FileVisitResult.CONTINUE.equals(CanReadFileFilter.CAN_READ.accept(path, attrs))) {
 				analyze(absolute(path));
 			}
 			else {
+				skippedCount++;
 				out.printAnalysisMessage("Skipping not readable file '" + path + "'.");
 			}
 		}
@@ -108,28 +111,25 @@ public class Analyzer implements PathVisitor {
 					out.printAnalysisMessage("Cannot determine extension for '" + path + "'.");
 				}
 				else {
-					fixFileName(path, exts).ifPresent(fixed -> {
-						renames.put(path, fixed);
-						out.printAnalysisMessage("Found " + FilenameUtils.getExtension(fixed.toString()).toUpperCase() + " file with unexpected extension: '" + path + "'.");
+					findBetterExtension(path, exts).ifPresent(ext -> {
+						results.put(path, ext);
+						out.printAnalysisMessage("Found " + ext.toUpperCase() + " file with unexpected extension: '" + path + "'.");
 					});
 				}
 			}
-			count++;
+			analyzedCount++;
 		}
 		catch (final MimeTypeException | IOException | RuntimeException e) {
+			skippedCount++;
 			out.printAnalysisError("Skipping '" + path + "' due to an exception: " + e, e);
 		}
 	}
 
-	static Optional<Path> fixFileName(@NonNull final Path path, @NonNull final List<String> knownExtensions) { // non-private for test only access
-		final String currentFileName = path.toString();
-		final String currentExtension = FilenameUtils.getExtension(currentFileName);
+	static Optional<String> findBetterExtension(@NonNull final Path path, @NonNull final List<String> knownExtensions) { // non-private for test only access
+		final String currentExtension = FilenameUtils.getExtension(path.toString());
 		final String bestExtension = knownExtensions.get(0);
-		if (currentExtension.isEmpty()) {
-			return Optional.of(Paths.get(currentFileName + bestExtension));
-		}
-		else if (knownExtensions.stream().noneMatch(e -> e.equalsIgnoreCase('.' + currentExtension))) {
-			return Optional.of(Paths.get(FilenameUtils.removeExtension(currentFileName) + bestExtension));
+		if (currentExtension.isEmpty() || knownExtensions.stream().noneMatch(e -> e.equalsIgnoreCase('.' + currentExtension))) {
+			return Optional.of(bestExtension);
 		}
 		else {
 			return Optional.empty();

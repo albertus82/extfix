@@ -22,31 +22,48 @@ public class Renamer {
 	private final boolean dryRun;
 
 	@Getter
-	private int count;
+	private int successCount;
 
-	public void rename(@NonNull Map<Path, Path> map) {
-		for (final Entry<Path, Path> e : map.entrySet()) {
+	@Getter
+	private int failedCount;
+
+	public void rename(@NonNull Map<Path, String> map) {
+		for (final Entry<Path, String> e : map.entrySet()) {
 			rename(e.getKey(), e.getValue());
 		}
 	}
 
-	void rename(@NonNull final Path source, @NonNull Path target) { // non-private for test only access
-		int i = 0;
-		while (Files.exists(target)) {
-			target = Paths.get(FilenameUtils.removeExtension(target.toString()) + " (" + ++i + ")." + FilenameUtils.getExtension(target.toString()));
-		}
+	void rename(@NonNull final Path source, @NonNull final String newExtension) { // non-private for test only access
+		final Path target = buildTarget(source, newExtension);
 		out.print("Renaming '" + source + "' to '" + target + "'... ");
 		try {
 			if (!dryRun) {
 				Files.move(source, target);
 			}
-			count++;
+			successCount++;
 			out.printLine("Done.");
 		}
 		catch (final IOException e) {
+			failedCount++;
 			out.printLine("Failed.");
 			out.printError("Cannot rename '" + source + "' due to an exception: " + e, e);
 		}
+	}
+
+	private static Path buildTarget(@NonNull final Path source, @NonNull final String newExtension) {
+		final String oldFileName = source.toString();
+		Path target;
+		if (FilenameUtils.getExtension(oldFileName).isEmpty()) {
+			target = Paths.get(oldFileName + newExtension);
+		}
+		else {
+			target = Paths.get(FilenameUtils.removeExtension(oldFileName) + newExtension);
+		}
+		int i = 0;
+		while (Files.exists(target)) {
+			target = Paths.get(FilenameUtils.removeExtension(target.toString()) + " (" + ++i + ")" + newExtension);
+		}
+		return target;
 	}
 
 }

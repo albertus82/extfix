@@ -113,18 +113,18 @@ class ExtFixTest {
 
 	@Test
 	void testFixFileName() {
-		Assertions.assertEquals(Optional.empty(), Analyzer.fixFileName(Paths.get("/tmp/foo.txt"), Arrays.asList(".txt")));
-		Assertions.assertEquals(Optional.empty(), Analyzer.fixFileName(Paths.get("/tmp/foo.TXT"), Arrays.asList(".txt", ".bar")));
-		Assertions.assertEquals(Optional.empty(), Analyzer.fixFileName(Paths.get("/tmp/foo.txt"), Arrays.asList(".FOO", ".TXT")));
-		Assertions.assertEquals(Optional.empty(), Analyzer.fixFileName(Paths.get("/tmp/foo.TXT"), Arrays.asList(".TXT")));
-		Assertions.assertTrue(Analyzer.fixFileName(Paths.get("/tmp/foo"), Arrays.asList(".txt")).get().toString().endsWith(".txt"));
-		Assertions.assertTrue(Analyzer.fixFileName(Paths.get("/tmp/foo"), Arrays.asList(".BAR", ".txt")).get().toString().endsWith(".BAR"));
-		Assertions.assertTrue(Analyzer.fixFileName(Paths.get("/tmp/foo.bar"), Arrays.asList(".lst", ".txt")).get().toString().endsWith(".lst"));
+		Assertions.assertEquals(Optional.empty(), Analyzer.findBetterExtension(Paths.get("/tmp/foo.txt"), Arrays.asList(".txt")));
+		Assertions.assertEquals(Optional.empty(), Analyzer.findBetterExtension(Paths.get("/tmp/foo.TXT"), Arrays.asList(".txt", ".bar")));
+		Assertions.assertEquals(Optional.empty(), Analyzer.findBetterExtension(Paths.get("/tmp/foo.txt"), Arrays.asList(".FOO", ".TXT")));
+		Assertions.assertEquals(Optional.empty(), Analyzer.findBetterExtension(Paths.get("/tmp/foo.TXT"), Arrays.asList(".TXT")));
+		Assertions.assertTrue(Analyzer.findBetterExtension(Paths.get("/tmp/foo"), Arrays.asList(".txt")).get().toString().endsWith(".txt"));
+		Assertions.assertTrue(Analyzer.findBetterExtension(Paths.get("/tmp/foo"), Arrays.asList(".BAR", ".txt")).get().toString().endsWith(".BAR"));
+		Assertions.assertTrue(Analyzer.findBetterExtension(Paths.get("/tmp/foo.bar"), Arrays.asList(".lst", ".txt")).get().toString().endsWith(".lst"));
 		final List<String> list = Collections.emptyList();
-		Assertions.assertThrows(NullPointerException.class, () -> Analyzer.fixFileName(null, list));
+		Assertions.assertThrows(NullPointerException.class, () -> Analyzer.findBetterExtension(null, list));
 		final Path path = Paths.get("/tmp/foo.bar");
-		Assertions.assertThrows(NullPointerException.class, () -> Analyzer.fixFileName(path, null));
-		Assertions.assertThrows(NullPointerException.class, () -> Analyzer.fixFileName(null, null));
+		Assertions.assertThrows(NullPointerException.class, () -> Analyzer.findBetterExtension(path, null));
+		Assertions.assertThrows(NullPointerException.class, () -> Analyzer.findBetterExtension(null, null));
 	}
 
 	@Test
@@ -132,7 +132,7 @@ class ExtFixTest {
 		final Renamer extFix = new Renamer(new Console(), false);
 		Assertions.assertThrows(NullPointerException.class, () -> extFix.rename(null, null));
 		final Path path = Paths.get("/tmp/foo.bar");
-		Assertions.assertThrows(NullPointerException.class, () -> extFix.rename(null, path));
+		Assertions.assertThrows(NullPointerException.class, () -> extFix.rename(null, "ext"));
 		Assertions.assertThrows(NullPointerException.class, () -> extFix.rename(path, null));
 	}
 

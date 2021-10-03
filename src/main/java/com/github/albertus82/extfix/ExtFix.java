@@ -75,10 +75,10 @@ public class ExtFix implements Callable<Integer> {
 		final Analyzer analyzer = new Analyzer(out, extensions.get());
 		Files.walkFileTree(basePath, links ? EnumSet.of(FileVisitOption.FOLLOW_LINKS) : Collections.emptySet(), Short.MAX_VALUE, analyzer);
 		out.clearAnalysisLine();
-		out.printLine(analyzer.getCount() + " files analyzed.");
+		out.printLine(analyzer.getAnalyzedCount() + " files analyzed (" + analyzer.getSkippedCount() + " skipped).");
 
 		if (!yes) {
-			out.print(analyzer.getRenames().size() + " files are about to be renamed. Do you want to continue? [y/N] ");
+			out.print(analyzer.getResults().size() + " files are about to be renamed. Do you want to continue? [y/N] ");
 			final BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 			try {
 				final String userAnswer = StringUtils.trimToEmpty(br.readLine());
@@ -94,8 +94,8 @@ public class ExtFix implements Callable<Integer> {
 		}
 
 		final Renamer renamer = new Renamer(out, dryRun);
-		renamer.rename(analyzer.getRenames());
-		out.printLine(renamer.getCount() + " files renamed.");
+		renamer.rename(analyzer.getResults());
+		out.printLine(renamer.getSuccessCount() + " files renamed (" + renamer.getFailedCount() + " failed).");
 
 		return ExitCode.OK;
 	}
