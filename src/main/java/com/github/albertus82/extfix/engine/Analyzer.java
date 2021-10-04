@@ -135,7 +135,7 @@ public class Analyzer implements PathVisitor {
 				else {
 					findBetterExtension(path, knownExtensions).ifPresent(extension -> {
 						results.put(path, extension);
-						out.printAnalysisMessage("Found " + StringUtils.stripStart(extension.toUpperCase(Locale.ROOT), ".") + " file with unexpected extension: '" + path + "'.");
+						out.printAnalysisMessage("Found " + StringUtils.stripStart(extension.toUpperCase(Locale.ROOT), ".") + " file with suspicious extension: '" + path + "'.");
 					});
 				}
 			}

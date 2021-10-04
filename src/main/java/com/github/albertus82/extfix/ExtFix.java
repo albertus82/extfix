@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
@@ -37,8 +38,8 @@ public class ExtFix implements Callable<Integer> {
 	private final Console out = new Console();
 
 	@NonNull
-	@Parameters(paramLabel = "<BASE_PATH>", description = "Base directory to scan.")
-	private Path basePath;
+	@Parameters(paramLabel = "<PATH>", description = "Directory to scan for files with invalid extension.")
+	private Path path;
 
 	@NonNull
 	@ArgGroup(exclusive = true)
@@ -59,8 +60,8 @@ public class ExtFix implements Callable<Integer> {
 	@Option(names = { "-y", "--yes" }, description = "Automatic yes to prompts (run non-interactively).")
 	private boolean yes;
 
-	ExtFix(@NonNull Path basePath, @NonNull Extensions extensions, boolean links, boolean dryRun, boolean errors, boolean yes) { // for test only access
-		this.basePath = basePath;
+	ExtFix(@NonNull Path path, @NonNull Extensions extensions, boolean links, boolean dryRun, boolean errors, boolean yes) { // for test only access
+		this.path = path;
 		this.extensions = extensions;
 		this.links = links;
 		this.dryRun = dryRun;
@@ -79,19 +80,20 @@ public class ExtFix implements Callable<Integer> {
 			out.printLine("Error stack traces are turned on.");
 		}
 
-		basePath = PathUtils.absolute(basePath);
-		out.printLine("Base path: '" + basePath + "'.");
+		path = PathUtils.absolute(path);
+		out.printLine("Path: '" + path + "'.");
 
 		final Analyzer analyzer = new Analyzer(out, extensions.get());
 
 		if (recursive) {
-			Files.walkFileTree(basePath, links ? EnumSet.of(FileVisitOption.FOLLOW_LINKS) : Collections.emptySet(), Short.MAX_VALUE, analyzer);
+			Files.walkFileTree(path, links ? EnumSet.of(FileVisitOption.FOLLOW_LINKS) : Collections.emptySet(), Short.MAX_VALUE, analyzer);
 		}
 		else {
-			try (final Stream<Path> stream = Files.list(basePath)) {
+			try (final Stream<Path> stream = Files.list(path)) {
 				stream.forEach(path -> {
 					try {
-						analyzer.visitFile(path, Files.readAttributes(path, BasicFileAttributes.class));
+						final BasicFileAttributes fileAttributes = links ? Files.readAttributes(path, BasicFileAttributes.class) : Files.readAttributes(path, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+						analyzer.visitFile(path, fileAttributes);
 					}
 					catch (final IOException e) {
 						analyzer.visitFileFailed(path, e);
