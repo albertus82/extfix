@@ -7,13 +7,13 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
@@ -41,7 +41,7 @@ public class Analyzer implements PathVisitor {
 
 	private final TikaConfig tikaConfig = TikaConfig.getDefaultConfig();
 	private final Tika tika = new Tika(tikaConfig);
-	private final Map<Path, Closeable> closeables = new HashMap<>();
+	private final Map<Path, Closeable> closeables = new ConcurrentHashMap<>();
 
 	@NonNull
 	private final Console out;
@@ -67,20 +67,19 @@ public class Analyzer implements PathVisitor {
 		else {
 			this.pathFilter = (p, a) -> FileVisitResult.CONTINUE;
 		}
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				for (final Entry<Path, Closeable> entry : closeables.entrySet()) {
-					try {
-						entry.getValue().close();
-					}
-					catch (final IOException e) {
-						out.printLine();
-						out.printError("Cannot close '" + entry.getKey() + "' due to an exception:" + e, e);
-					}
+		final Thread shutdownHook = new Thread(() -> {
+			for (final Entry<Path, Closeable> entry : closeables.entrySet()) {
+				try {
+					entry.getValue().close();
+				}
+				catch (final IOException e) {
+					out.printLine();
+					out.printError("Cannot close '" + entry.getKey() + "' due to an exception:" + e, e);
 				}
 			}
 		});
+		shutdownHook.setPriority(Thread.MAX_PRIORITY);
+		Runtime.getRuntime().addShutdownHook(shutdownHook);
 	}
 
 	@Override
