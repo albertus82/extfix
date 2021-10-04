@@ -22,13 +22,18 @@ public class FileTestUtils {
 	public static <T extends Throwable> void runWithTempDir(@NonNull final TempDirExec<T> exec) throws IOException, T {
 		final String uuid = UUID.randomUUID().toString().replace("-", "");
 		final File tempFile = File.createTempFile(uuid, null);
-		final File tempDir = new File(tempFile.getParent() + File.separator + uuid);
+		File tempDir = new File(tempFile.getParent() + File.separator + uuid);
 		if (!tempFile.delete()) {
 			log.warn("Unable to delete temporary file \"{}\".", tempFile);
 			tempFile.deleteOnExit();
 		}
-		tempDir.mkdir();
-		log.info("Created temporary directory \"{}\".", tempDir);
+		if (tempDir.mkdir()) {
+			tempDir = tempDir.getCanonicalFile();
+			log.info("Created temporary directory \"{}\".", tempDir);
+		}
+		else {
+			throw new IOException("Cannot create temporary directory \"" + tempDir + "\"");
+		}
 		try {
 			exec.execute(tempDir.toPath());
 		}
