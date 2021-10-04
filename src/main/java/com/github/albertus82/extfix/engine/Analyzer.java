@@ -73,7 +73,7 @@ public class Analyzer {
 	private final Console out;
 
 	@Value
-	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+	@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 	public class AnalysisResult {
 		@NonNull
 		Map<Path, String> renameMap;
@@ -88,6 +88,7 @@ public class Analyzer {
 			Files.walkFileTree(path, links ? EnumSet.of(FileVisitOption.FOLLOW_LINKS) : Collections.emptySet(), Short.MAX_VALUE, visitor);
 		}
 		else {
+			visitor.preVisitDirectory(path, null);
 			try (final Stream<Path> stream = Files.list(path)) {
 				stream.forEach(entry -> {
 					try {
@@ -98,6 +99,9 @@ public class Analyzer {
 						visitor.visitFileFailed(entry, e);
 					}
 				});
+			}
+			catch (final IOException e) {
+				visitor.visitFileFailed(path, e);
 			}
 		}
 		out.clearAnalysisLine();

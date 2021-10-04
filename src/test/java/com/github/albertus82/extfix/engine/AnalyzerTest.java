@@ -1,33 +1,35 @@
-//package com.github.albertus82.extfix.engine;
-//
-//import java.io.IOException;
-//import java.nio.file.FileVisitResult;
-//import java.nio.file.Path;
-//import java.nio.file.Paths;
-//import java.util.Arrays;
-//import java.util.Collections;
-//import java.util.List;
-//import java.util.Locale;
-//import java.util.Optional;
-//import java.util.UUID;
-//
-//import org.apache.commons.io.file.PathVisitor;
-//import org.junit.jupiter.api.Assertions;
-//import org.junit.jupiter.api.Test;
-//
-//import com.github.albertus82.extfix.Console;
-//import com.github.albertus82.extfix.FileTestUtils;
-//
-//class AnalyzerTest {
-//
-//	private static final String RANDOM = UUID.randomUUID().toString().replace("-", "");
-//
-//	@Test
-//	void testConstructor() {
-//		Assertions.assertThrows(NullPointerException.class, () -> new Analyzer(null));
-//		Assertions.assertDoesNotThrow(() -> new Analyzer(new Console(), (String[]) null));
-//		Assertions.assertDoesNotThrow(() -> new Analyzer(new Console()));
-//	}
+package com.github.albertus82.extfix.engine;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.UUID;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import com.github.albertus82.extfix.Console;
+import com.github.albertus82.extfix.FileTestUtils;
+
+class AnalyzerTest {
+
+	private static final String RANDOM = UUID.randomUUID().toString().replace("-", "");
+
+	@Test
+	void testConstructor() {
+		Assertions.assertThrows(NullPointerException.class, () -> new Analyzer(null));
+		Assertions.assertDoesNotThrow(() -> new Analyzer(new Console()));
+	}
+
+	@Test
+	void testAnalyze() throws IOException {
+		final Analyzer a = new Analyzer(new Console());
+		FileTestUtils.runWithTempDir(path -> {
+			Assertions.assertEquals(a.new AnalysisResult(Collections.emptyMap(), 0, 0), a.analyze(path, false, false));
+			Assertions.assertEquals(a.new AnalysisResult(Collections.emptyMap(), 0, 0), a.analyze(path, false, true));
+			Assertions.assertEquals(a.new AnalysisResult(Collections.emptyMap(), 0, 0), a.analyze(path, true, false));
+			Assertions.assertEquals(a.new AnalysisResult(Collections.emptyMap(), 0, 0), a.analyze(path, true, true));
+		});
+	}
 //
 //	@Test
 //	void testVisitor() throws IOException {
@@ -75,5 +77,5 @@
 //		Assertions.assertThrows(NullPointerException.class, () -> Analyzer.findBetterExtension(path, null));
 //		Assertions.assertThrows(NullPointerException.class, () -> Analyzer.findBetterExtension(null, null));
 //	}
-//
-//}
+
+}
