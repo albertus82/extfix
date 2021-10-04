@@ -107,7 +107,7 @@ public class Analyzer {
 				visitor.visitFileFailed(path, e);
 			}
 		}
-		con.getOut().println();
+		clearAnalysisLine(visitor.getPrintedDirectory());
 		return new AnalysisResult(Collections.unmodifiableMap(visitor.getRenameMap()), visitor.getAnalyzedCount(), visitor.getSkippedCount());
 	}
 
@@ -136,7 +136,8 @@ public class Analyzer {
 		@Getter
 		private int skippedCount;
 
-		private String currentDirectory;
+		@Getter
+		private String printedDirectory;
 
 		@Override
 		public FileVisitResult preVisitDirectory(@NonNull final Path dir, final BasicFileAttributes attrs) {
@@ -228,55 +229,55 @@ public class Analyzer {
 		private void printAnalysisProgress(@NonNull final Path path) {
 			final int limit = con.getWidth() - 1;
 			final StringBuilder sb = new StringBuilder();
-			if (currentDirectory == null) {
+			if (printedDirectory == null) {
 				sb.append(ANALYSIS_PREFIX);
 			}
 			else {
-				for (int i = 0; i < currentDirectory.length(); i++) {
+				for (int i = 0; i < printedDirectory.length(); i++) {
 					sb.append('\b');
 				}
 			}
 			final String pathString = PathUtils.absolute(path).toString();
-			currentDirectory = new String(StringUtils.abbreviateMiddle(pathString, "...", limit - ANALYSIS_PREFIX.length()).getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.ISO_8859_1);
-			sb.append(currentDirectory);
-			for (int i = ANALYSIS_PREFIX.length() + currentDirectory.length(); i < limit; i++) {
+			printedDirectory = new String(StringUtils.abbreviateMiddle(pathString, "...", limit - ANALYSIS_PREFIX.length()).getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.ISO_8859_1);
+			sb.append(printedDirectory);
+			for (int i = ANALYSIS_PREFIX.length() + printedDirectory.length(); i < limit; i++) {
 				sb.append(' ');
 			}
-			for (int i = ANALYSIS_PREFIX.length() + currentDirectory.length(); i < limit; i++) {
+			for (int i = ANALYSIS_PREFIX.length() + printedDirectory.length(); i < limit; i++) {
 				sb.append('\b');
 			}
 			con.getOut().print(sb);
 		}
 
 		private synchronized void printAnalysisMessage(final String message) {
-			clearAnalysisLine();
+			clearAnalysisLine(printedDirectory);
 			con.getOut().println(message);
-			if (currentDirectory != null) {
-				con.getOut().print(ANALYSIS_PREFIX + currentDirectory);
+			if (printedDirectory != null) {
+				con.getOut().print(ANALYSIS_PREFIX + printedDirectory);
 			}
 		}
 
 		private synchronized void printAnalysisError(final String message, final Throwable e) {
-			clearAnalysisLine();
+			clearAnalysisLine(printedDirectory);
 			if (con.isStackTraces() && e != null) {
 				e.printStackTrace();
 			}
 			con.getOut().println(message);
-			if (currentDirectory != null) {
-				con.getOut().print(ANALYSIS_PREFIX + currentDirectory);
+			if (printedDirectory != null) {
+				con.getOut().print(ANALYSIS_PREFIX + printedDirectory);
 			}
 		}
 
-		private void clearAnalysisLine() {
-			if (currentDirectory != null) {
-				final StringBuilder sb = new StringBuilder();
-				for (int i = 0; i < ANALYSIS_PREFIX.length() + currentDirectory.length(); i++) {
-					sb.append("\b \b"); // replace non-whitespace characters with whitespace
-				}
-				con.getOut().print(sb);
-			}
-		}
+	}
 
+	private void clearAnalysisLine(final String printedDirectory) {
+		if (printedDirectory != null) {
+			final StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < ANALYSIS_PREFIX.length() + printedDirectory.length(); i++) {
+				sb.append("\b \b"); // replace non-whitespace characters with whitespace
+			}
+			con.getOut().print(sb);
+		}
 	}
 
 }

@@ -4,11 +4,11 @@ import java.io.InputStream;
 import java.io.PrintStream;
 
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 
-@Getter
+@Value
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class Console {
 
