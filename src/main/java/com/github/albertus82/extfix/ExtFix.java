@@ -30,8 +30,6 @@ import picocli.CommandLine.Parameters;
 @Command(description = "File Extension Fix Tool", mixinStandardHelpOptions = true, versionProvider = VersionProvider.class)
 public class ExtFix implements Callable<Integer> {
 
-	private final Console out = new Console();
-
 	@NonNull
 	@Parameters(paramLabel = "<PATH>", description = "Directory to scan for files with invalid extension.")
 	private Path path;
@@ -71,35 +69,35 @@ public class ExtFix implements Callable<Integer> {
 
 	@Override
 	public Integer call() throws IOException {
+		final Console con = new Console(errors);
 		if (errors) {
-			out.setStackTraces(true);
-			out.printLine("Error stack traces are turned on.");
+			con.getOut().println("Error stack traces are turned on.");
 		}
 
 		path = PathUtils.absolute(path);
-		out.printLine("Path: '" + path + "'.");
+		con.getOut().println("Path: '" + path + "'.");
 
-		final AnalysisResult analysisResult = new Analyzer(out).analyze(path, links, recursive, extensions.get());
-		out.printLine(analysisResult.getAnalyzedCount() + " files analyzed (" + analysisResult.getSkippedCount() + " elements skipped).");
+		final AnalysisResult analysisResult = new Analyzer(con).analyze(path, links, recursive, extensions.get());
+		con.getOut().println(analysisResult.getAnalyzedCount() + " files analyzed (" + analysisResult.getSkippedCount() + " elements skipped).");
 
 		if (analysisResult.getRenameMap().isEmpty()) {
-			out.printLine("No problems detected.");
+			con.getOut().println("No problems detected.");
 			return ExitCode.OK; // exit immediately
 		}
 
 		if (!yes) {
-			out.print(analysisResult.getRenameMap().size() + " files are about to be renamed. Do you want to continue? [y/N] ");
-			final BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+			con.getOut().print(analysisResult.getRenameMap().size() + " files are about to be renamed. Do you want to continue? [y/N] ");
+			final BufferedReader br = new BufferedReader(new InputStreamReader(con.getIn()));
 			final String userAnswer = StringUtils.trimToEmpty(br.readLine());
 			final Collection<String> yesAnswers = Arrays.asList("yes", "y");
 			if (!yesAnswers.contains(userAnswer.toLowerCase()) && !yesAnswers.contains(userAnswer.toLowerCase(Locale.ROOT))) {
-				out.printLine("Abort.");
+				con.getOut().println("Abort.");
 				return ExitCode.OK; // exit immediately
 			}
 		}
 
-		final RenameResult renameResult = new Renamer(out).rename(analysisResult.getRenameMap(), dryRun);
-		out.printLine(renameResult.getSuccessCount() + " files renamed (" + renameResult.getFailedCount() + " failed).");
+		final RenameResult renameResult = new Renamer(con).rename(analysisResult.getRenameMap(), dryRun);
+		con.getOut().println(renameResult.getSuccessCount() + " files renamed (" + renameResult.getFailedCount() + " failed).");
 		return ExitCode.OK;
 	}
 

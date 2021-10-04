@@ -18,12 +18,13 @@ class RenamerTest {
 	@Test
 	void testConstructor() {
 		Assertions.assertThrows(NullPointerException.class, () -> new Renamer(null));
-		Assertions.assertDoesNotThrow(() -> new Renamer(new Console()));
+		Assertions.assertDoesNotThrow(() -> new Renamer(new Console(true)));
+		Assertions.assertDoesNotThrow(() -> new Renamer(new Console(false)));
 	}
 
 	@Test
 	void testRename() {
-		final Renamer renamer = new Renamer(new Console());
+		final Renamer renamer = new Renamer(new Console(true));
 		final Map<Path, String> m1 = Collections.singletonMap(null, null);
 		Assertions.assertThrows(NullPointerException.class, () -> renamer.rename(m1, false));
 		Assertions.assertThrows(NullPointerException.class, () -> renamer.rename(m1, true));

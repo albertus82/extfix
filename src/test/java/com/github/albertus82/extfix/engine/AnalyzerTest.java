@@ -21,18 +21,19 @@ class AnalyzerTest {
 	@Test
 	void testConstructor() {
 		Assertions.assertThrows(NullPointerException.class, () -> new Analyzer(null));
-		Assertions.assertDoesNotThrow(() -> new Analyzer(new Console()));
+		Assertions.assertDoesNotThrow(() -> new Analyzer(new Console(true)));
+		Assertions.assertDoesNotThrow(() -> new Analyzer(new Console(false)));
 	}
 
 	@Test
 	void testAnalyzeApi() {
-		final Analyzer a = new Analyzer(new Console());
+		final Analyzer a = new Analyzer(new Console(true));
 		Assertions.assertThrows(NullPointerException.class, () -> a.analyze(null, false, false));
 	}
 
 	@Test
 	void testAnalyzeEmpty() throws IOException {
-		final Analyzer a = new Analyzer(new Console());
+		final Analyzer a = new Analyzer(new Console(false));
 		FileTestUtils.runWithTempDir(path -> {
 			Assertions.assertEquals(a.new AnalysisResult(Collections.emptyMap(), 0, 0), a.analyze(path, false, false));
 			Assertions.assertEquals(a.new AnalysisResult(Collections.emptyMap(), 0, 0), a.analyze(path, false, true));
@@ -46,7 +47,7 @@ class AnalyzerTest {
 
 	@Test
 	void testAnalyze() throws IOException {
-		final Analyzer a = new Analyzer(new Console());
+		final Analyzer a = new Analyzer(new Console(true));
 		Assertions.assertEquals(a.new AnalysisResult(Collections.emptyMap(), 0, 1), a.analyze(Paths.get("tmp", RANDOM), false, false));
 		Assertions.assertEquals(a.new AnalysisResult(Collections.emptyMap(), 0, 1), a.analyze(Paths.get("tmp", RANDOM), false, true));
 		FileTestUtils.runWithTempDir(path -> {

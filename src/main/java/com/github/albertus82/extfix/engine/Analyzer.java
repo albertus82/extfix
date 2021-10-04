@@ -3,6 +3,7 @@ package com.github.albertus82.extfix.engine;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -49,6 +50,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class Analyzer {
 
+	private static final String ANALYSIS_PREFIX = "Analyzing directory ";
+
 	private static final Map<Path, Closeable> closeables = new ConcurrentHashMap<>();
 
 	static {
@@ -70,7 +73,7 @@ public class Analyzer {
 	private final Tika tika = new Tika(tikaConfig);
 
 	@NonNull
-	private final Console out;
+	private final Console con;
 
 	@Value
 	@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
@@ -104,13 +107,13 @@ public class Analyzer {
 				visitor.visitFileFailed(path, e);
 			}
 		}
-		out.clearAnalysisLine();
+		con.getOut().println();
 		return new AnalysisResult(Collections.unmodifiableMap(visitor.getRenameMap()), visitor.getAnalyzedCount(), visitor.getSkippedCount());
 	}
 
 	private PathFilter buildPathFilter(final String... suffixes) {
 		if (suffixes != null && suffixes.length > 0) {
-			out.printLine("Extensions: " + Arrays.toString(suffixes) + '.');
+			con.getOut().println("Extensions: " + Arrays.toString(suffixes) + '.');
 			return new SuffixFileFilter(suffixes, IOCase.INSENSITIVE);
 		}
 		else {
@@ -133,9 +136,11 @@ public class Analyzer {
 		@Getter
 		private int skippedCount;
 
+		private String currentDirectory;
+
 		@Override
 		public FileVisitResult preVisitDirectory(@NonNull final Path dir, final BasicFileAttributes attrs) {
-			out.printAnalysisProgress(dir);
+			printAnalysisProgress(dir);
 			return FileVisitResult.CONTINUE;
 		}
 
@@ -147,7 +152,7 @@ public class Analyzer {
 				}
 				else {
 					skippedCount++;
-					out.printAnalysisMessage("Skipping not readable file '" + path + "'.");
+					printAnalysisMessage("Skipping not readable file '" + path + "'.");
 				}
 			}
 			return FileVisitResult.CONTINUE;
@@ -159,7 +164,7 @@ public class Analyzer {
 			if (e != null) {
 				log.debug(String.valueOf(file), e);
 			}
-			out.printAnalysisError("Skipping '" + file + "' due to an exception: " + e, e);
+			printAnalysisError("Skipping '" + file + "' due to an exception: " + e, e);
 			return FileVisitResult.CONTINUE;
 		}
 
@@ -175,18 +180,18 @@ public class Analyzer {
 			try {
 				final String mediaType = detectMediaType(path);
 				if (mediaType == null) {
-					out.printAnalysisMessage("Cannot detect media type of '" + path + "'.");
+					printAnalysisMessage("Cannot detect media type of '" + path + "'.");
 				}
 				else {
 					final List<String> knownExtensions = tikaConfig.getMimeRepository().forName(mediaType).getExtensions();
 					log.debug("{} <- {}", knownExtensions, path);
 					if (knownExtensions.isEmpty()) {
-						out.printAnalysisMessage("Cannot determine extension for '" + path + "'.");
+						printAnalysisMessage("Cannot determine extension for '" + path + "'.");
 					}
 					else {
 						findBetterExtension(path, knownExtensions).ifPresent(extension -> {
 							renameMap.put(path, extension);
-							out.printAnalysisMessage("Found " + StringUtils.stripStart(extension.toUpperCase(Locale.ROOT), ".") + " file with suspicious extension: '" + path + "'.");
+							printAnalysisMessage("Found " + StringUtils.stripStart(extension.toUpperCase(Locale.ROOT), ".") + " file with suspicious extension: '" + path + "'.");
 						});
 					}
 				}
@@ -194,7 +199,7 @@ public class Analyzer {
 			}
 			catch (final MimeTypeException | IOException | RuntimeException e) {
 				skippedCount++;
-				out.printAnalysisError("Skipping '" + path + "' due to an exception: " + e, e);
+				printAnalysisError("Skipping '" + path + "' due to an exception: " + e, e);
 			}
 		}
 
@@ -217,6 +222,58 @@ public class Analyzer {
 			}
 			else {
 				return Optional.empty();
+			}
+		}
+
+		private void printAnalysisProgress(@NonNull final Path path) {
+			final int limit = con.getWidth() - 1;
+			final StringBuilder sb = new StringBuilder();
+			if (currentDirectory == null) {
+				sb.append(ANALYSIS_PREFIX);
+			}
+			else {
+				for (int i = 0; i < currentDirectory.length(); i++) {
+					sb.append('\b');
+				}
+			}
+			final String pathString = PathUtils.absolute(path).toString();
+			currentDirectory = new String(StringUtils.abbreviateMiddle(pathString, "...", limit - ANALYSIS_PREFIX.length()).getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.ISO_8859_1);
+			sb.append(currentDirectory);
+			for (int i = ANALYSIS_PREFIX.length() + currentDirectory.length(); i < limit; i++) {
+				sb.append(' ');
+			}
+			for (int i = ANALYSIS_PREFIX.length() + currentDirectory.length(); i < limit; i++) {
+				sb.append('\b');
+			}
+			con.getOut().print(sb);
+		}
+
+		private synchronized void printAnalysisMessage(final String message) {
+			clearAnalysisLine();
+			con.getOut().println(message);
+			if (currentDirectory != null) {
+				con.getOut().print(ANALYSIS_PREFIX + currentDirectory);
+			}
+		}
+
+		private synchronized void printAnalysisError(final String message, final Throwable e) {
+			clearAnalysisLine();
+			if (con.isStackTraces() && e != null) {
+				e.printStackTrace();
+			}
+			con.getOut().println(message);
+			if (currentDirectory != null) {
+				con.getOut().print(ANALYSIS_PREFIX + currentDirectory);
+			}
+		}
+
+		private void clearAnalysisLine() {
+			if (currentDirectory != null) {
+				final StringBuilder sb = new StringBuilder();
+				for (int i = 0; i < ANALYSIS_PREFIX.length() + currentDirectory.length(); i++) {
+					sb.append("\b \b"); // replace non-whitespace characters with whitespace
+				}
+				con.getOut().print(sb);
 			}
 		}
 

@@ -20,7 +20,7 @@ import lombok.Value;
 public class Renamer {
 
 	@NonNull
-	private final Console out;
+	private final Console con;
 
 	@Value
 	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -45,17 +45,17 @@ public class Renamer {
 
 	private boolean rename(@NonNull final Path source, @NonNull final String newExtension, final boolean dryRun) {
 		final Path target = buildTarget(source, newExtension);
-		out.print("Renaming '" + source + "' to '" + target + "'... ");
+		con.getOut().print("Renaming '" + source + "' to '" + target + "'... ");
 		try {
 			if (!dryRun) {
 				Files.move(source, target);
 			}
-			out.printLine("Done.");
+			con.getOut().println("Done.");
 			return true;
 		}
 		catch (final IOException e) {
-			out.printLine("Failed.");
-			out.printError("Cannot rename '" + source + "' due to an exception: " + e, e);
+			con.getOut().println("Failed.");
+			printError("Cannot rename '" + source + "' due to an exception: " + e, e);
 			return false;
 		}
 	}
@@ -75,6 +75,13 @@ public class Renamer {
 			availableTarget = Paths.get(FilenameUtils.removeExtension(target.toString()) + " (" + ++i + ")" + newExtension);
 		}
 		return availableTarget;
+	}
+
+	public void printError(final String message, final Throwable e) {
+		if (con.isStackTraces() && e != null) {
+			e.printStackTrace();
+		}
+		con.getOut().println(message);
 	}
 
 }
