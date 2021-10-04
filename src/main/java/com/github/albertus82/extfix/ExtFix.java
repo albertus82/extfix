@@ -17,6 +17,8 @@ import com.github.albertus82.extfix.engine.Renamer;
 import com.github.albertus82.extfix.engine.Renamer.RenameResult;
 import com.github.albertus82.extfix.util.PathUtils;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import picocli.CommandLine;
@@ -27,6 +29,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PACKAGE) // for test only access
 @Command(description = "File Extension Fix Tool", mixinStandardHelpOptions = true, versionProvider = VersionProvider.class)
 public class ExtFix implements Callable<Integer> {
 
@@ -52,16 +55,6 @@ public class ExtFix implements Callable<Integer> {
 
 	@Option(names = { "-y", "--yes" }, description = "Automatic yes to prompts (run non-interactively).")
 	private boolean yes;
-
-	ExtFix(@NonNull Path path, @NonNull Extensions extensions, boolean links, boolean dryRun, boolean recursive, boolean errors, boolean yes) { // for test only access
-		this.path = path;
-		this.extensions = extensions;
-		this.links = links;
-		this.dryRun = dryRun;
-		this.recursive = recursive;
-		this.errors = errors;
-		this.yes = yes;
-	}
 
 	public static void main(final String... args) {
 		System.exit(new CommandLine(new ExtFix()).setCommandName(BuildInfo.getProperty("project.artifactId")).setOptionsCaseInsensitive(true).execute(args));

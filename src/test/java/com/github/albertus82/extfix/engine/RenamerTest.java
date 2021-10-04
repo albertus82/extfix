@@ -25,6 +25,8 @@ class RenamerTest {
 	@Test
 	void testRename() {
 		final Renamer renamer = new Renamer(new Console(true));
+		Assertions.assertThrows(NullPointerException.class, () -> renamer.rename(null, false));
+		Assertions.assertThrows(NullPointerException.class, () -> renamer.rename(null, true));
 		final Map<Path, String> m1 = Collections.singletonMap(null, null);
 		Assertions.assertThrows(NullPointerException.class, () -> renamer.rename(m1, false));
 		Assertions.assertThrows(NullPointerException.class, () -> renamer.rename(m1, true));

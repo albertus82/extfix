@@ -3,13 +3,12 @@ package com.github.albertus82.extfix;
 import java.io.InputStream;
 import java.io.PrintStream;
 
-import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
 @Value
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@RequiredArgsConstructor
 public class Console {
 
 	public static final byte DEFAULT_WIDTH = 80;
