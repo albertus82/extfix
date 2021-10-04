@@ -16,14 +16,15 @@ File Extension Fix Tool
 ## Usage
 
 ```sh
-Usage: extfix [-hLnVXy] [-e=<EXT> [-e=<EXT>]... | -f=<FILE>] <BASE_PATH>
+Usage: extfix [-hLnRVXy] [-e=<EXT> [-e=<EXT>]... | -f=<FILE>] <PATH>
 File Extension Fix Tool
-      <BASE_PATH>     Base directory to scan.
+      <PATH>          Directory to scan for files with invalid extension.
   -e, --ext=<EXT>     File extension to treat.
   -f, --file=<FILE>   File containing a list of extensions to treat.
   -h, --help          Show this help message and exit.
   -L, --links         Follow links.
   -n, --dry-run       Do everything except actually rename the files.
+  -R, --recursive     Operate on files and directories recursively.
   -V, --version       Print version information and exit.
   -X, --errors        Produce execution error messages.
   -y, --yes           Automatic yes to prompts (run non-interactively).
