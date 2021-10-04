@@ -55,11 +55,12 @@ public class ExtFix implements Callable<Integer> {
 	@Option(names = { "-y", "--yes" }, description = "Automatic yes to prompts (run non-interactively).")
 	private boolean yes;
 
-	ExtFix(@NonNull Path path, @NonNull Extensions extensions, boolean links, boolean dryRun, boolean errors, boolean yes) { // for test only access
+	ExtFix(@NonNull Path path, @NonNull Extensions extensions, boolean links, boolean dryRun, boolean recursive, boolean errors, boolean yes) { // for test only access
 		this.path = path;
 		this.extensions = extensions;
 		this.links = links;
 		this.dryRun = dryRun;
+		this.recursive = recursive;
 		this.errors = errors;
 		this.yes = yes;
 	}
