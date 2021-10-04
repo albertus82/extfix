@@ -7,6 +7,8 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.lang3.StringUtils;
@@ -68,7 +70,22 @@ public class ExtFix implements Callable<Integer> {
 		}
 
 		path = PathUtils.absolute(path);
-		con.getOut().println("Path: '" + path + "'.");
+
+		final Set<String> flags = new TreeSet<>();
+		if (links) {
+			flags.add("follow links");
+		}
+		if (recursive) {
+			flags.add("recursive");
+		}
+		final StringBuilder sb = new StringBuilder("Path: '").append(path).append("'");
+		if (!flags.isEmpty()) {
+			sb.append(" (").append(StringUtils.join(flags, ", ")).append(").");
+		}
+		else {
+			sb.append('.');
+		}
+		con.getOut().println(sb);
 
 		final AnalysisResult analysisResult = new Analyzer(con).analyze(path, links, recursive, extensions.get());
 		con.getOut().println(analysisResult.getAnalyzedCount() + " files analyzed (" + analysisResult.getSkippedCount() + " elements skipped).");

@@ -117,6 +117,7 @@ public class Analyzer {
 			return new SuffixFileFilter(suffixes, IOCase.INSENSITIVE);
 		}
 		else {
+			con.getOut().println("Extensions: all.");
 			return (p, a) -> FileVisitResult.CONTINUE;
 		}
 	}
