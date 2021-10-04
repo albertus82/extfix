@@ -25,10 +25,14 @@ class AnalyzerTest {
 	}
 
 	@Test
-	void testAnalyze() throws IOException {
+	void testAnalyzeApi() {
 		final Analyzer a = new Analyzer(new Console());
-		Assertions.assertEquals(a.new AnalysisResult(Collections.emptyMap(), 0, 1), a.analyze(Paths.get("tmp", RANDOM), false, false));
-		Assertions.assertEquals(a.new AnalysisResult(Collections.emptyMap(), 0, 1), a.analyze(Paths.get("tmp", RANDOM), false, true));
+		Assertions.assertThrows(NullPointerException.class, () -> a.analyze(null, false, false));
+	}
+
+	@Test
+	void testAnalyzeEmpty() throws IOException {
+		final Analyzer a = new Analyzer(new Console());
 		FileTestUtils.runWithTempDir(path -> {
 			Assertions.assertEquals(a.new AnalysisResult(Collections.emptyMap(), 0, 0), a.analyze(path, false, false));
 			Assertions.assertEquals(a.new AnalysisResult(Collections.emptyMap(), 0, 0), a.analyze(path, false, true));
@@ -37,7 +41,15 @@ class AnalyzerTest {
 			Assertions.assertEquals(a.new AnalysisResult(Collections.emptyMap(), 0, 0), a.analyze(path, true, true, (String[]) null));
 			Assertions.assertEquals(a.new AnalysisResult(Collections.emptyMap(), 0, 0), a.analyze(path, true, true, new String[] {}));
 			Assertions.assertEquals(a.new AnalysisResult(Collections.emptyMap(), 0, 0), a.analyze(path, true, true, "aaa", "bbb", "ccc"));
+		});
+	}
 
+	@Test
+	void testAnalyze() throws IOException {
+		final Analyzer a = new Analyzer(new Console());
+		Assertions.assertEquals(a.new AnalysisResult(Collections.emptyMap(), 0, 1), a.analyze(Paths.get("tmp", RANDOM), false, false));
+		Assertions.assertEquals(a.new AnalysisResult(Collections.emptyMap(), 0, 1), a.analyze(Paths.get("tmp", RANDOM), false, true));
+		FileTestUtils.runWithTempDir(path -> {
 			FileTestUtils.copyResourceToDir("jpeg.jpeg", path);
 			FileTestUtils.copyResourceToDir("jpeg.jpg", path);
 			final Path p3 = FileTestUtils.copyResourceToDir("jpeg.png", path);
