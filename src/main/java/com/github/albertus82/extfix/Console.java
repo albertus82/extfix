@@ -77,6 +77,10 @@ public class Console {
 		out.print(sb);
 	}
 
+	public void printLine() {
+		out.println();
+	}
+
 	public void printLine(final String x) {
 		out.println(x);
 	}

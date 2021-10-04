@@ -6,12 +6,14 @@ import java.io.InputStreamReader;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Locale;
 import java.util.concurrent.Callable;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -48,6 +50,9 @@ public class ExtFix implements Callable<Integer> {
 	@Option(names = { "-n", "--dry-run" }, description = "Do everything except actually rename the files.")
 	private boolean dryRun;
 
+	@Option(names = { "-R", "--recursive" }, description = "Operate on files and directories recursively.")
+	private boolean recursive;
+
 	@Option(names = { "-X", "--errors" }, description = "Produce execution error messages.")
 	private boolean errors;
 
@@ -78,7 +83,23 @@ public class ExtFix implements Callable<Integer> {
 		out.printLine("Base path: '" + basePath + "'.");
 
 		final Analyzer analyzer = new Analyzer(out, extensions.get());
-		Files.walkFileTree(basePath, links ? EnumSet.of(FileVisitOption.FOLLOW_LINKS) : Collections.emptySet(), Short.MAX_VALUE, analyzer);
+
+		if (recursive) {
+			Files.walkFileTree(basePath, links ? EnumSet.of(FileVisitOption.FOLLOW_LINKS) : Collections.emptySet(), Short.MAX_VALUE, analyzer);
+		}
+		else {
+			try (final Stream<Path> stream = Files.list(basePath)) {
+				stream.forEach(path -> {
+					try {
+						analyzer.visitFile(path, Files.readAttributes(path, BasicFileAttributes.class));
+					}
+					catch (final IOException e) {
+						analyzer.visitFileFailed(path, e);
+					}
+				});
+			}
+		}
+
 		out.clearAnalysisLine();
 		out.printLine(analyzer.getAnalyzedCount() + " files analyzed (" + analyzer.getSkippedCount() + " elements skipped).");
 

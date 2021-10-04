@@ -1,13 +1,17 @@
 package com.github.albertus82.extfix.engine;
 
+import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.TreeMap;
 
@@ -21,6 +25,8 @@ import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.Tika;
 import org.apache.tika.config.TikaConfig;
+import org.apache.tika.io.TikaInputStream;
+import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MimeTypeException;
 
 import com.github.albertus82.extfix.Console;
@@ -35,6 +41,7 @@ public class Analyzer implements PathVisitor {
 
 	private final TikaConfig tikaConfig = TikaConfig.getDefaultConfig();
 	private final Tika tika = new Tika(tikaConfig);
+	private final Map<Path, Closeable> closeables = new HashMap<>();
 
 	@NonNull
 	private final Console out;
@@ -60,6 +67,20 @@ public class Analyzer implements PathVisitor {
 		else {
 			this.pathFilter = (p, a) -> FileVisitResult.CONTINUE;
 		}
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				for (final Entry<Path, Closeable> entry : closeables.entrySet()) {
+					try {
+						entry.getValue().close();
+					}
+					catch (final IOException e) {
+						out.printLine();
+						out.printError("Cannot close '" + entry.getKey() + "' due to an exception:" + e, e);
+					}
+				}
+			}
+		});
 	}
 
 	@Override
@@ -128,7 +149,14 @@ public class Analyzer implements PathVisitor {
 	}
 
 	String detectMediaType(@NonNull final Path path) throws IOException {
-		return tika.detect(path);
+		final Metadata metadata = new Metadata();
+		try (final InputStream stream = TikaInputStream.get(path, metadata)) {
+			closeables.put(path, stream);
+			return tika.detect(stream, metadata);
+		}
+		finally {
+			closeables.remove(path);
+		}
 	}
 
 	static Optional<String> findBetterExtension(@NonNull final Path path, @NonNull final List<String> knownExtensions) { // non-private for test only access
