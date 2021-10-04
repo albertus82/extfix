@@ -3,22 +3,16 @@ package com.github.albertus82.extfix;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.FileVisitOption;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
 import java.util.Locale;
 import java.util.concurrent.Callable;
-import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.github.albertus82.extfix.engine.Analyzer;
+import com.github.albertus82.extfix.engine.Analyzer.AnalysisResult;
 import com.github.albertus82.extfix.engine.Renamer;
 import com.github.albertus82.extfix.engine.Renamer.RenameResult;
 import com.github.albertus82.extfix.util.PathUtils;
@@ -84,35 +78,16 @@ public class ExtFix implements Callable<Integer> {
 		path = PathUtils.absolute(path);
 		out.printLine("Path: '" + path + "'.");
 
-		final Analyzer analyzer = new Analyzer(out, extensions.get());
+		final AnalysisResult analysisResult = new Analyzer(out).analyze(path, links, recursive, extensions.get());
+		out.printLine(analysisResult.getAnalyzedCount() + " files analyzed (" + analysisResult.getSkippedCount() + " elements skipped).");
 
-		if (recursive) {
-			Files.walkFileTree(path, links ? EnumSet.of(FileVisitOption.FOLLOW_LINKS) : Collections.emptySet(), Short.MAX_VALUE, analyzer);
-		}
-		else {
-			try (final Stream<Path> stream = Files.list(path)) {
-				stream.forEach(entry -> {
-					try {
-						final BasicFileAttributes attrs = links ? Files.readAttributes(entry, BasicFileAttributes.class) : Files.readAttributes(entry, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
-						analyzer.visitFile(entry, attrs);
-					}
-					catch (final IOException e) {
-						analyzer.visitFileFailed(entry, e);
-					}
-				});
-			}
-		}
-
-		out.clearAnalysisLine();
-		out.printLine(analyzer.getAnalyzedCount() + " files analyzed (" + analyzer.getSkippedCount() + " elements skipped).");
-
-		if (analyzer.getResults().isEmpty()) {
+		if (analysisResult.getRenameMap().isEmpty()) {
 			out.printLine("No problems detected.");
 			return ExitCode.OK; // exit immediately
 		}
 
 		if (!yes) {
-			out.print(analyzer.getResults().size() + " files are about to be renamed. Do you want to continue? [y/N] ");
+			out.print(analysisResult.getRenameMap().size() + " files are about to be renamed. Do you want to continue? [y/N] ");
 			final BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 			final String userAnswer = StringUtils.trimToEmpty(br.readLine());
 			final Collection<String> yesAnswers = Arrays.asList("yes", "y");
@@ -122,7 +97,7 @@ public class ExtFix implements Callable<Integer> {
 			}
 		}
 
-		final RenameResult renameResult = new Renamer(out).rename(analyzer.getResults(), dryRun);
+		final RenameResult renameResult = new Renamer(out).rename(analysisResult.getRenameMap(), dryRun);
 		out.printLine(renameResult.getSuccessCount() + " files renamed (" + renameResult.getFailedCount() + " failed).");
 		return ExitCode.OK;
 	}
