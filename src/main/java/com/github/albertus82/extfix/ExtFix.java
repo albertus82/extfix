@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.github.albertus82.extfix.engine.Analyzer;
 import com.github.albertus82.extfix.engine.Renamer;
+import com.github.albertus82.extfix.engine.Renamer.RenameResult;
 import com.github.albertus82.extfix.util.PathUtils;
 
 import lombok.NoArgsConstructor;
@@ -121,9 +122,8 @@ public class ExtFix implements Callable<Integer> {
 			}
 		}
 
-		final Renamer renamer = new Renamer(out, dryRun);
-		renamer.rename(analyzer.getResults());
-		out.printLine(renamer.getSuccessCount() + " files renamed (" + renamer.getFailedCount() + " failed).");
+		final RenameResult renameResult = new Renamer(out).rename(analyzer.getResults(), dryRun);
+		out.printLine(renameResult.getSuccessCount() + " files renamed (" + renameResult.getFailedCount() + " failed).");
 		return ExitCode.OK;
 	}
 

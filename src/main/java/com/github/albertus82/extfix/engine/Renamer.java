@@ -11,9 +11,10 @@ import org.apache.commons.io.FilenameUtils;
 
 import com.github.albertus82.extfix.Console;
 
-import lombok.Getter;
+import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 
 @RequiredArgsConstructor
 public class Renamer {
@@ -21,34 +22,41 @@ public class Renamer {
 	@NonNull
 	private final Console out;
 
-	private final boolean dryRun;
-
-	@Getter
-	private int successCount;
-
-	@Getter
-	private int failedCount;
-
-	public void rename(@NonNull final Map<Path, String> map) {
-		for (final Entry<Path, String> e : map.entrySet()) {
-			rename(e.getKey(), e.getValue());
-		}
+	@Value
+	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+	public class RenameResult {
+		int successCount;
+		int failedCount;
 	}
 
-	private void rename(@NonNull final Path source, @NonNull final String newExtension) {
+	public RenameResult rename(@NonNull final Map<Path, String> map, final boolean dryRun) {
+		int successCount = 0;
+		int failedCount = 0;
+		for (final Entry<Path, String> e : map.entrySet()) {
+			if (rename(e.getKey(), e.getValue(), dryRun)) {
+				successCount++;
+			}
+			else {
+				failedCount++;
+			}
+		}
+		return new RenameResult(successCount, failedCount);
+	}
+
+	private boolean rename(@NonNull final Path source, @NonNull final String newExtension, final boolean dryRun) {
 		final Path target = buildTarget(source, newExtension);
 		out.print("Renaming '" + source + "' to '" + target + "'... ");
 		try {
 			if (!dryRun) {
 				Files.move(source, target);
 			}
-			successCount++;
 			out.printLine("Done.");
+			return true;
 		}
 		catch (final IOException e) {
-			failedCount++;
 			out.printLine("Failed.");
 			out.printError("Cannot rename '" + source + "' due to an exception: " + e, e);
+			return false;
 		}
 	}
 
