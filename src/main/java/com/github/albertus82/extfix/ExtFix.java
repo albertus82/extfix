@@ -90,13 +90,13 @@ public class ExtFix implements Callable<Integer> {
 		}
 		else {
 			try (final Stream<Path> stream = Files.list(path)) {
-				stream.forEach(path -> {
+				stream.forEach(entry -> {
 					try {
-						final BasicFileAttributes fileAttributes = links ? Files.readAttributes(path, BasicFileAttributes.class) : Files.readAttributes(path, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
-						analyzer.visitFile(path, fileAttributes);
+						final BasicFileAttributes attrs = links ? Files.readAttributes(entry, BasicFileAttributes.class) : Files.readAttributes(entry, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+						analyzer.visitFile(entry, attrs);
 					}
 					catch (final IOException e) {
-						analyzer.visitFileFailed(path, e);
+						analyzer.visitFileFailed(entry, e);
 					}
 				});
 			}
