@@ -79,11 +79,11 @@ public class ExtFix implements Callable<Integer> {
 			flags.add("recursive");
 		}
 		final StringBuilder sb = new StringBuilder("Path: '").append(path).append("'");
-		if (!flags.isEmpty()) {
-			sb.append(" (").append(StringUtils.join(flags, ", ")).append(").");
+		if (flags.isEmpty()) {
+			sb.append('.');
 		}
 		else {
-			sb.append('.');
+			sb.append(" (").append(StringUtils.join(flags, ", ")).append(").");
 		}
 		con.getOut().println(sb);
 
