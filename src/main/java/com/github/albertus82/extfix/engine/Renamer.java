@@ -56,19 +56,13 @@ public class Renamer {
 				con.getOut().print("Rename '" + source + "' to '" + target.getFileName() + "'? [y(es)/N(o)/a(ll)/c(ancel)] ");
 				final BufferedReader br = new BufferedReader(new InputStreamReader(con.getIn()));
 				final String userAnswer = StringUtils.trimToEmpty(br.readLine());
-				final Collection<String> yesAnswers = Arrays.asList("yes", "y");
+				final Collection<String> proceedAnswers = Arrays.asList("yes", "y", "all", "a");
 				final Collection<String> allAnswers = Arrays.asList("all", "a");
 				final Collection<String> cancelAnswers = Arrays.asList("cancel", "c");
-				if (yesAnswers.contains(userAnswer.toLowerCase()) || yesAnswers.contains(userAnswer.toLowerCase(Locale.ROOT))) {
-					if (rename(source, target, dryRun)) {
-						renamedCount++;
-					}
-					else {
-						errorCount++;
-					}
-				}
-				else if (allAnswers.contains(userAnswer.toLowerCase()) || allAnswers.contains(userAnswer.toLowerCase(Locale.ROOT))) {
+				if (allAnswers.contains(userAnswer.toLowerCase()) || allAnswers.contains(userAnswer.toLowerCase(Locale.ROOT))) {
 					all = true;
+				}
+				if (proceedAnswers.contains(userAnswer.toLowerCase()) || proceedAnswers.contains(userAnswer.toLowerCase(Locale.ROOT))) {
 					if (rename(source, target, dryRun)) {
 						renamedCount++;
 					}
