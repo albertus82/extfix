@@ -24,18 +24,19 @@ class RenamerTest {
 
 	@Test
 	void testRename() {
+		final boolean yes = true;
 		final Renamer renamer = new Renamer(new Console(true));
-		Assertions.assertThrows(NullPointerException.class, () -> renamer.rename(null, false));
-		Assertions.assertThrows(NullPointerException.class, () -> renamer.rename(null, true));
+		Assertions.assertThrows(NullPointerException.class, () -> renamer.rename(null, false, yes));
+		Assertions.assertThrows(NullPointerException.class, () -> renamer.rename(null, true, yes));
 		final Map<Path, String> m1 = Collections.singletonMap(null, null);
-		Assertions.assertThrows(NullPointerException.class, () -> renamer.rename(m1, false));
-		Assertions.assertThrows(NullPointerException.class, () -> renamer.rename(m1, true));
+		Assertions.assertThrows(NullPointerException.class, () -> renamer.rename(m1, false, yes));
+		Assertions.assertThrows(NullPointerException.class, () -> renamer.rename(m1, true, yes));
 		final Map<Path, String> m2 = Collections.singletonMap(null, "ext");
-		Assertions.assertThrows(NullPointerException.class, () -> renamer.rename(m2, false));
-		Assertions.assertThrows(NullPointerException.class, () -> renamer.rename(m2, true));
+		Assertions.assertThrows(NullPointerException.class, () -> renamer.rename(m2, false, yes));
+		Assertions.assertThrows(NullPointerException.class, () -> renamer.rename(m2, true, yes));
 		final Map<Path, String> m3 = Collections.singletonMap(Paths.get("/tmp/" + RANDOM + ".bar"), null);
-		Assertions.assertThrows(NullPointerException.class, () -> renamer.rename(m3, false));
-		Assertions.assertThrows(NullPointerException.class, () -> renamer.rename(m3, true));
+		Assertions.assertThrows(NullPointerException.class, () -> renamer.rename(m3, false, yes));
+		Assertions.assertThrows(NullPointerException.class, () -> renamer.rename(m3, true, yes));
 	}
 
 }

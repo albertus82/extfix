@@ -1,12 +1,7 @@
 package com.github.albertus82.extfix;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
@@ -95,19 +90,9 @@ public class ExtFix implements Callable<Integer> {
 			return ExitCode.OK; // exit immediately
 		}
 
-		if (!yes) {
-			con.getOut().print(analysisResult.getRenameMap().size() + " files are about to be renamed. Do you want to continue? [y/N] ");
-			final BufferedReader br = new BufferedReader(new InputStreamReader(con.getIn()));
-			final String userAnswer = StringUtils.trimToEmpty(br.readLine());
-			final Collection<String> yesAnswers = Arrays.asList("yes", "y");
-			if (!yesAnswers.contains(userAnswer.toLowerCase()) && !yesAnswers.contains(userAnswer.toLowerCase(Locale.ROOT))) {
-				con.getOut().println("Abort.");
-				return ExitCode.OK; // exit immediately
-			}
-		}
-
-		final RenameResult renameResult = new Renamer(con).rename(analysisResult.getRenameMap(), dryRun);
-		con.getOut().println(renameResult.getSuccessCount() + " files renamed (" + renameResult.getFailedCount() + " failed).");
+		con.getOut().println(analysisResult.getRenameMap().size() + " files are about to be renamed.");
+		final RenameResult renameResult = new Renamer(con).rename(analysisResult.getRenameMap(), dryRun, yes);
+		con.getOut().println(renameResult.getSuccessCount() + " files renamed (" + renameResult.getFailedCount() + " failed, " + renameResult.getSkippedCount() + " skipped).");
 		return ExitCode.OK;
 	}
 
