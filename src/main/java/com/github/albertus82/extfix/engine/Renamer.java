@@ -31,14 +31,14 @@ public class Renamer {
 	@Value
 	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 	public class RenameResult {
-		int successCount;
-		int failedCount;
+		int renamedCount;
+		int errorCount;
 		int skippedCount;
 	}
 
 	public RenameResult rename(@NonNull final Map<Path, String> map, final boolean dryRun, final boolean yes) throws IOException {
-		int successCount = 0;
-		int failedCount = 0;
+		int renamedCount = 0;
+		int errorCount = 0;
 		int skippedCount = 0;
 		boolean all = false;
 		for (final Entry<Path, String> entry : map.entrySet()) {
@@ -46,10 +46,10 @@ public class Renamer {
 			final Path target = buildTarget(source, entry.getValue());
 			if (yes || all) {
 				if (rename(source, target, dryRun)) {
-					successCount++;
+					renamedCount++;
 				}
 				else {
-					failedCount++;
+					errorCount++;
 				}
 			}
 			else {
@@ -61,23 +61,23 @@ public class Renamer {
 				final Collection<String> cancelAnswers = Arrays.asList("cancel", "c");
 				if (yesAnswers.contains(userAnswer.toLowerCase()) || yesAnswers.contains(userAnswer.toLowerCase(Locale.ROOT))) {
 					if (rename(source, target, dryRun)) {
-						successCount++;
+						renamedCount++;
 					}
 					else {
-						failedCount++;
+						errorCount++;
 					}
 				}
 				else if (allAnswers.contains(userAnswer.toLowerCase()) || allAnswers.contains(userAnswer.toLowerCase(Locale.ROOT))) {
 					all = true;
 					if (rename(source, target, dryRun)) {
-						successCount++;
+						renamedCount++;
 					}
 					else {
-						failedCount++;
+						errorCount++;
 					}
 				}
 				else if (cancelAnswers.contains(userAnswer.toLowerCase()) || cancelAnswers.contains(userAnswer.toLowerCase(Locale.ROOT))) {
-					skippedCount = map.size() - successCount - failedCount;
+					skippedCount = map.size() - renamedCount - errorCount;
 					break;
 				}
 				else { // No (default)
@@ -86,7 +86,7 @@ public class Renamer {
 				}
 			}
 		}
-		return new RenameResult(successCount, failedCount, skippedCount);
+		return new RenameResult(renamedCount, errorCount, skippedCount);
 
 	}
 

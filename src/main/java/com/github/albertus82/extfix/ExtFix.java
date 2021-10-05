@@ -92,7 +92,7 @@ public class ExtFix implements Callable<Integer> {
 
 		con.getOut().println(analysisResult.getRenameMap().size() + " files are about to be renamed.");
 		final RenameResult renameResult = new Renamer(con).rename(analysisResult.getRenameMap(), dryRun, yes);
-		con.getOut().println(renameResult.getSuccessCount() + " files renamed (" + renameResult.getFailedCount() + " failed, " + renameResult.getSkippedCount() + " skipped).");
+		con.getOut().println(renameResult.getRenamedCount() + " files renamed (" + renameResult.getErrorCount() + " errors, " + renameResult.getSkippedCount() + " files skipped).");
 		return ExitCode.OK;
 	}
 
