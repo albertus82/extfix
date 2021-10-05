@@ -59,10 +59,10 @@ public class Renamer {
 				final Collection<String> proceedAnswers = Arrays.asList("yes", "y", "all", "a");
 				final Collection<String> allAnswers = Arrays.asList("all", "a");
 				final Collection<String> cancelAnswers = Arrays.asList("cancel", "c");
-				if (allAnswers.contains(userAnswer.toLowerCase()) || allAnswers.contains(userAnswer.toLowerCase(Locale.ROOT))) {
+				if (checkAnswer(allAnswers, userAnswer)) {
 					all = true;
 				}
-				if (proceedAnswers.contains(userAnswer.toLowerCase()) || proceedAnswers.contains(userAnswer.toLowerCase(Locale.ROOT))) {
+				if (checkAnswer(proceedAnswers, userAnswer)) {
 					if (rename(source, target, dryRun)) {
 						renamedCount++;
 					}
@@ -70,7 +70,7 @@ public class Renamer {
 						errorCount++;
 					}
 				}
-				else if (cancelAnswers.contains(userAnswer.toLowerCase()) || cancelAnswers.contains(userAnswer.toLowerCase(Locale.ROOT))) {
+				else if (checkAnswer(cancelAnswers, userAnswer)) {
 					skippedCount = map.size() - renamedCount - errorCount;
 					break;
 				}
@@ -100,6 +100,13 @@ public class Renamer {
 		}
 	}
 
+	private void printError(final String message, final Throwable e) {
+		if (con.isStackTraces() && e != null) {
+			e.printStackTrace();
+		}
+		con.getOut().println(message);
+	}
+
 	private static Path buildTarget(@NonNull final Path source, @NonNull final String newExtension) {
 		final String oldFileName = source.toString();
 		final Path target;
@@ -117,11 +124,8 @@ public class Renamer {
 		return availableTarget;
 	}
 
-	private void printError(final String message, final Throwable e) {
-		if (con.isStackTraces() && e != null) {
-			e.printStackTrace();
-		}
-		con.getOut().println(message);
+	private static boolean checkAnswer(@NonNull final Collection<String> expected, @NonNull final String actual) {
+		return expected.contains(actual.toLowerCase()) || expected.contains(actual.toLowerCase(Locale.ROOT));
 	}
 
 }
