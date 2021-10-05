@@ -7,10 +7,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -53,16 +55,9 @@ public class Renamer {
 				}
 			}
 			else {
-				con.getOut().print("Rename '" + source + "' to '" + target.getFileName() + "'? [y(es)/N(o)/a(ll)/c(ancel)] ");
-				final BufferedReader br = new BufferedReader(new InputStreamReader(con.getIn()));
-				final String userAnswer = StringUtils.trimToEmpty(br.readLine());
-				final Collection<String> proceedAnswers = Arrays.asList("yes", "y", "all", "a");
-				final Collection<String> allAnswers = Arrays.asList("all", "a");
-				final Collection<String> cancelAnswers = Arrays.asList("cancel", "c");
-				if (checkAnswer(allAnswers, userAnswer)) {
-					all = true;
-				}
-				if (checkAnswer(proceedAnswers, userAnswer)) {
+				final Answer userAnswer = confirm(source, target);
+				all = Answer.ALL.equals(userAnswer);
+				if (Answer.YES.equals(userAnswer) || Answer.ALL.equals(userAnswer)) {
 					if (rename(source, target, dryRun)) {
 						renamedCount++;
 					}
@@ -70,7 +65,7 @@ public class Renamer {
 						errorCount++;
 					}
 				}
-				else if (checkAnswer(cancelAnswers, userAnswer)) {
+				else if (Answer.CANCEL.equals(userAnswer)) {
 					skippedCount = map.size() - renamedCount - errorCount;
 					break;
 				}
@@ -82,6 +77,35 @@ public class Renamer {
 		}
 		return new RenameResult(renamedCount, errorCount, skippedCount);
 
+	}
+
+	private enum Answer {
+		YES("yes", "y"),
+		NO("no", "n"),
+		ALL("all", "a"),
+		CANCEL("cancel", "c");
+
+		private final Set<String> answers = new HashSet<>();
+
+		private Answer(@NonNull final String... answers) {
+			this.answers.addAll(Arrays.asList(answers));
+		}
+
+		private static Optional<Answer> forInput(@NonNull final String input) {
+			for (final Answer a : Answer.values()) {
+				if (a.answers.contains(input.toLowerCase()) || a.answers.contains(input.toLowerCase(Locale.ROOT))) {
+					return Optional.of(a);
+				}
+			}
+			return Optional.empty();
+		}
+	}
+
+	private Answer confirm(final Path source, final Path target) throws IOException {
+		con.getOut().print("Rename '" + source + "' to '" + target.getFileName() + "'? [y(es)/N(o)/a(ll)/c(ancel)] ");
+		final BufferedReader br = new BufferedReader(new InputStreamReader(con.getIn()));
+		final String userAnswer = StringUtils.trimToEmpty(br.readLine());
+		return Answer.forInput(userAnswer).orElse(Answer.NO);
 	}
 
 	private boolean rename(@NonNull final Path source, @NonNull final Path target, final boolean dryRun) {
@@ -122,10 +146,6 @@ public class Renamer {
 			availableTarget = Paths.get(FilenameUtils.removeExtension(target.toString()) + " (" + ++i + ")" + newExtension);
 		}
 		return availableTarget;
-	}
-
-	private static boolean checkAnswer(@NonNull final Collection<String> expected, @NonNull final String actual) {
-		return expected.contains(actual.toLowerCase()) || expected.contains(actual.toLowerCase(Locale.ROOT));
 	}
 
 }
