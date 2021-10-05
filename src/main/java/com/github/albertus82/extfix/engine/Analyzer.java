@@ -1,6 +1,5 @@
 package com.github.albertus82.extfix.engine;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -52,15 +51,15 @@ public class Analyzer {
 
 	private static final String ANALYSIS_PREFIX = "Analyzing directory ";
 
-	private static final Map<Path, Closeable> closeables = new ConcurrentHashMap<>();
+	private static final Map<Path, AutoCloseable> closeables = new ConcurrentHashMap<>();
 
 	static {
 		final Thread shutdownHook = new Thread(() -> {
-			for (final Entry<Path, Closeable> entry : closeables.entrySet()) {
+			for (final Entry<Path, AutoCloseable> entry : closeables.entrySet()) {
 				try {
 					entry.getValue().close();
 				}
-				catch (final IOException e) {
+				catch (final Exception e) {
 					e.printStackTrace();
 				}
 			}
@@ -93,6 +92,7 @@ public class Analyzer {
 		else {
 			visitor.preVisitDirectory(path, null);
 			try (final Stream<Path> stream = Files.list(path)) {
+				closeables.put(path, stream);
 				stream.forEach(entry -> {
 					try {
 						final BasicFileAttributes attrs = links ? Files.readAttributes(entry, BasicFileAttributes.class) : Files.readAttributes(entry, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
@@ -105,6 +105,9 @@ public class Analyzer {
 			}
 			catch (final IOException e) {
 				visitor.visitFileFailed(path, e);
+			}
+			finally {
+				closeables.remove(path);
 			}
 		}
 		clearAnalysisLine(visitor.getPrintedDirectory());
