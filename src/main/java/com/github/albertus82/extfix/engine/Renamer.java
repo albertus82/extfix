@@ -3,6 +3,7 @@ package com.github.albertus82.extfix.engine;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -38,7 +39,7 @@ public class Renamer {
 		int skippedCount;
 	}
 
-	public RenameResult rename(@NonNull final Map<Path, String> map, final boolean dryRun, final boolean yes) throws IOException {
+	public RenameResult rename(@NonNull final Map<Path, String> map, final boolean dryRun, final boolean yes) {
 		int renamedCount = 0;
 		int errorCount = 0;
 		int skippedCount = 0;
@@ -101,11 +102,16 @@ public class Renamer {
 		}
 	}
 
-	private Answer confirm(final Path source, final Path target) throws IOException {
+	private Answer confirm(final Path source, final Path target) {
 		con.getOut().print("Rename '" + source + "' to '" + target.getFileName() + "'? [y(es)/N(o)/a(ll)/c(ancel)] ");
 		final BufferedReader br = new BufferedReader(new InputStreamReader(con.getIn()));
-		final String userAnswer = StringUtils.trimToEmpty(br.readLine());
-		return Answer.forInput(userAnswer).orElse(Answer.NO);
+		try {
+			final String userAnswer = StringUtils.trimToEmpty(br.readLine());
+			return Answer.forInput(userAnswer).orElse(Answer.NO);
+		}
+		catch (final IOException e) {
+			throw new UncheckedIOException(e);
+		}
 	}
 
 	private boolean rename(@NonNull final Path source, @NonNull final Path target, final boolean dryRun) {
