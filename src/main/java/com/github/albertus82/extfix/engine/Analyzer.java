@@ -60,7 +60,7 @@ public class Analyzer {
 					entry.getValue().close();
 				}
 				catch (final Exception e) {
-					e.printStackTrace();
+					log.debug("Cannot close '" + entry.getKey() + "':", e);
 				}
 			}
 		});
