@@ -150,7 +150,7 @@ public class Analyzer {
 		}
 
 		@Override
-		public FileVisitResult visitFile(@NonNull Path path, final BasicFileAttributes attrs) {
+		public FileVisitResult visitFile(@NonNull final Path path, final BasicFileAttributes attrs) {
 			if (FileVisitResult.CONTINUE.equals(pathFilter.accept(path, attrs)) && FileVisitResult.CONTINUE.equals(FileFileFilter.INSTANCE.accept(path, attrs))) {
 				if (FileVisitResult.CONTINUE.equals(CanReadFileFilter.CAN_READ.accept(path, attrs))) {
 					analyze(PathUtils.absolute(path));

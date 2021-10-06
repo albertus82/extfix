@@ -19,7 +19,7 @@ public class PathUtils {
 			return file.getCanonicalFile().toPath();
 		}
 		catch (final IOException e) {
-			log.debug("Cannot obtain canonical path, falling back to absolute path:", e);
+			log.debug("Cannot obtain canonical path for '" + path + "', falling back to absolute path:", e);
 			return file.getAbsoluteFile().toPath();
 		}
 	}
