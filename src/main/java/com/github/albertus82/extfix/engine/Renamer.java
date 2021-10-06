@@ -47,33 +47,26 @@ public class Renamer {
 		for (final Entry<Path, String> entry : map.entrySet()) {
 			final Path source = entry.getKey();
 			final Path target = buildTarget(source, entry.getValue());
-			if (yes || all) {
-				if (rename(source, target, dryRun)) {
-					renamedCount++;
-				}
-				else {
-					errorCount++;
-				}
-			}
-			else {
+			if (!yes && !all) {
 				final Answer userAnswer = confirm(source, target);
-				all = Answer.ALL.equals(userAnswer);
-				if (Answer.YES.equals(userAnswer) || Answer.ALL.equals(userAnswer)) {
-					if (rename(source, target, dryRun)) {
-						renamedCount++;
-					}
-					else {
-						errorCount++;
-					}
+				if (Answer.ALL.equals(userAnswer)) {
+					all = true;
+				}
+				else if (Answer.NO.equals(userAnswer)) {
+					con.getOut().println("Skipping '" + source + "'.");
+					skippedCount++;
+					continue;
 				}
 				else if (Answer.CANCEL.equals(userAnswer)) {
 					skippedCount = map.size() - renamedCount - errorCount;
 					break;
 				}
-				else { // No (default)
-					con.getOut().println("Skipping '" + source + "'.");
-					skippedCount++;
-				}
+			}
+			if (rename(source, target, dryRun)) {
+				renamedCount++;
+			}
+			else {
+				errorCount++;
 			}
 		}
 		return new RenameResult(renamedCount, errorCount, skippedCount);
