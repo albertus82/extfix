@@ -61,6 +61,9 @@ public class Renamer {
 					skippedCount = map.size() - renamedCount - errorCount;
 					break;
 				}
+				else if (!Answer.YES.equals(userAnswer)) {
+					throw new IllegalStateException(String.valueOf(userAnswer));
+				}
 			}
 			if (rename(source, target, dryRun)) {
 				renamedCount++;
@@ -70,7 +73,6 @@ public class Renamer {
 			}
 		}
 		return new RenameResult(renamedCount, errorCount, skippedCount);
-
 	}
 
 	private enum Answer {
@@ -85,17 +87,19 @@ public class Renamer {
 			this.answers.addAll(Arrays.asList(answers));
 		}
 
-		private static Optional<Answer> forInput(@NonNull final String input) {
-			for (final Answer a : Answer.values()) {
-				if (a.answers.contains(input.toLowerCase()) || a.answers.contains(input.toLowerCase(Locale.ROOT))) {
-					return Optional.of(a);
+		private static Optional<Answer> forInput(final String input) {
+			if (input != null) {
+				for (final Answer a : Answer.values()) {
+					if (a.answers.contains(input.toLowerCase()) || a.answers.contains(input.toLowerCase(Locale.ROOT))) {
+						return Optional.of(a);
+					}
 				}
 			}
 			return Optional.empty();
 		}
 	}
 
-	private Answer confirm(final Path source, final Path target) {
+	private Answer confirm(@NonNull final Path source, @NonNull final Path target) {
 		con.getOut().print("Rename '" + source + "' to '" + target.getFileName() + "'? [y(es)/N(o)/a(ll)/c(ancel)] ");
 		final BufferedReader br = new BufferedReader(new InputStreamReader(con.getIn()));
 		try {
