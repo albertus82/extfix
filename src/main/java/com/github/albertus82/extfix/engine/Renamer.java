@@ -39,12 +39,12 @@ public class Renamer {
 		int skippedCount;
 	}
 
-	public RenameResult rename(@NonNull final Map<Path, String> map, final boolean dryRun, final boolean yes) {
+	public RenameResult rename(@NonNull final Map<Path, String> renameMap, final boolean dryRun, final boolean yes) {
 		int renamedCount = 0;
 		int errorCount = 0;
 		int skippedCount = 0;
 		boolean all = false;
-		for (final Entry<Path, String> entry : map.entrySet()) {
+		for (final Entry<Path, String> entry : renameMap.entrySet()) {
 			final Path source = entry.getKey();
 			final Path target = buildTarget(source, entry.getValue());
 			if (!yes && !all) {
@@ -58,7 +58,7 @@ public class Renamer {
 					continue;
 				}
 				else if (Answer.CANCEL.equals(userAnswer)) {
-					skippedCount = map.size() - renamedCount - errorCount;
+					skippedCount = renameMap.size() - renamedCount - errorCount;
 					break;
 				}
 				else if (!Answer.YES.equals(userAnswer)) {
