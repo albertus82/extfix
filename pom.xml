@@ -319,7 +319,7 @@
 						</goals>
 						<configuration>
 							<target>
-								<ant target="lombok" />
+								<ant target="lombok-config" />
 							</target>
 						</configuration>
 						<?m2e execute?>
