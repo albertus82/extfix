@@ -192,6 +192,26 @@ class RenamerTest {
 				Assertions.assertTrue(Files.exists(Paths.get(path.toString(), "jpeg.jpg")));
 			}
 		});
+		FileTestUtils.runWithTempDir(path -> {
+			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
+			final Path p2 = FileTestUtils.copyResourceToDir("png.jpeg", path);
+			final Path p3 = FileTestUtils.copyResourceToDir("png.jpg", path);
+			final Map<Path, String> m1 = new HashMap<>();
+			m1.put(p1, ".jpg");
+			m1.put(p2, ".png");
+			m1.put(p3, ".png");
+			try (final InputStream is = new ByteArrayInputStream(("a" + System.lineSeparator()).getBytes())) {
+				final Renamer renamer = new Renamer(new Console(is, System.out, true, Console.DEFAULT_WIDTH));
+				final RenameResult result = renamer.rename(m1, false, yes);
+				Assertions.assertEquals(renamer.new RenameResult(3, 0, 0), result);
+				Assertions.assertFalse(Files.exists(p1));
+				Assertions.assertFalse(Files.exists(p2));
+				Assertions.assertFalse(Files.exists(p3));
+				Assertions.assertTrue(Files.exists(Paths.get(path.toString(), "jpeg.jpg")));
+				Assertions.assertTrue(Files.exists(Paths.get(path.toString(), "png.png")));
+				Assertions.assertTrue(Files.exists(Paths.get(path.toString(), "png (1).png")));
+			}
+		});
 	}
 
 	@Test
@@ -235,6 +255,26 @@ class RenamerTest {
 				Assertions.assertEquals(renamer.new RenameResult(0, 0, 1), result);
 				Assertions.assertTrue(Files.exists(p1));
 				Assertions.assertFalse(Files.exists(Paths.get(path.toString(), "jpeg.jpg")));
+			}
+		});
+		FileTestUtils.runWithTempDir(path -> {
+			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
+			final Path p2 = FileTestUtils.copyResourceToDir("png.jpeg", path);
+			final Path p3 = FileTestUtils.copyResourceToDir("png.jpg", path);
+			final Map<Path, String> m1 = new HashMap<>();
+			m1.put(p1, ".jpg");
+			m1.put(p2, ".png");
+			m1.put(p3, ".png");
+			try (final InputStream is = new ByteArrayInputStream(("c" + System.lineSeparator()).getBytes())) {
+				final Renamer renamer = new Renamer(new Console(is, System.out, true, Console.DEFAULT_WIDTH));
+				final RenameResult result = renamer.rename(m1, false, yes);
+				Assertions.assertEquals(renamer.new RenameResult(0, 0, 3), result);
+				Assertions.assertTrue(Files.exists(p1));
+				Assertions.assertTrue(Files.exists(p2));
+				Assertions.assertTrue(Files.exists(p3));
+				Assertions.assertFalse(Files.exists(Paths.get(path.toString(), "jpeg.jpg")));
+				Assertions.assertFalse(Files.exists(Paths.get(path.toString(), "png.png")));
+				Assertions.assertFalse(Files.exists(Paths.get(path.toString(), "png (1).png")));
 			}
 		});
 	}
