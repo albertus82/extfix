@@ -32,7 +32,7 @@ public class Renamer {
 	private final Console con;
 
 	@Value
-	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+	@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 	public class RenameResult {
 		int renamedCount;
 		int errorCount;
