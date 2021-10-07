@@ -5,7 +5,7 @@ File Extension Fix Tool
 [![Build status](https://ci.appveyor.com/api/projects/status/github/albertus82/extfix?branch=main&svg=true)](https://ci.appveyor.com/project/albertus82/extfix)
 [![Known Vulnerabilities](https://snyk.io/test/github/albertus82/extfix/badge.svg?targetFile=pom.xml)](https://snyk.io/test/github/albertus82/extfix?targetFile=pom.xml)
 
-**Find and rename files with wrong extensions.** File type detection is based on [Apache Tika](https://tika.apache.org).
+**Find and rename files with wrong extensions.** File type detection based on [Apache Tika](https://tika.apache.org).
 
 ## Minimum requirements
 
