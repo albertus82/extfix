@@ -65,7 +65,7 @@ class RenamerTest {
 		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
 			try (final InputStream is = new ByteArrayInputStream(("y" + System.lineSeparator()).getBytes())) {
-				final Renamer renamer = new Renamer(new Console(is, System.out, true, Console.DEFAULT_WIDTH));
+				final Renamer renamer = new Renamer(new Console(is, System.out, System.err, true, Console.DEFAULT_WIDTH));
 				final RenameResult result = renamer.rename(Collections.singletonMap(p1, ".jpg"), false, yes);
 				Assertions.assertEquals(renamer.new RenameResult(1, 0, 0), result);
 				Assertions.assertFalse(Files.exists(p1));
@@ -75,7 +75,7 @@ class RenamerTest {
 		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
 			try (final InputStream is = new ByteArrayInputStream(("Y" + System.lineSeparator()).getBytes())) {
-				final Renamer renamer = new Renamer(new Console(is, System.out, true, Console.DEFAULT_WIDTH));
+				final Renamer renamer = new Renamer(new Console(is, System.out, System.err, true, Console.DEFAULT_WIDTH));
 				final RenameResult result = renamer.rename(Collections.singletonMap(p1, ".jpg"), false, yes);
 				Assertions.assertEquals(renamer.new RenameResult(1, 0, 0), result);
 				Assertions.assertFalse(Files.exists(p1));
@@ -85,7 +85,7 @@ class RenamerTest {
 		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
 			try (final InputStream is = new ByteArrayInputStream(("yes" + System.lineSeparator()).getBytes())) {
-				final Renamer renamer = new Renamer(new Console(is, System.out, true, Console.DEFAULT_WIDTH));
+				final Renamer renamer = new Renamer(new Console(is, System.out, System.err, true, Console.DEFAULT_WIDTH));
 				final RenameResult result = renamer.rename(Collections.singletonMap(p1, ".jpg"), false, yes);
 				Assertions.assertEquals(renamer.new RenameResult(1, 0, 0), result);
 				Assertions.assertFalse(Files.exists(p1));
@@ -95,7 +95,7 @@ class RenamerTest {
 		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
 			try (final InputStream is = new ByteArrayInputStream(("YES" + System.lineSeparator()).getBytes())) {
-				final Renamer renamer = new Renamer(new Console(is, System.out, true, Console.DEFAULT_WIDTH));
+				final Renamer renamer = new Renamer(new Console(is, System.out, System.err, true, Console.DEFAULT_WIDTH));
 				final RenameResult result = renamer.rename(Collections.singletonMap(p1, ".jpg"), false, yes);
 				Assertions.assertEquals(renamer.new RenameResult(1, 0, 0), result);
 				Assertions.assertFalse(Files.exists(p1));
@@ -110,7 +110,7 @@ class RenamerTest {
 		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
 			try (final InputStream is = new ByteArrayInputStream(("n" + System.lineSeparator()).getBytes())) {
-				final Renamer renamer = new Renamer(new Console(is, System.out, true, Console.DEFAULT_WIDTH));
+				final Renamer renamer = new Renamer(new Console(is, System.out, System.err, true, Console.DEFAULT_WIDTH));
 				final RenameResult result = renamer.rename(Collections.singletonMap(p1, ".jpg"), false, yes);
 				Assertions.assertEquals(renamer.new RenameResult(0, 0, 1), result);
 				Assertions.assertTrue(Files.exists(p1));
@@ -120,7 +120,7 @@ class RenamerTest {
 		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
 			try (final InputStream is = new ByteArrayInputStream(("N" + System.lineSeparator()).getBytes())) {
-				final Renamer renamer = new Renamer(new Console(is, System.out, true, Console.DEFAULT_WIDTH));
+				final Renamer renamer = new Renamer(new Console(is, System.out, System.err, true, Console.DEFAULT_WIDTH));
 				final RenameResult result = renamer.rename(Collections.singletonMap(p1, ".jpg"), false, yes);
 				Assertions.assertEquals(renamer.new RenameResult(0, 0, 1), result);
 				Assertions.assertTrue(Files.exists(p1));
@@ -130,7 +130,7 @@ class RenamerTest {
 		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
 			try (final InputStream is = new ByteArrayInputStream(("no" + System.lineSeparator()).getBytes())) {
-				final Renamer renamer = new Renamer(new Console(is, System.out, true, Console.DEFAULT_WIDTH));
+				final Renamer renamer = new Renamer(new Console(is, System.out, System.err, true, Console.DEFAULT_WIDTH));
 				final RenameResult result = renamer.rename(Collections.singletonMap(p1, ".jpg"), false, yes);
 				Assertions.assertEquals(renamer.new RenameResult(0, 0, 1), result);
 				Assertions.assertTrue(Files.exists(p1));
@@ -140,7 +140,7 @@ class RenamerTest {
 		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
 			try (final InputStream is = new ByteArrayInputStream(("NO" + System.lineSeparator()).getBytes())) {
-				final Renamer renamer = new Renamer(new Console(is, System.out, true, Console.DEFAULT_WIDTH));
+				final Renamer renamer = new Renamer(new Console(is, System.out, System.err, true, Console.DEFAULT_WIDTH));
 				final RenameResult result = renamer.rename(Collections.singletonMap(p1, ".jpg"), false, yes);
 				Assertions.assertEquals(renamer.new RenameResult(0, 0, 1), result);
 				Assertions.assertTrue(Files.exists(p1));
@@ -155,7 +155,7 @@ class RenamerTest {
 		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
 			try (final InputStream is = new ByteArrayInputStream(("a" + System.lineSeparator()).getBytes())) {
-				final Renamer renamer = new Renamer(new Console(is, System.out, true, Console.DEFAULT_WIDTH));
+				final Renamer renamer = new Renamer(new Console(is, System.out, System.err, true, Console.DEFAULT_WIDTH));
 				final RenameResult result = renamer.rename(Collections.singletonMap(p1, ".jpg"), false, yes);
 				Assertions.assertEquals(renamer.new RenameResult(1, 0, 0), result);
 				Assertions.assertFalse(Files.exists(p1));
@@ -165,7 +165,7 @@ class RenamerTest {
 		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
 			try (final InputStream is = new ByteArrayInputStream(("A" + System.lineSeparator()).getBytes())) {
-				final Renamer renamer = new Renamer(new Console(is, System.out, true, Console.DEFAULT_WIDTH));
+				final Renamer renamer = new Renamer(new Console(is, System.out, System.err, true, Console.DEFAULT_WIDTH));
 				final RenameResult result = renamer.rename(Collections.singletonMap(p1, ".jpg"), false, yes);
 				Assertions.assertEquals(renamer.new RenameResult(1, 0, 0), result);
 				Assertions.assertFalse(Files.exists(p1));
@@ -175,7 +175,7 @@ class RenamerTest {
 		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
 			try (final InputStream is = new ByteArrayInputStream(("all" + System.lineSeparator()).getBytes())) {
-				final Renamer renamer = new Renamer(new Console(is, System.out, true, Console.DEFAULT_WIDTH));
+				final Renamer renamer = new Renamer(new Console(is, System.out, System.err, true, Console.DEFAULT_WIDTH));
 				final RenameResult result = renamer.rename(Collections.singletonMap(p1, ".jpg"), false, yes);
 				Assertions.assertEquals(renamer.new RenameResult(1, 0, 0), result);
 				Assertions.assertFalse(Files.exists(p1));
@@ -185,7 +185,7 @@ class RenamerTest {
 		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
 			try (final InputStream is = new ByteArrayInputStream(("ALL" + System.lineSeparator()).getBytes())) {
-				final Renamer renamer = new Renamer(new Console(is, System.out, true, Console.DEFAULT_WIDTH));
+				final Renamer renamer = new Renamer(new Console(is, System.out, System.err, true, Console.DEFAULT_WIDTH));
 				final RenameResult result = renamer.rename(Collections.singletonMap(p1, ".jpg"), false, yes);
 				Assertions.assertEquals(renamer.new RenameResult(1, 0, 0), result);
 				Assertions.assertFalse(Files.exists(p1));
@@ -201,7 +201,7 @@ class RenamerTest {
 			m1.put(p2, ".png");
 			m1.put(p3, ".png");
 			try (final InputStream is = new ByteArrayInputStream(("a" + System.lineSeparator()).getBytes())) {
-				final Renamer renamer = new Renamer(new Console(is, System.out, true, Console.DEFAULT_WIDTH));
+				final Renamer renamer = new Renamer(new Console(is, System.out, System.err, true, Console.DEFAULT_WIDTH));
 				final RenameResult result = renamer.rename(m1, false, yes);
 				Assertions.assertEquals(renamer.new RenameResult(3, 0, 0), result);
 				Assertions.assertFalse(Files.exists(p1));
@@ -220,7 +220,7 @@ class RenamerTest {
 		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
 			try (final InputStream is = new ByteArrayInputStream(("c" + System.lineSeparator()).getBytes())) {
-				final Renamer renamer = new Renamer(new Console(is, System.out, true, Console.DEFAULT_WIDTH));
+				final Renamer renamer = new Renamer(new Console(is, System.out, System.err, true, Console.DEFAULT_WIDTH));
 				final RenameResult result = renamer.rename(Collections.singletonMap(p1, ".jpg"), false, yes);
 				Assertions.assertEquals(renamer.new RenameResult(0, 0, 1), result);
 				Assertions.assertTrue(Files.exists(p1));
@@ -230,7 +230,7 @@ class RenamerTest {
 		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
 			try (final InputStream is = new ByteArrayInputStream(("C" + System.lineSeparator()).getBytes())) {
-				final Renamer renamer = new Renamer(new Console(is, System.out, true, Console.DEFAULT_WIDTH));
+				final Renamer renamer = new Renamer(new Console(is, System.out, System.err, true, Console.DEFAULT_WIDTH));
 				final RenameResult result = renamer.rename(Collections.singletonMap(p1, ".jpg"), false, yes);
 				Assertions.assertEquals(renamer.new RenameResult(0, 0, 1), result);
 				Assertions.assertTrue(Files.exists(p1));
@@ -240,7 +240,7 @@ class RenamerTest {
 		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
 			try (final InputStream is = new ByteArrayInputStream(("cancel" + System.lineSeparator()).getBytes())) {
-				final Renamer renamer = new Renamer(new Console(is, System.out, true, Console.DEFAULT_WIDTH));
+				final Renamer renamer = new Renamer(new Console(is, System.out, System.err, true, Console.DEFAULT_WIDTH));
 				final RenameResult result = renamer.rename(Collections.singletonMap(p1, ".jpg"), false, yes);
 				Assertions.assertEquals(renamer.new RenameResult(0, 0, 1), result);
 				Assertions.assertTrue(Files.exists(p1));
@@ -250,7 +250,7 @@ class RenamerTest {
 		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
 			try (final InputStream is = new ByteArrayInputStream(("CANCEL" + System.lineSeparator()).getBytes())) {
-				final Renamer renamer = new Renamer(new Console(is, System.out, true, Console.DEFAULT_WIDTH));
+				final Renamer renamer = new Renamer(new Console(is, System.out, System.err, true, Console.DEFAULT_WIDTH));
 				final RenameResult result = renamer.rename(Collections.singletonMap(p1, ".jpg"), false, yes);
 				Assertions.assertEquals(renamer.new RenameResult(0, 0, 1), result);
 				Assertions.assertTrue(Files.exists(p1));
@@ -266,7 +266,7 @@ class RenamerTest {
 			m1.put(p2, ".png");
 			m1.put(p3, ".png");
 			try (final InputStream is = new ByteArrayInputStream(("c" + System.lineSeparator()).getBytes())) {
-				final Renamer renamer = new Renamer(new Console(is, System.out, true, Console.DEFAULT_WIDTH));
+				final Renamer renamer = new Renamer(new Console(is, System.out, System.err, true, Console.DEFAULT_WIDTH));
 				final RenameResult result = renamer.rename(m1, false, yes);
 				Assertions.assertEquals(renamer.new RenameResult(0, 0, 3), result);
 				Assertions.assertTrue(Files.exists(p1));
@@ -286,7 +286,7 @@ class RenamerTest {
 		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
 			try (final InputStream is = new ByteArrayInputStream(("qwertyuiop" + System.lineSeparator()).getBytes())) {
-				final Renamer renamer = new Renamer(new Console(is, System.out, true, Console.DEFAULT_WIDTH));
+				final Renamer renamer = new Renamer(new Console(is, System.out, System.err, true, Console.DEFAULT_WIDTH));
 				final RenameResult result = renamer.rename(Collections.singletonMap(p1, ".jpg"), false, yes);
 				Assertions.assertEquals(renamer.new RenameResult(0, 0, 1), result);
 				Assertions.assertTrue(Files.exists(p1));
@@ -297,7 +297,7 @@ class RenamerTest {
 		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
 			try (final InputStream is = new ByteArrayInputStream((System.lineSeparator()).getBytes())) {
-				final Renamer renamer = new Renamer(new Console(is, System.out, true, Console.DEFAULT_WIDTH));
+				final Renamer renamer = new Renamer(new Console(is, System.out, System.err, true, Console.DEFAULT_WIDTH));
 				final RenameResult result = renamer.rename(Collections.singletonMap(p1, ".jpg"), false, yes);
 				Assertions.assertEquals(renamer.new RenameResult(0, 0, 1), result);
 				Assertions.assertTrue(Files.exists(p1));

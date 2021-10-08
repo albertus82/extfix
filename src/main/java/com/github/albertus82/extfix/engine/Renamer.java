@@ -129,7 +129,7 @@ public class Renamer {
 
 	private void printError(final String message, final Throwable e) {
 		if (con.isStackTraces() && e != null) {
-			e.printStackTrace();
+			e.printStackTrace(con.getErr());
 		}
 		con.getOut().println(message);
 	}

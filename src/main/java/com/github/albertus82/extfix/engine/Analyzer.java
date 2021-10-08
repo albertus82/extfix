@@ -264,7 +264,7 @@ public class Analyzer {
 		private synchronized void printAnalysisError(final String message, final Throwable e) {
 			clearAnalysisLine(printedDirectory);
 			if (con.isStackTraces() && e != null) {
-				e.printStackTrace();
+				e.printStackTrace(con.getErr());
 			}
 			con.getOut().println(message);
 			if (printedDirectory != null) {

@@ -19,12 +19,15 @@ public class Console {
 	@NonNull
 	private final PrintStream out;
 
+	@NonNull
+	private final PrintStream err;
+
 	private final boolean stackTraces;
 
 	private final int width;
 
 	public Console(final boolean stackTraces) {
-		this(System.in, System.out, stackTraces, DEFAULT_WIDTH); // NOSONAR Replace this use of System.out or System.err by a logger. Standard outputs should not be used directly to log anything (java:S106)
+		this(System.in, System.out, System.err, stackTraces, DEFAULT_WIDTH); // NOSONAR Replace this use of System.out or System.err by a logger. Standard outputs should not be used directly to log anything (java:S106)
 	}
 
 }
