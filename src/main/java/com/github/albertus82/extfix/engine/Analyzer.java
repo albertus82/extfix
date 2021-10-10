@@ -289,21 +289,4 @@ public class Analyzer {
 		}
 	}
 
-	//	private Set<String> getSupportedExtensions() {
-	//		final Set<String> extensions = new TreeSet<>();
-	//		tikaConfig.getMediaTypeRegistry().getTypes().forEach(t -> {
-	//			try {
-	//				tikaConfig.getMimeRepository().forName(t.toString()).getExtensions().forEach(e -> {
-	//					if (e != null && !e.isEmpty()) {
-	//						extensions.add(e.substring(1).toLowerCase(Locale.ROOT));
-	//					}
-	//				});
-	//			}
-	//			catch (final MimeTypeException e) {
-	//				log.debug(String.valueOf(t), e);
-	//			}
-	//		});
-	//		return extensions;
-	//	}
-
 }
