@@ -1,6 +1,5 @@
 package com.github.albertus82.extfix.engine;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -32,7 +31,7 @@ class AnalyzerTest {
 	}
 
 	@Test
-	void testAnalyzeEmpty() throws IOException {
+	void testAnalyzeEmpty() throws Throwable {
 		final Analyzer a = new Analyzer(new Console(false));
 		FileTestUtils.runWithTempDir(path -> {
 			Assertions.assertEquals(a.new AnalysisResult(Collections.emptyMap(), 0, 0), a.analyze(path, false, false));
@@ -46,7 +45,7 @@ class AnalyzerTest {
 	}
 
 	@Test
-	void testAnalyze() throws IOException {
+	void testAnalyze() throws Throwable {
 		final Analyzer a = new Analyzer(new Console(true));
 		Assertions.assertEquals(a.new AnalysisResult(Collections.emptyMap(), 0, 1), a.analyze(Paths.get("tmp", RANDOM), false, false));
 		Assertions.assertEquals(a.new AnalysisResult(Collections.emptyMap(), 0, 1), a.analyze(Paths.get("tmp", RANDOM), false, true));

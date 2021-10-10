@@ -1,7 +1,6 @@
 package com.github.albertus82.extfix.engine;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,7 +29,7 @@ class RenamerTest {
 	}
 
 	@Test
-	void testRenameNonInteractive() throws IOException {
+	void testRenameNonInteractive() throws Throwable {
 		final boolean yes = true;
 		final Renamer renamer = new Renamer(new Console(true));
 		Assertions.assertThrows(NullPointerException.class, () -> renamer.rename(null, false, yes));
@@ -60,7 +59,7 @@ class RenamerTest {
 	}
 
 	@Test
-	void testRenameInteractiveYes() throws IOException {
+	void testRenameInteractiveYes() throws Throwable {
 		final boolean yes = false;
 		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
@@ -105,7 +104,7 @@ class RenamerTest {
 	}
 
 	@Test
-	void testRenameInteractiveNo() throws IOException {
+	void testRenameInteractiveNo() throws Throwable {
 		final boolean yes = false;
 		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
@@ -150,7 +149,7 @@ class RenamerTest {
 	}
 
 	@Test
-	void testRenameInteractiveAll() throws IOException {
+	void testRenameInteractiveAll() throws Throwable {
 		final boolean yes = false;
 		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
@@ -215,7 +214,7 @@ class RenamerTest {
 	}
 
 	@Test
-	void testRenameInteractiveCancel() throws IOException {
+	void testRenameInteractiveCancel() throws Throwable {
 		final boolean yes = false;
 		FileTestUtils.runWithTempDir(path -> {
 			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
@@ -280,7 +279,7 @@ class RenamerTest {
 	}
 
 	@Test
-	void testRenameInteractiveDefault() throws IOException {
+	void testRenameInteractiveDefault() throws Throwable {
 		final boolean yes = false;
 		// Unrecognized input -> NO
 		FileTestUtils.runWithTempDir(path -> {

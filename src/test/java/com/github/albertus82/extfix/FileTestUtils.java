@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.function.ThrowingConsumer;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -19,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FileTestUtils {
 
-	public static <T extends Throwable> void runWithTempDir(@NonNull final TempDirExec<T> exec) throws IOException, T {
+	public static void runWithTempDir(@NonNull final ThrowingConsumer<Path> consumer) throws Throwable {
 		final String uuid = UUID.randomUUID().toString().replace("-", "");
 		final File tempFile = File.createTempFile(uuid, null);
 		File tempDir = new File(tempFile.getParent() + File.separator + uuid);
@@ -35,7 +36,7 @@ public class FileTestUtils {
 			throw new IOException("Cannot create temporary directory \"" + tempDir + "\"");
 		}
 		try {
-			exec.execute(tempDir.toPath());
+			consumer.accept(tempDir.toPath());
 		}
 		finally {
 			try {
@@ -48,11 +49,11 @@ public class FileTestUtils {
 		}
 	}
 
-	public static Path copyResourceToDir(@NonNull String resourceName, @NonNull final Path destDir) throws IOException {
+	public static Path copyResourceToDir(@NonNull String resourceName, @NonNull final Path path) throws IOException {
 		if (!resourceName.startsWith("/")) {
 			resourceName = '/' + resourceName;
 		}
-		final Path target = Paths.get(destDir.toString(), resourceName);
+		final Path target = Paths.get(path.toString(), resourceName);
 		try (final InputStream in = FileTestUtils.class.getResourceAsStream(resourceName)) {
 			Files.copy(in, target);
 			log.info("Created file \"{}\".", target);

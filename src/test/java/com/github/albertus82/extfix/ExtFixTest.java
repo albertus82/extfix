@@ -1,6 +1,5 @@
 package com.github.albertus82.extfix;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,7 +13,7 @@ class ExtFixTest {
 	private static final boolean YES = true;
 
 	@Test
-	void test() throws IOException {
+	void test() throws Throwable {
 		final boolean links = true;
 		final boolean dryRun = false;
 		final boolean recursive = false;
@@ -39,7 +38,7 @@ class ExtFixTest {
 	}
 
 	@Test
-	void testWithoutExtension() throws IOException {
+	void testWithoutExtension() throws Throwable {
 		final boolean links = false;
 		final boolean dryRun = false;
 		final boolean recursive = true;
@@ -62,7 +61,7 @@ class ExtFixTest {
 	}
 
 	@Test
-	void testNoProblem() throws IOException {
+	void testNoProblem() throws Throwable {
 		final boolean links = false;
 		final boolean dryRun = false;
 		final boolean recursive = false;
@@ -82,7 +81,7 @@ class ExtFixTest {
 	}
 
 	@Test
-	void testAutoRename() throws IOException {
+	void testAutoRename() throws Throwable {
 		final boolean links = false;
 		final boolean dryRun = false;
 		final boolean recursive = true;
@@ -112,7 +111,7 @@ class ExtFixTest {
 	}
 
 	@Test
-	void testDryRun() throws IOException {
+	void testDryRun() throws Throwable {
 		final boolean links = false;
 		final boolean dryRun = true;
 		final boolean recursive = false;

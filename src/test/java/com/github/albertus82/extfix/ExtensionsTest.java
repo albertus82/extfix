@@ -1,6 +1,5 @@
 package com.github.albertus82.extfix;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -18,7 +17,7 @@ class ExtensionsTest {
 	private static final String RANDOM = UUID.randomUUID().toString().replace("-", "");
 
 	@Test
-	void testArray() throws IOException {
+	void testArray() throws Throwable {
 		final Extensions e1 = new Extensions(null, null);
 		Assertions.assertDoesNotThrow(() -> e1.get());
 
@@ -61,7 +60,7 @@ class ExtensionsTest {
 	}
 
 	@Test
-	void testFromPath() throws IOException {
+	void testFromPath() throws Throwable {
 		FileTestUtils.runWithTempDir(path -> {
 			final Map<Integer, Path> fileMap = new HashMap<>();
 			for (int i = 1; i <= 5; i++) {
