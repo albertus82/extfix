@@ -28,7 +28,7 @@ public class PathUtils {
 
 	public static boolean hasExtension(@NonNull final Path path) {
 		final String fileName = path.getFileName().toString();
-		return FilenameUtils.getExtension(fileName).isEmpty() || fileName.lastIndexOf('.') == 0;
+		return !FilenameUtils.getExtension(fileName).isEmpty() && fileName.lastIndexOf('.') != 0;
 	}
 
 }

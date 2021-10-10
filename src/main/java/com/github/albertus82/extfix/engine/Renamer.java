@@ -141,7 +141,7 @@ public class Renamer {
 
 	private static Path buildTarget(@NonNull final Path source, @NonNull final String newExtension) {
 		final Path target;
-		if (PathUtils.hasExtension(source)) {
+		if (!PathUtils.hasExtension(source)) {
 			target = Paths.get(source.toString() + newExtension);
 		}
 		else {

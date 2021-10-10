@@ -196,7 +196,7 @@ public class Analyzer {
 					else {
 						findBetterExtension(path, knownExtensions).ifPresent(extension -> {
 							renameMap.put(path, extension);
-							if (PathUtils.hasExtension(path)) {
+							if (!PathUtils.hasExtension(path)) {
 								printAnalysisMessage("Found " + StringUtils.stripStart(extension.toUpperCase(Locale.ROOT), ".") + " file without extension: '" + path + "'.");
 							}
 							else {
