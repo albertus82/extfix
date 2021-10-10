@@ -16,7 +16,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import com.github.albertus82.extfix.Console;
 
@@ -84,13 +83,19 @@ public class Renamer {
 		private final Set<String> answers = new HashSet<>();
 
 		private Answer(@NonNull final String... answers) {
-			this.answers.addAll(Arrays.asList(answers));
+			Arrays.stream(answers).forEach(a -> {
+				if (a == null || a.trim().isEmpty()) {
+					throw new IllegalArgumentException(a);
+				}
+				this.answers.add(a.trim().toLowerCase());
+				this.answers.add(a.trim().toLowerCase(Locale.ROOT));
+			});
 		}
 
 		private static Optional<Answer> forInput(final String input) {
 			if (input != null) {
 				for (final Answer a : Answer.values()) {
-					if (a.answers.contains(input.toLowerCase()) || a.answers.contains(input.toLowerCase(Locale.ROOT))) {
+					if (a.answers.contains(input.trim().toLowerCase()) || a.answers.contains(input.trim().toLowerCase(Locale.ROOT))) {
 						return Optional.of(a);
 					}
 				}
@@ -103,8 +108,7 @@ public class Renamer {
 		con.getOut().print("Rename '" + source + "' to '" + target.getFileName() + "'? [y(es)/N(o)/a(ll)/c(ancel)] ");
 		final BufferedReader br = new BufferedReader(new InputStreamReader(con.getIn()));
 		try {
-			final String userAnswer = StringUtils.trimToEmpty(br.readLine());
-			return Answer.forInput(userAnswer).orElse(Answer.NO);
+			return Answer.forInput(br.readLine()).orElse(Answer.NO);
 		}
 		catch (final IOException e) {
 			throw new UncheckedIOException(e);
