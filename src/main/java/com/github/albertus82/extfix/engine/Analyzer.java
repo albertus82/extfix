@@ -196,7 +196,12 @@ public class Analyzer {
 					else {
 						findBetterExtension(path, knownExtensions).ifPresent(extension -> {
 							renameMap.put(path, extension);
-							printAnalysisMessage("Found " + StringUtils.stripStart(extension.toUpperCase(Locale.ROOT), ".") + " file with suspicious extension: '" + path + "'.");
+							if (PathUtils.hasExtension(path)) {
+								printAnalysisMessage("Found " + StringUtils.stripStart(extension.toUpperCase(Locale.ROOT), ".") + " file without extension: '" + path + "'.");
+							}
+							else {
+								printAnalysisMessage("Found " + StringUtils.stripStart(extension.toUpperCase(Locale.ROOT), ".") + " file with suspicious extension: '" + path + "'.");
+							}
 						});
 					}
 				}
@@ -283,5 +288,22 @@ public class Analyzer {
 			con.getOut().print(sb);
 		}
 	}
+
+	//	private Set<String> getSupportedExtensions() {
+	//		final Set<String> extensions = new TreeSet<>();
+	//		tikaConfig.getMediaTypeRegistry().getTypes().forEach(t -> {
+	//			try {
+	//				tikaConfig.getMimeRepository().forName(t.toString()).getExtensions().forEach(e -> {
+	//					if (e != null && !e.isEmpty()) {
+	//						extensions.add(e.substring(1).toLowerCase(Locale.ROOT));
+	//					}
+	//				});
+	//			}
+	//			catch (final MimeTypeException e) {
+	//				log.debug(String.valueOf(t), e);
+	//			}
+	//		});
+	//		return extensions;
+	//	}
 
 }

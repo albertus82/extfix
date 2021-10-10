@@ -18,6 +18,7 @@ import java.util.Set;
 import org.apache.commons.io.FilenameUtils;
 
 import com.github.albertus82.extfix.Console;
+import com.github.albertus82.extfix.util.PathUtils;
 
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -139,13 +140,12 @@ public class Renamer {
 	}
 
 	private static Path buildTarget(@NonNull final Path source, @NonNull final String newExtension) {
-		final String oldFileName = source.toString();
 		final Path target;
-		if (FilenameUtils.getExtension(oldFileName).isEmpty()) {
-			target = Paths.get(oldFileName + newExtension);
+		if (PathUtils.hasExtension(source)) {
+			target = Paths.get(source.toString() + newExtension);
 		}
 		else {
-			target = Paths.get(FilenameUtils.removeExtension(oldFileName) + newExtension);
+			target = Paths.get(FilenameUtils.removeExtension(source.toString()) + newExtension);
 		}
 		int i = 0;
 		Path availableTarget = target;

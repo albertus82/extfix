@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import org.apache.commons.io.FilenameUtils;
+
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -22,6 +24,11 @@ public class PathUtils {
 			log.debug("Cannot obtain canonical path for '" + path + "', falling back to absolute path:", e);
 			return file.getAbsoluteFile().toPath();
 		}
+	}
+
+	public static boolean hasExtension(@NonNull final Path path) {
+		final String fileName = path.getFileName().toString();
+		return FilenameUtils.getExtension(fileName).isEmpty() || fileName.lastIndexOf('.') == 0;
 	}
 
 }
