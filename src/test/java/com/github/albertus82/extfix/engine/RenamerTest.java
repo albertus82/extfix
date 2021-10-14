@@ -29,6 +29,39 @@ class RenamerTest {
 	}
 
 	@Test
+	void testRenameFailure() throws Throwable {
+		final boolean yes = true;
+		final Renamer r1 = new Renamer(new Console(false));
+		FileTestUtils.runWithTempDir(path -> {
+			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
+			final Path p2 = FileTestUtils.copyResourceToDir("png.jpeg", path);
+			final Map<Path, String> m4 = new HashMap<>();
+			m4.put(Paths.get(p1.toString() + "_foo"), ".jpg");
+			m4.put(p2, "png");
+			final RenameResult result = r1.rename(m4, false, yes);
+			Assertions.assertEquals(r1.new RenameResult(1, 1, 0), result);
+			Assertions.assertTrue(Files.exists(p1));
+			Assertions.assertFalse(Files.exists(p2));
+			Assertions.assertFalse(Files.exists(Paths.get(path.toString(), "jpeg.jpg")));
+			Assertions.assertTrue(Files.exists(Paths.get(path.toString(), "png.png")));
+		});
+		final Renamer r2 = new Renamer(new Console(true));
+		FileTestUtils.runWithTempDir(path -> {
+			final Path p1 = FileTestUtils.copyResourceToDir("jpeg.png", path);
+			final Path p2 = FileTestUtils.copyResourceToDir("png.jpeg", path);
+			final Map<Path, String> m4 = new HashMap<>();
+			m4.put(p1, ".jpg");
+			m4.put(Paths.get(p2.toString() + "_bar"), "png");
+			final RenameResult result = r2.rename(m4, false, yes);
+			Assertions.assertEquals(r2.new RenameResult(1, 1, 0), result);
+			Assertions.assertFalse(Files.exists(p1));
+			Assertions.assertTrue(Files.exists(p2));
+			Assertions.assertTrue(Files.exists(Paths.get(path.toString(), "jpeg.jpg")));
+			Assertions.assertFalse(Files.exists(Paths.get(path.toString(), "png.png")));
+		});
+	}
+
+	@Test
 	void testRenameWithoutExtension() throws Throwable {
 		final boolean yes = true;
 		final Renamer renamer = new Renamer(new Console(true));
