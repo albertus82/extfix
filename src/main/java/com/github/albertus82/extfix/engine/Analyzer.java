@@ -224,7 +224,7 @@ public class Analyzer {
 			}
 		}
 
-		private Optional<String> findBetterExtension(@NonNull final Path path, @NonNull final List<String> knownExtensions) { // non-private for test only access
+		private Optional<String> findBetterExtension(@NonNull final Path path, @NonNull final List<String> knownExtensions) {
 			final String currentExtension = FilenameUtils.getExtension(path.toString());
 			final String bestExtension = knownExtensions.get(0);
 			if (currentExtension.isEmpty() || knownExtensions.stream().noneMatch(e -> e.equalsIgnoreCase('.' + currentExtension))) {
