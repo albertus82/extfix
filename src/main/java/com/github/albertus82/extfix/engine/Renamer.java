@@ -139,13 +139,16 @@ public class Renamer {
 		con.getOut().println(message);
 	}
 
-	private static Path buildTarget(@NonNull final Path source, @NonNull final String newExtension) {
+	private static Path buildTarget(@NonNull final Path source, @NonNull String newExtension) {
+		if (!newExtension.isEmpty() && !newExtension.startsWith(".")) {
+			newExtension = '.' + newExtension;
+		}
 		final Path target;
-		if (!PathUtils.hasExtension(source)) {
-			target = Paths.get(source.toString() + newExtension);
+		if (PathUtils.hasExtension(source)) {
+			target = Paths.get(FilenameUtils.removeExtension(source.toString()) + newExtension);
 		}
 		else {
-			target = Paths.get(FilenameUtils.removeExtension(source.toString()) + newExtension);
+			target = Paths.get(source.toString() + newExtension);
 		}
 		int i = 0;
 		Path availableTarget = target;
