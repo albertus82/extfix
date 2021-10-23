@@ -25,6 +25,19 @@
 		<vm.maxHeapSize>64</vm.maxHeapSize> <!-- can rename ~100k files (256 bytes * 2 * 10^5 = 50 MiB) -->
 	</properties>
 
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>https://opensource.org/licenses/MIT</url>
+		</license>
+	</licenses>
+
+	<scm>
+		<connection>scm:git:https://github.com/albertus82/extfix.git</connection>
+		<developerConnection>scm:git:https://github.com/albertus82/extfix.git</developerConnection>
+		<url>https://github.com/albertus82/extfix</url>
+	</scm>
+
 	<profiles>
 		<profile>
 			<id>javac-release-option</id>
