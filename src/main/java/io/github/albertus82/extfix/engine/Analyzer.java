@@ -1,4 +1,4 @@
-package com.github.albertus82.extfix.engine;
+package io.github.albertus82.extfix.engine;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,9 +35,8 @@ import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MimeTypeException;
 
-import com.github.albertus82.extfix.Console;
-import com.github.albertus82.extfix.util.PathUtils;
-
+import io.github.albertus82.extfix.Console;
+import io.github.albertus82.extfix.util.PathUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;

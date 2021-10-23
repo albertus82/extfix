@@ -1,4 +1,4 @@
-package com.github.albertus82.extfix;
+package io.github.albertus82.extfix;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

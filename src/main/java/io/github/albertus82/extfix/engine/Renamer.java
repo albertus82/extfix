@@ -1,4 +1,4 @@
-package com.github.albertus82.extfix.engine;
+package io.github.albertus82.extfix.engine;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,9 +17,8 @@ import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
 
-import com.github.albertus82.extfix.Console;
-import com.github.albertus82.extfix.util.PathUtils;
-
+import io.github.albertus82.extfix.Console;
+import io.github.albertus82.extfix.util.PathUtils;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.github.albertus82.extfix.engine;
+package io.github.albertus82.extfix.engine;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -10,8 +10,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.github.albertus82.extfix.Console;
-import com.github.albertus82.extfix.FileTestUtils;
+import io.github.albertus82.extfix.Console;
+import io.github.albertus82.extfix.FileTestUtils;
 
 class AnalyzerTest {
 

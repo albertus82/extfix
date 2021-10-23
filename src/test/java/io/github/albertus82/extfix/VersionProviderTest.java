@@ -1,4 +1,4 @@
-package com.github.albertus82.extfix;
+package io.github.albertus82.extfix;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

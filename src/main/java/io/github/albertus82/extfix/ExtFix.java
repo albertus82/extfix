@@ -1,4 +1,4 @@
-package com.github.albertus82.extfix;
+package io.github.albertus82.extfix;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -8,12 +8,11 @@ import java.util.concurrent.Callable;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.github.albertus82.extfix.engine.Analyzer;
-import com.github.albertus82.extfix.engine.Analyzer.AnalysisResult;
-import com.github.albertus82.extfix.engine.Renamer;
-import com.github.albertus82.extfix.engine.Renamer.RenameResult;
-import com.github.albertus82.extfix.util.PathUtils;
-
+import io.github.albertus82.extfix.engine.Analyzer;
+import io.github.albertus82.extfix.engine.Analyzer.AnalysisResult;
+import io.github.albertus82.extfix.engine.Renamer;
+import io.github.albertus82.extfix.engine.Renamer.RenameResult;
+import io.github.albertus82.extfix.util.PathUtils;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;

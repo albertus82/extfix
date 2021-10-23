@@ -1,4 +1,4 @@
-package com.github.albertus82.extfix.engine;
+package io.github.albertus82.extfix.engine;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -13,9 +13,9 @@ import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.github.albertus82.extfix.Console;
-import com.github.albertus82.extfix.FileTestUtils;
-import com.github.albertus82.extfix.engine.Renamer.RenameResult;
+import io.github.albertus82.extfix.Console;
+import io.github.albertus82.extfix.FileTestUtils;
+import io.github.albertus82.extfix.engine.Renamer.RenameResult;
 
 class RenamerTest {
 
