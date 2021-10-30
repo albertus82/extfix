@@ -18,7 +18,6 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import picocli.CommandLine;
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ExitCode;
 import picocli.CommandLine.Option;
@@ -33,9 +32,8 @@ public class ExtFix implements Callable<Integer> {
 	@Parameters(paramLabel = "<PATH>", description = "Directory to scan for files with invalid extension.")
 	private Path path;
 
-	@NonNull
-	@ArgGroup(exclusive = true)
-	private Extensions extensions = new Extensions();
+	@Option(names = { "-e", "--extensions" }, paramLabel = "<EXT>", description = "File extensions to filter.", split = ",")
+	private String[] extensions;
 
 	@Option(names = { "-L", "--links" }, description = "Follow links.")
 	private boolean links;
@@ -81,7 +79,7 @@ public class ExtFix implements Callable<Integer> {
 		}
 		con.getOut().println(sb);
 
-		final AnalysisResult analysisResult = new Analyzer(con).analyze(path, links, recursive, extensions.get());
+		final AnalysisResult analysisResult = new Analyzer(con).analyze(path, links, recursive, extensions);
 		con.getOut().println(analysisResult.getAnalyzedCount() + " files analyzed (" + analysisResult.getSkippedCount() + " elements skipped).");
 
 		if (analysisResult.getRenameMap().isEmpty()) {

@@ -9,7 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
@@ -83,7 +85,8 @@ public class Analyzer {
 		int skippedCount;
 	}
 
-	public AnalysisResult analyze(@NonNull final Path path, final boolean links, final boolean recursive, final String... suffixes) throws IOException {
+	public AnalysisResult analyze(@NonNull final Path path, final boolean links, final boolean recursive, final String... extensions) throws IOException {
+		final List<String> suffixes = normalizeExtensions(extensions);
 		final Visitor visitor = new Visitor(buildPathFilter(suffixes));
 		if (recursive) {
 			Files.walkFileTree(path, links ? EnumSet.of(FileVisitOption.FOLLOW_LINKS) : Collections.emptySet(), Short.MAX_VALUE, visitor);
@@ -113,15 +116,31 @@ public class Analyzer {
 		return new AnalysisResult(Collections.unmodifiableMap(visitor.getRenameMap()), visitor.getAnalyzedCount(), visitor.getSkippedCount());
 	}
 
-	private PathFilter buildPathFilter(final String... suffixes) {
-		if (suffixes != null && suffixes.length > 0) {
-			con.getOut().println("Extensions: " + Arrays.toString(suffixes) + '.');
+	private PathFilter buildPathFilter(final List<String> suffixes) {
+		if (suffixes != null && !suffixes.isEmpty()) {
+			con.getOut().println("Extensions: " + suffixes + '.');
 			return new SuffixFileFilter(suffixes, IOCase.INSENSITIVE);
 		}
 		else {
 			con.getOut().println("Extensions: all.");
 			return (p, a) -> FileVisitResult.CONTINUE;
 		}
+	}
+
+	private static List<String> normalizeExtensions(final String[] extensions) {
+		final Collection<String> set = new TreeSet<>();
+		if (extensions != null && extensions.length > 0) {
+			for (final String extension : extensions) {
+				final StringBuilder suffix = new StringBuilder(extension.trim().toLowerCase(Locale.ROOT));
+				if (suffix.length() > 0) {
+					if (suffix.charAt(0) != '.') {
+						suffix.insert(0, '.');
+					}
+					set.add(suffix.toString());
+				}
+			}
+		}
+		return new ArrayList<>(set);
 	}
 
 	@RequiredArgsConstructor
