@@ -10,20 +10,7 @@
 	<version>0.0.1</version>
 	<name>File Extension Fix Tool</name>
 	<url>https://github.com/albertus82/extfix</url>
-
-	<properties>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<main.class>${project.groupId}.${project.artifactId}.ExtFix</main.class>
-		<dependencies.directory>lib</dependencies.directory>
-		<thirdparty.license.directory>3rdparty</thirdparty.license.directory>
-		<lombok.version>1.18.20</lombok.version>
-		<picocli.version>4.6.2</picocli.version>
-		<maven.version.rules>${project.baseUri}/maven-version-rules.xml</maven.version.rules>
-		<vm.initialHeapSize>4</vm.initialHeapSize>
-		<vm.maxHeapSize>64</vm.maxHeapSize> <!-- can rename ~100k files (256 bytes * 2 * 10^5 = 50 MiB) -->
-	</properties>
+	<description>File Extension Fix Tool - Find and rename files with wrong extensions.</description>
 
 	<licenses>
 		<license>
@@ -37,6 +24,21 @@
 		<developerConnection>scm:git:https://github.com/albertus82/extfix.git</developerConnection>
 		<url>https://github.com/albertus82/extfix</url>
 	</scm>
+
+	<properties>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<main.class>${project.groupId}.${project.artifactId}.ExtFix</main.class>
+		<dependencies.directory>lib</dependencies.directory>
+		<thirdparty.license.directory>3rdparty</thirdparty.license.directory>
+		<lombok.version>1.18.20</lombok.version>
+		<picocli.version>4.6.2</picocli.version>
+		<maven.version.rules>${project.baseUri}/maven-version-rules.xml</maven.version.rules>
+		<vm.initialHeapSize>4</vm.initialHeapSize>
+		<vm.maxHeapSize>64</vm.maxHeapSize> <!-- can rename ~100k files (256 bytes * 2 * 10^5 = 50 MiB) -->
+		<project.build.outputTimestamp>${git.commit.time}</project.build.outputTimestamp>
+	</properties>
 
 	<profiles>
 		<profile>
@@ -64,7 +66,6 @@
 						<executions>
 							<execution>
 								<id>delombok</id>
-								<phase>generate-sources</phase>
 								<goals>
 									<goal>delombok</goal>
 								</goals>
@@ -74,7 +75,6 @@
 							</execution>
 							<execution>
 								<id>delombok-test</id>
-								<phase>generate-test-sources</phase>
 								<goals>
 									<goal>testDelombok</goal>
 								</goals>
@@ -185,28 +185,16 @@
 				<version>4.0.5</version>
 				<executions>
 					<execution>
-						<id>zoned</id>
 						<goals>
 							<goal>revision</goal>
 						</goals>
 						<phase>initialize</phase>
-						<configuration>
-							<prefix>zoned.git</prefix>
-							<dateFormat>yyyy-MM-dd'T'HH:mm:ssXXX</dateFormat>
-						</configuration>
-					</execution>
-					<execution>
-						<id>local</id>
-						<goals>
-							<goal>revision</goal>
-						</goals>
-						<phase>initialize</phase>
-						<configuration>
-							<prefix>local.git</prefix>
-							<dateFormat>yyyy-MM-dd'T'HH:mm:ss'Z'</dateFormat>
-						</configuration>
 					</execution>
 				</executions>
+				<configuration>
+					<dateFormat>yyyy-MM-dd'T'HH:mm:ssXXX</dateFormat>
+					<dateFormatTimeZone>Z</dateFormatTimeZone>
+				</configuration>
 			</plugin>
 
 			<plugin>
@@ -227,7 +215,6 @@
 									<version>3.3.9</version>
 								</requireMavenVersion>
 							</rules>
-							<fail>true</fail>
 						</configuration>
 					</execution>
 				</executions>
@@ -266,7 +253,6 @@
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>3.2.0</version>
 				<configuration>
-					<outputTimestamp>${local.git.commit.time}</outputTimestamp>
 					<archive>
 						<manifest>
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
@@ -327,6 +313,7 @@
 				<artifactId>maven-antrun-plugin</artifactId>
 				<executions>
 					<execution>
+						<?m2e execute?>
 						<id>lombok-config</id>
 						<phase>initialize</phase>
 						<goals>
@@ -337,7 +324,6 @@
 								<ant target="lombok-config" />
 							</target>
 						</configuration>
-						<?m2e execute?>
 					</execution>
 					<execution>
 						<id>launch4j</id>
@@ -380,7 +366,6 @@
 							<goal>single</goal>
 						</goals>
 						<configuration>
-							<outputTimestamp>${zoned.git.commit.time}</outputTimestamp>
 							<descriptors>
 								<descriptor>src/assembly/unix.xml</descriptor>
 							</descriptors>
@@ -393,7 +378,6 @@
 							<goal>single</goal>
 						</goals>
 						<configuration>
-							<outputTimestamp>${local.git.commit.time}</outputTimestamp>
 							<descriptors>
 								<descriptor>src/assembly/windows.xml</descriptor>
 							</descriptors>
