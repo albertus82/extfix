@@ -106,7 +106,7 @@ public class Renamer {
 
 	private Answer confirm(@NonNull final Path source, @NonNull final Path target) {
 		con.getOut().print("Rename '" + source + "' to '" + target.getFileName() + "'? [y(es)/N(o)/a(ll)/c(ancel)] ");
-		final BufferedReader br = new BufferedReader(new InputStreamReader(con.getIn()));
+		final BufferedReader br = new BufferedReader(new InputStreamReader(con.getIn())); // NOSONAR Use try-with-resources or close this "BufferedReader" in a "finally" clause. Resources should be closed ...but not this one!
 		try {
 			return Answer.forInput(br.readLine()).orElse(Answer.NO);
 		}
