@@ -28,6 +28,8 @@
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
+		<maven.compiler.showWarnings>true</maven.compiler.showWarnings>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<main.class>${project.groupId}.${project.artifactId}.ExtFix</main.class>
 		<dependencies.directory>lib</dependencies.directory>
@@ -158,11 +160,6 @@
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.10.1</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>2.22.2</version>
 				</plugin>
@@ -183,6 +180,15 @@
 							</includes>
 						</fileset>
 					</filesets>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.10.1</version>
+				<configuration>
+					<compilerArgument>-Xlint:all</compilerArgument>
 				</configuration>
 			</plugin>
 
