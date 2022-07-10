@@ -1,5 +1,6 @@
 package io.github.albertus82.extfix.engine;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -84,6 +85,23 @@ class AnalyzerTest {
 			Assertions.assertEquals(a.new AnalysisResult(m3, 4, 0), a.analyze(path, false, true, ".png", ".jpeg"));
 			Assertions.assertEquals(a.new AnalysisResult(m3, 4, 0), a.analyze(path, true, false, ".png", ".jpeg"));
 			Assertions.assertEquals(a.new AnalysisResult(m3, 4, 0), a.analyze(path, true, true, ".png", ".jpeg"));
+		});
+	}
+
+	@Test
+	void testExclusions() throws Throwable {
+		final Analyzer a = new Analyzer(new Console(true));
+		FileTestUtils.runWithTempDir(path -> {
+			final Path excluded1 = Paths.get(path.toString(), "SYSTEM VOLUME INFORMATION");
+			Files.createDirectories(excluded1);
+			FileTestUtils.copyResourceToDir("jpeg.jpeg", excluded1);
+			FileTestUtils.copyResourceToDir("jpeg.jpg", excluded1);
+
+			final Path excluded2 = Paths.get(path.toString(), "$RECYCLE.BIN");
+			Files.createDirectories(excluded2);
+			FileTestUtils.copyResourceToDir("jpeg.jpeg", excluded2);
+
+			Assertions.assertEquals(a.new AnalysisResult(Collections.emptyMap(), 0, 3), a.analyze(path, false, true));
 		});
 	}
 
