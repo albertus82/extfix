@@ -10,6 +10,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -18,10 +19,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
@@ -71,6 +75,7 @@ public class Analyzer {
 
 	private final TikaConfig tikaConfig = TikaConfig.getDefaultConfig();
 	private final Tika tika = new Tika(tikaConfig);
+	private final Set<String> exclusions = Arrays.asList("System Volume Information", "$Recycle.Bin").stream().map(s -> s.toUpperCase(Locale.ROOT)).collect(Collectors.toSet());
 
 	@NonNull
 	private final Console con;
@@ -170,12 +175,16 @@ public class Analyzer {
 		@Override
 		public FileVisitResult visitFile(@NonNull final Path path, final BasicFileAttributes attrs) {
 			if (FileVisitResult.CONTINUE.equals(pathFilter.accept(path, attrs)) && FileVisitResult.CONTINUE.equals(FileFileFilter.INSTANCE.accept(path, attrs))) {
-				if (FileVisitResult.CONTINUE.equals(CanReadFileFilter.CAN_READ.accept(path, attrs))) {
-					analyze(PathUtils.absolute(path));
+				if (StreamSupport.stream(path.spliterator(), true).anyMatch(part -> exclusions.contains(part.toString().toUpperCase(Locale.ROOT)))) {
+					skippedCount++;
+					printAnalysisMessage("Skipping excluded file or path '" + path + "'.");
 				}
-				else {
+				else if (!FileVisitResult.CONTINUE.equals(CanReadFileFilter.CAN_READ.accept(path, attrs))) {
 					skippedCount++;
 					printAnalysisMessage("Skipping not readable file '" + path + "'.");
+				}
+				else {
+					analyze(PathUtils.absolute(path));
 				}
 			}
 			return FileVisitResult.CONTINUE;
