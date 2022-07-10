@@ -10,7 +10,6 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -75,7 +74,6 @@ public class Analyzer {
 
 	private final TikaConfig tikaConfig = TikaConfig.getDefaultConfig();
 	private final Tika tika = new Tika(tikaConfig);
-	private final Set<String> exclusions = Arrays.asList("System Volume Information", "$Recycle.Bin").stream().map(s -> s.toUpperCase(Locale.ROOT)).collect(Collectors.toSet());
 
 	@NonNull
 	private final Console con;
@@ -150,6 +148,8 @@ public class Analyzer {
 
 	@RequiredArgsConstructor
 	private class Visitor implements PathVisitor {
+
+		private final Set<String> exclusions = Stream.of("System Volume Information", "$Recycle.Bin").map(s -> s.toUpperCase(Locale.ROOT)).collect(Collectors.toSet());
 
 		@NonNull
 		private final PathFilter pathFilter;
