@@ -111,9 +111,7 @@ public class Analyzer {
 			catch (final IOException e) {
 				visitor.visitFileFailed(path, e);
 			}
-			finally {
-				closeables.remove(path);
-			}
+			closeables.remove(path);
 		}
 		clearAnalysisLine(visitor.getPrintedDirectory());
 		return new AnalysisResult(Collections.unmodifiableMap(visitor.getRenameMap()), visitor.getAnalyzedCount(), visitor.getSkippedCount());
@@ -242,13 +240,13 @@ public class Analyzer {
 
 		private String detectMediaType(@NonNull final Path path) throws IOException {
 			final Metadata metadata = new Metadata();
+			final String mediaType;
 			try (final InputStream stream = TikaInputStream.get(path, metadata)) {
 				closeables.put(path, stream);
-				return tika.detect(stream, metadata);
+				mediaType = tika.detect(stream, metadata);
 			}
-			finally {
-				closeables.remove(path);
-			}
+			closeables.remove(path);
+			return mediaType;
 		}
 
 		private Optional<String> findBetterExtension(@NonNull final Path path, @NonNull final List<String> knownExtensions) {
