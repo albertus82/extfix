@@ -387,7 +387,7 @@
 				<version>2.15.0</version>
 				<executions>
 					<execution>
-						<phase>verify</phase>
+						<phase>validate</phase>
 						<goals>
 							<goal>display-property-updates</goal>
 							<goal>display-dependency-updates</goal>
