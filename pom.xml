@@ -35,7 +35,7 @@
 		<dependencies.directory>lib</dependencies.directory>
 		<thirdparty.license.directory>3rdparty</thirdparty.license.directory>
 		<lombok.version>1.18.26</lombok.version>
-		<picocli.version>4.7.2</picocli.version>
+		<picocli.version>4.7.3</picocli.version>
 		<maven.version.rules>${project.baseUri}maven-version-rules.xml</maven.version.rules>
 		<vm.initialHeapSize>4</vm.initialHeapSize>
 		<vm.maxHeapSize>64</vm.maxHeapSize> <!-- can rename ~100k files (256 bytes * 2 * 10^5 = 50 MiB) -->
