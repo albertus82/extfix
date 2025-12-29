@@ -26,7 +26,7 @@
 	</scm>
 
 	<properties>
-		<maven.compiler.release>8</maven.compiler.release>
+		<maven.compiler.release>17</maven.compiler.release>
 		<maven.compiler.source>1.${maven.compiler.release}</maven.compiler.source>
 		<maven.compiler.target>1.${maven.compiler.release}</maven.compiler.target>
 		<maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
@@ -35,8 +35,8 @@
 		<main.class>${project.groupId}.${project.artifactId}.ExtFix</main.class>
 		<dependencies.directory>lib</dependencies.directory>
 		<thirdparty.license.directory>3rdparty</thirdparty.license.directory>
-		<lombok.version>1.18.32</lombok.version>
-		<picocli.version>4.7.5</picocli.version>
+		<lombok.version>1.18.42</lombok.version>
+		<picocli.version>4.7.7</picocli.version>
 		<maven.version.rules>${project.baseUri}maven-version-rules.xml</maven.version.rules>
 		<vm.initialHeapSize>4</vm.initialHeapSize>
 		<vm.maxHeapSize>64</vm.maxHeapSize> <!-- can rename ~100k files (256 bytes * 2 * 10^5 = 50 MiB) -->
@@ -395,17 +395,17 @@
 		<dependency>
 			<groupId>org.apache.tika</groupId>
 			<artifactId>tika-core</artifactId>
-			<version>2.9.2</version>
+			<version>3.2.3</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>2.16.1</version>
+			<version>2.21.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.14.0</version>
+			<version>3.20.0</version>
 		</dependency>
 		<dependency>
 			<groupId>info.picocli</groupId>
@@ -415,7 +415,7 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-jdk14</artifactId>
-			<version>2.0.13</version>
+			<version>2.0.17</version>
 		</dependency>
 		<!-- Provided -->
 		<dependency>
@@ -434,7 +434,7 @@
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter</artifactId>
-			<version>5.10.2</version>
+			<version>6.0.1</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
