@@ -6,15 +6,19 @@ File Extension Fix Tool
 
 **Find and rename files with wrong extensions.** File type detection based on [Apache Tika](https://tika.apache.org).
 
-## Minimum requirements
+## :warning: Warning
 
-* Java SE Development Kit 8
+<mark><strong>This utility can severely damage your system. Changing file extensions can cause serious problems, including a complete and irreparable system crash. Do not play with this utility unless you know what you're doing. Never use the `-y` (`--yes`) option unless you know what you're doing. Use this utility at your own risk; I am not responsible for any damage caused to your system.</strong></mark>
 
-## Build
+## :ballot_box_with_check: Minimum requirements
+
+* Java SE Development Kit 11
+
+## :hammer_and_pick: Build
 
 `./mvnw clean verify`
 
-## Usage
+## :information_source: Usage
 
 ```sh
 Usage: extfix [-hLnRVXy] [-e=<EXT>[,<EXT>...]]... <PATH>
@@ -30,3 +34,4 @@ File Extension Fix Tool
   -X, --errors      Produce execution error messages.
   -y, --yes         Automatic yes to prompts (run non-interactively).
 ```
+
