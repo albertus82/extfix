@@ -1,6 +1,7 @@
 File Extension Fix Tool
 =======================
 
+[![Latest release](https://img.shields.io/github/release/albertus82/extfix.svg)](https://github.com/albertus82/extfix/releases/latest)
 [![Build status](https://github.com/albertus82/extfix/actions/workflows/build.yml/badge.svg)](https://github.com/albertus82/extfix/actions)
 [![Known Vulnerabilities](https://snyk.io/test/github/albertus82/extfix/badge.svg?targetFile=pom.xml)](https://snyk.io/test/github/albertus82/extfix?targetFile=pom.xml)
 
@@ -34,4 +35,5 @@ File Extension Fix Tool
   -X, --errors      Produce execution error messages.
   -y, --yes         Automatic yes to prompts (run non-interactively).
 ```
+
 
