@@ -9,7 +9,7 @@ File Extension Fix Tool
 
 ## :warning: Warning
 
-<mark><strong>This utility can severely damage your system. Changing file extensions can cause serious problems, including a complete and irreparable system crash. Do not play with this utility unless you know what you're doing. Never use the `-y` (`--yes`) option unless you know what you're doing. Use this utility at your own risk; I am not responsible for any damage caused to your system.</strong></mark>
+<mark><strong>This utility can severely damage your system. Changing file extensions can cause serious problems, including a complete and irreparable system crash. Do not play with this utility unless you know what you're doing. Never use the `-y` (`--yes`) option unless you know what you're doing. Use this utility at your own risk; the developer will not be responsible for any damage caused to your system.</strong></mark>
 
 ## :ballot_box_with_check: Minimum requirements
 
